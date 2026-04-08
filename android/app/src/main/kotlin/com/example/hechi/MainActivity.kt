@@ -1,4 +1,4 @@
-package com.example.hechi
+package com.hechibrown.hechi
 
 import io.flutter.embedding.android.FlutterActivity
 

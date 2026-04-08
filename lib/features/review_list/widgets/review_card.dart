@@ -90,6 +90,7 @@ class ReviewCard extends StatelessWidget {
             '/review_detail',
             arguments: review['id'],
           );
+
           if (result != null) {
             if (Get.isRegistered<BookDetailController>()) {
               Get.find<BookDetailController>().syncReviewChange(result);
