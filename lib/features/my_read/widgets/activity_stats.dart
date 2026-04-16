@@ -16,6 +16,13 @@ class ActivityStats extends StatelessWidget {
           Expanded(child: _buildStatItem(controller.totalReviews.value, "평가")),
           Container(width: 1, height: 24, color: const Color(0xFFEEEEEE)),
           Expanded(child: _buildStatItem(controller.totalComments.value, "코멘트")),
+          Container(width: 1, height: 24, color: const Color(0xFFEEEEEE)),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => Get.toNamed('/collection'),
+              child: _buildStatItem(controller.totalCollections.value, "컬렉션"), // ★ 추가
+            ),
+          ),
         ],
       ),
     ));
