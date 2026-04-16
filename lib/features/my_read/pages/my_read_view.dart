@@ -11,6 +11,9 @@ import '../widgets/taste_analysis_preview.dart';
 import '../widgets/see_all_taste_button.dart';
 import '../widgets/book_storage_link.dart';
 
+// ✅ 회원님이 만드신 collection_detail 의 pages 폴더 위치를 정확히 가리키는 import 입니다!
+import '../../collection_detail/pages/collection_detail_view.dart';
+
 class MyReadView extends GetView<MyReadController> {
   const MyReadView({super.key});
 
@@ -67,6 +70,24 @@ class MyReadView extends GetView<MyReadController> {
               const SizedBox(height: 10),
               // 6. 취향 분석 전체 보기 버튼
               const SeeAllTasteButton(),
+
+              // =======================================================
+              // 🛠️ 컬렉션 상세페이지 테스트용 임시 버튼 (여기에 딱 추가했습니다!)
+              const SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () => Get.to(() => const CollectionDetailView()),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black, // 눈에 띄는 까만색 버튼
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  ),
+                  child: const Text(
+                    "🛠️ 컬렉션 상세페이지 테스트",
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              // =======================================================
 
               const SizedBox(height: 40),
             ],
