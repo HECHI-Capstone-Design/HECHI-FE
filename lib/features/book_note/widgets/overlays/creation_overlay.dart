@@ -64,20 +64,24 @@ class _CreationOverlayState extends State<CreationOverlay> {
   Widget build(BuildContext context) {
     final controller = Get.find<BookNoteController>();
 
-    return SafeArea(
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: Container(
-          width: double.infinity,
-          height: MediaQuery.of(context).size.height * 0.8,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-          ),
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.9,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+      ),
+      clipBehavior: Clip.hardEdge,
+
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        resizeToAvoidBottomInset: false,
+
+        body: SafeArea(
+          bottom: false,
           child: widget.type == "bookmark"
               ? _buildBookmarkLayout(controller)
               : widget.type == "highlight"
-              ? _buildHighlightLayout(controller)
+              ? _buildHighlightLayout(controller, context)
               : _buildMemoLayout(controller),
         ),
       ),
@@ -242,7 +246,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
   // highlight 레이아웃
   // =========================================================
 
-  Widget _buildHighlightLayout(BookNoteController controller) {
+  Widget _buildHighlightLayout(BookNoteController controller, BuildContext context) {
     return Column(
       children: [
         // --------------------- Header ---------------------
@@ -366,7 +370,12 @@ class _CreationOverlayState extends State<CreationOverlay> {
 
         // --------------------- 공개 여부 ---------------------
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 16),
+          padding: EdgeInsets.fromLTRB(
+            17, 16, 17,
+            MediaQuery.of(context).viewInsets.bottom > 0
+                ? MediaQuery.of(context).viewInsets.bottom
+                : 16,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

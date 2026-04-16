@@ -84,14 +84,20 @@ class CommentSection extends GetView<BookDetailController> {
               physics: const NeverScrollableScrollPhysics(),
               padding: EdgeInsets.zero,
               itemCount: bestReviews.length, // 최대 3개
-              itemBuilder: (_, index) => ReviewCard(
-                review: bestReviews[index],
-                type: ReviewCardType.simple,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 17, vertical: 15),
-                onLikeToggle: (int id) {
-                  controller.toggleLike(id);
-                },
-              ),
+
+              itemBuilder: (_, index) {
+                return Obx(() {
+                  final r = controller.bestReviews[index];
+
+                  return ReviewCard(
+                    key: ValueKey('${r['id']}_${r['is_liked']}_${r['like_count']}'),
+                    review: r,
+                    type: ReviewCardType.simple,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 17, vertical: 15),
+                    onLikeToggle: (int id) => controller.toggleLike(id),
+                  );
+                });
+              }
             ),
 
           // 4. 모두보기 버튼
@@ -122,71 +128,85 @@ class CommentSection extends GetView<BookDetailController> {
 Widget _buildRatingGraph(Map<String, dynamic> histogram, int maxCount) {
   final List<double> scores = List.generate(10, (index) => 0.5 + (index * 0.5));
 
-  return SizedBox(
-      height: 120 + 18,
-      child: Column(
-          children: [
-            SizedBox(
-              height: 120,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  ...scores.map(
-                        (score) => _bar(
-                      score,
-                      histogram[score.toString()] ?? 0,
-                      maxCount,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // 2. 하단 점수 텍스트
-            Container(
-              height: 18,
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const Expanded(child:SizedBox()),
-                    Expanded(child: Text('1.0', textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, color: Colors.grey))),
-                    const Expanded(child:SizedBox()),
-                    Expanded(child: Text('2.0', textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, color: Colors.grey))),
-                    const Expanded(child:SizedBox()),
-                    Expanded(child: Text('3.0', textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, color: Colors.grey))),
-                    const Expanded(child:SizedBox()),
-                    Expanded(child: Text('4.0', textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, color: Colors.grey))),
-                    const Expanded(child:SizedBox()),
-                    Expanded(child: Text('5.0', textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, color: Colors.grey))),
-                  ]
-              ),
-            ),
-          ]
-      )
-  );
-}
+  final List<Map<String, dynamic>> sortedData = scores.map((score) {
+    final int count = histogram[score.toString()] ?? 0;
+    final double ratio = maxCount > 0 ? count / maxCount : 0.0;
+    return {'score': score, 'ratio': ratio};
+  }).toList();
+  sortedData.sort((a, b) => (a['score'] as num).compareTo(b['score'] as num));
 
-// 막대 그래프
-Widget _bar(double score, int count, int maxCount) {
-  final double ratio = maxCount > 0 ? count / maxCount: 0.0;
+  double maxRatio = 0.0;
+  for (var d in sortedData) {
+    double r = (d['ratio'] as num).toDouble();
+    if (r > maxRatio) maxRatio = r;
+  }
 
   const Color DarkGreen = Color(0xFF4EB56D);
   const Color LightGreen = Color(0xFFC8E6C9);
+  const double maxHeight = 100.0;
 
-  final bool isMostFrequent = (maxCount > 0) && (count == maxCount);
+  return SizedBox(
+    height: 140,
+    child: Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: sortedData.asMap().entries.map((entry) {
+          final int idx = entry.key;
+          final double ratio = (entry.value['ratio'] as num).toDouble();
+          final double score = (entry.value['score'] as num).toDouble();
 
-  return Expanded(
-    child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 8),
-        child: FractionallySizedBox(
-          heightFactor: ratio,
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 1),
-            decoration: BoxDecoration(
-              color: isMostFrequent ? DarkGreen : LightGreen,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(5)),
+          final bool isMax = (ratio == maxRatio && ratio > 0);
+
+          Color barColor = isMax ? DarkGreen : LightGreen;
+          if (ratio == 0) barColor = const Color(0xFFF5F5F5);
+
+          double barHeight = 2.0;
+          if (maxRatio > 0 && ratio > 0) {
+            barHeight = (ratio / maxRatio) * maxHeight;
+          }
+
+          final bool showLabel = isMax || idx == 0 || idx == sortedData.length - 1;
+          final String scoreText = score % 1 == 0
+              ? score.toInt().toString()
+              : score.toStringAsFixed(1);
+
+
+          return Flexible(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 1.5),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  if (showLabel) ...[
+                    Text(
+                      scoreText,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF757575),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                  ] else
+                    const SizedBox(height: 18),
+
+                  SizedBox(
+                    height: barHeight,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: barColor,
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                ],
+              ),
             ),
-          ),
-        )
+          );
+        }).toList(),
+      ),
     ),
   );
 }
