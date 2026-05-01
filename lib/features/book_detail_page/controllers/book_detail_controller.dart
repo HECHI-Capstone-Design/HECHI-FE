@@ -407,6 +407,8 @@ class BookDetailController extends GetxController {
     if (isCommented.value && myReviewId != -1) {
       final result = await Get.toNamed("/review_detail", arguments: myReviewId);
 
+      print("📨 onWriteReview result: $result");
+
       if (result != null) {
         syncReviewChange(result);
       }
@@ -566,11 +568,11 @@ class BookDetailController extends GetxController {
 
         final index = reviews.indexWhere((element) => element['id'] == reviewId);
         if (index != -1) {
-          var target = reviews[index];
-          bool currentLike = target['is_liked'] ?? false;
-          target['is_liked'] = !currentLike;
-          target['like_count'] = (target['like_count'] ?? 0) + (!currentLike ? 1 : -1);
-          reviews[index] = target;
+          final updated = Map<String, dynamic>.from(reviews[index]);
+          bool currentLike = updated['is_liked'] ?? false;
+          updated['is_liked'] = !currentLike;
+          updated['like_count'] = (updated['like_count'] ?? 0) + (!currentLike ? 1 : -1);
+          reviews[index] = updated;
           reviews.refresh();
         }
       } else {
@@ -609,27 +611,29 @@ class BookDetailController extends GetxController {
     }
 
     final index = reviews.indexWhere((r) => r['id'] == reviewId);
+
     if (index != -1) {
-      if (result.containsKey('is_liked')) reviews[index]['is_liked'] = result['is_liked'];
-      if (result.containsKey('like_count')) reviews[index]['like_count'] = result['like_count'];
+      final updated = Map<String, dynamic>.from(reviews[index]);
+
+      if (result.containsKey('is_liked')) updated['is_liked'] = result['is_liked'];       // ← updated에 넣기
+      if (result.containsKey('like_count')) updated['like_count'] = result['like_count']; // ← updated에 넣기
 
       if (result.containsKey('content')) {
-        reviews[index]['content'] = result['content'];
+        updated['content'] = result['content'];
         if (myReviewId == reviewId) {
           myContent.value = result['content'];
           isCommented.value = result['content'].toString().trim().isNotEmpty;
         }
       }
       if (result.containsKey('is_spoiler')) {
-        reviews[index]['is_spoiler'] = result['is_spoiler'];
-        if (myReviewId == reviewId) {
-          isSpoiler.value = result['is_spoiler'];
-        }
+        updated['is_spoiler'] = result['is_spoiler'];
+        if (myReviewId == reviewId) isSpoiler.value = result['is_spoiler'];
       }
       if (result.containsKey('comment_count')) {
-        reviews[index]['comment_count'] = result['comment_count'];
+        updated['comment_count'] = result['comment_count'];
       }
 
+      reviews[index] = updated;
       reviews.refresh();
     }
   }

@@ -26,12 +26,6 @@ class ReviewListController extends GetxController {
     fetchReviews();
   }
 
-  @override
-  void onReady() {
-    super.onReady();
-    fetchReviews();
-  }
-
   // ==========================
   // 코멘트 목록 조회
   // ==========================
@@ -129,6 +123,9 @@ class ReviewListController extends GetxController {
 
       if (res.statusCode != 200) {
         throw Exception("like failed");
+      }
+      else {
+        print("✅ 리뷰 좋아요 성공 (ID: $reviewId)");
       }
     } catch (e) {
       print("❌ 좋아요 토글 실패: $e");
@@ -310,12 +307,15 @@ class ReviewListController extends GetxController {
 
     final index = reviews.indexWhere((r) => r['id'] == reviewId);
     if (index != -1) {
-      if (result.containsKey('is_liked')) reviews[index]['is_liked'] = result['is_liked'];
-      if (result.containsKey('like_count')) reviews[index]['like_count'] = result['like_count'];
-      if (result.containsKey('content')) reviews[index]['content'] = result['content'];
-      if (result.containsKey('is_spoiler')) reviews[index]['is_spoiler'] = result['is_spoiler'];
-      if (result.containsKey('comment_count')) reviews[index]['comment_count'] = result['comment_count'];
+      final updated = Map<String, dynamic>.from(reviews[index]);
 
+      if (result.containsKey('is_liked')) updated['is_liked'] = result['is_liked'];       // ← updated에
+      if (result.containsKey('like_count')) updated['like_count'] = result['like_count']; // ← updated에
+      if (result.containsKey('content')) updated['content'] = result['content'];
+      if (result.containsKey('is_spoiler')) updated['is_spoiler'] = result['is_spoiler'];
+      if (result.containsKey('comment_count')) updated['comment_count'] = result['comment_count'];
+
+      reviews[index] = updated;
       reviews.refresh();
     }
   }

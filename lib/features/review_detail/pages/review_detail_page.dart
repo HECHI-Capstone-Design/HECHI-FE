@@ -9,82 +9,89 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _goBack();
+      },
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Get.back(result: {
-              "review_id": controller.reviewId,
-              "status": "updated",
-              "is_liked": controller.review['is_liked'],
-              "like_count": controller.review['like_count'],
-              "content": controller.review['content'],
-              "is_spoiler": controller.review['is_spoiler'],
-              "comment_count": controller.review['comment_count'],
-            });
-          },
-        ),
-        title: const Text(
-          '코멘트',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        actions: [
-          Obx(() {
-            final isMyReview = controller.review['is_my_review'] ?? false;
-
-            if (!isMyReview) return const SizedBox.shrink();
-
-            return IconButton(
-              icon: const Icon(Icons.more_horiz, color: Colors.black),
-              onPressed: () {
-                Get.bottomSheet(
-                  OptionBottomSheet(
-                    reviewId: controller.reviewId,
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => _goBack(),
+          ),
+          title: const Text(
+            '코멘트',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          actions: [
+            Obx(() {
+              final isMyReview = controller.review['is_my_review'] ?? false;
+              if (!isMyReview) return const SizedBox.shrink();
+              return IconButton(
+                icon: const Icon(Icons.more_horiz, color: Colors.black),
+                onPressed: () {
+                  Get.bottomSheet(
+                    OptionBottomSheet(
+                      reviewId: controller.reviewId,
                       onEdit: (_) => controller.showEditOverlay(),
                       onDelete: (_) => controller.deleteReview(),
-                  ),
-                  backgroundColor: Colors.transparent,
-                );
-              },
-            );
-          }),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Obx(() {
-                if (controller.isLoadingReview.value) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                return SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  padding: const EdgeInsets.only(bottom: 100),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildMainContent(),
-                      _buildActionButtons(),
-                      _buildStatsLine(),
-                      const Divider(thickness: 1, height: 1, color: Color(0xFFF3F3F3)),
-                      _buildCommentList(),
-                    ],
-                  ),
-                );
-              }),
-            ),
-            _buildBottomInputField(),
+                    ),
+                    backgroundColor: Colors.transparent,
+                  );
+                },
+              );
+            }),
           ],
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: Obx(() {
+                  if (controller.isLoadingReview.value) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    padding: const EdgeInsets.only(bottom: 100),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildMainContent(),
+                        _buildActionButtons(),
+                        _buildStatsLine(),
+                        const Divider(thickness: 1, height: 1, color: Color(0xFFF3F3F3)),
+                        _buildCommentList(),
+                      ],
+                    ),
+                  );
+                }),
+              ),
+              _buildBottomInputField(context),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  void _goBack() {
+    Get.back(result: {
+      "review_id": controller.reviewId,
+      "status": "updated",
+      "is_liked": controller.review['is_liked'],
+      "like_count": controller.review['like_count'],
+      "content": controller.review['content'],
+      "is_spoiler": controller.review['is_spoiler'],
+      "comment_count": controller.review['comment_count'],
+    });
   }
 
   // ==========================
@@ -358,9 +365,11 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
   // ==========================
   // 5. 하단 입력창
   // ==========================
-  Widget _buildBottomInputField() {
+  Widget _buildBottomInputField(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: EdgeInsets.fromLTRB(16, 10, 16, bottomInset > 0 ? bottomInset : 10),
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: Color(0xFFF3F3F3))),

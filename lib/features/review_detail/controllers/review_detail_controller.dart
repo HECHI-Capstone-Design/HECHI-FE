@@ -122,6 +122,8 @@ class ReviewDetailController extends GetxController {
           "review_id": reviewId,
           "status": "deleted",
           "keep_rating": isRatingAlive,
+          "is_liked": review['is_liked'],
+          "like_count": review['like_count'],
         });
         Get.snackbar("완료", "삭제되었습니다.");
       } else {
@@ -211,12 +213,17 @@ class ReviewDetailController extends GetxController {
         headers: authHeader,
       );
 
-      if (res.statusCode != 200) throw Exception();
+      if (res.statusCode == 200) {
+        print("✅ 리뷰 좋아요 성공 (ID: $reviewId)");
+      } else {
+        throw Exception();
+      }
     } catch (_) {
       review['is_liked'] = prevLiked;
       review['like_count'] =
           (review['like_count'] ?? 0) + (prevLiked ? 1 : -1);
       review.refresh();
+      print("❌ 리뷰 좋아요 실패 (ID: $reviewId)");
     }
   }
 

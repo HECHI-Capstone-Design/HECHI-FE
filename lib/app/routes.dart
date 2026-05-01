@@ -46,6 +46,13 @@ import '../features/recommendation/bindings/recommendation_binding.dart';
 import '../features/email_verify/bindings/email_verify_binding.dart';
 import '../features/email_verify/pages/email_verify_view.dart';
 
+import '../features/collection/bindings/collection_list_binding.dart';
+import '../features/collection/pages/collection_list_page.dart';
+import '../features/collection/bindings/create_collection_binding.dart';
+import '../features/collection/pages/create_collection_page.dart';
+import '../features/collection/bindings/collection_book_edit_binding.dart';
+import '../features/collection/pages/collection_book_edit_page.dart';
+
 abstract class Routes {
   static const splash = '/splash';
   static const initial = '/';
@@ -76,6 +83,10 @@ abstract class Routes {
 
   // ✅ 이메일 인증 라우트 추가
   static const emailVerify = '/email_verify';
+
+  static const collectionList = '/collection';
+  static const createCollection = '/create_collection';
+  static const collectionBookEdit = '/collection/book_edit';
 }
 
 class AppPages {
@@ -108,5 +119,9 @@ class AppPages {
 
     // ✅ 이메일 인증 페이지 등록
     GetPage(name: Routes.emailVerify, page: () => const EmailVerifyView(), binding: EmailVerifyBinding()),
+
+    GetPage(name: Routes.collectionList, page: () => const CollectionListPage(), binding: CollectionListBinding()),
+    GetPage(name: Routes.createCollection, page: () => const CreateCollectionPage(), binding: CreateCollectionBinding()),
+    GetPage(name: Routes.collectionBookEdit, page: () => const CollectionBookEditPage(), binding: CollectionBookEditBinding()),
   ];
 }

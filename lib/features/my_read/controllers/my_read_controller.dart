@@ -22,6 +22,8 @@ class MyReadController extends GetxController {
   RxString mostGivenRating = "0.0".obs;
   RxString totalComments = "0".obs;
 
+  final RxString totalCollections = '0'.obs;
+
   RxList<Map<String, dynamic>> insightTags = <Map<String, dynamic>>[].obs;
 
   // 캘린더 관련 변수

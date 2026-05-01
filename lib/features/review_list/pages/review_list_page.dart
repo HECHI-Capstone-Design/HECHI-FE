@@ -76,20 +76,19 @@ class ReviewListPage extends GetView<ReviewListController> {
                 padding: EdgeInsets.zero,
                 itemCount: controller.reviews.length,
                 separatorBuilder: (_, __) => const Divider(height: 1, thickness: 1, color: Color(0xFFF3F3F3)),
+
                 itemBuilder: (context, index) {
-                  final review = controller.reviews[index];
-
-                  return ReviewCard(
-                    review: review,
-                    isMyReview: review['is_my_review'] ?? false,
-
-                    onLikeToggle: (int id) {
-                      controller.toggleLike(id);
-                    },
-
-                    onEdit: (id) => controller.editReview(id),
-                    onDelete: (id) => controller.deleteReview(id),
-                  );
+                  return Obx(() {
+                    final r = controller.reviews[index];
+                    return ReviewCard(
+                        key: ValueKey('${r['id']}_${r['is_liked']}_${r['like_count']}_${r['comment_count']}'),
+                        review: r,
+                        isMyReview: r['is_my_review'] ?? false,
+                        onLikeToggle: (int id) => controller.toggleLike(id),
+                        onEdit: (id) => controller.editReview(id),
+                        onDelete: (id) => controller.deleteReview(id),
+                    );
+                  });
                 },
               );
             }),
