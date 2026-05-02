@@ -26,14 +26,14 @@ class BookStorageLink extends StatelessWidget {
             onTap: () => Get.toNamed(Routes.bookStorage),
             borderRadius: BorderRadius.circular(12),
             child: Container(
-              // ✅ [수정] 상하 패딩을 줄여서 박스를 더 얇게 만듦 (14 -> 11)
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+
+              padding: const EdgeInsets.symmetric(vertical: 11),
               decoration: BoxDecoration(
                 color: const Color(0xFFF7F7F7),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
                   Text(
                     "보관함으로 이동하기",

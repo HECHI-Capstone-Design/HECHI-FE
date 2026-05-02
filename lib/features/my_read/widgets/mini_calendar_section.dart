@@ -87,13 +87,13 @@ class MiniCalendarSection extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             child: Container(
               // ✅ [수정] 상하 패딩 축소 (14 -> 11)
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+              padding: const EdgeInsets.symmetric(vertical: 11),
               decoration: BoxDecoration(
                 color: const Color(0xFFF7F7F7),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
                   Text(
                     "캘린더 전체 보기",
