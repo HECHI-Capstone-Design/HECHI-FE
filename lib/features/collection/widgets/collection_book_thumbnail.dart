@@ -15,10 +15,9 @@ class CollectionBookThumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
+      fit: StackFit.expand,
       children: [
         Container(
-          width: 84,
-          height: 126,
           decoration: ShapeDecoration(
             color: const Color(0xFFEEEEEE),
             image: book.coverUrl != null
@@ -94,8 +93,6 @@ class AddBookButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 84,
-        height: 126,
         decoration: ShapeDecoration(
           shape: RoundedRectangleBorder(
             side: const BorderSide(width: 1, color: Color(0xFFABABAB)),

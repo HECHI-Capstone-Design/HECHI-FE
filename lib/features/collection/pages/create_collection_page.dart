@@ -4,7 +4,7 @@ import '../controllers/create_collection_controller.dart';
 import '../widgets/tag_chip.dart';
 import '../widgets/tag_search_section.dart';
 import '../widgets/collection_book_thumbnail.dart';
-import 'collection_description_overlay.dart';
+import '../widgets/overlay/collection_description_overlay.dart';
 
 class CreateCollectionPage extends GetView<CreateCollectionController> {
   const CreateCollectionPage({super.key});
@@ -67,17 +67,18 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
                 ),
               ),
             ),
-            Obx(() => Text(
-              controller.isEditMode.value ? '컬렉션 수정' : '새 컬렉션',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Color(0xFF3F3F3F),
-                fontSize: 16,
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w500,
-                height: 1.75,
-              ),
-            )),
+            Obx(() =>
+                Text(
+                  controller.isEditMode.value ? '컬렉션 수정' : '새 컬렉션',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xFF3F3F3F),
+                    fontSize: 16,
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.w500,
+                    height: 1.75,
+                  ),
+                )),
             GestureDetector(
               onTap: controller.onConfirm,
               child: const Text(
@@ -140,12 +141,12 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
   Widget _buildDescriptionField() {
     return GestureDetector(
       onTap: () async {
-        final result = await Get.to<String>(
-              () => CollectionDescriptionOverlay(
+        final result = await Get.bottomSheet<String>(
+          CollectionDescriptionOverlay(
             initialText: controller.descriptionController.text,
           ),
-          transition: Transition.downToUp,
-          duration: const Duration(milliseconds: 250),
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
         );
         if (result != null) {
           controller.descriptionController.text = result;
@@ -220,10 +221,11 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
               height: 2,
             ),
           ),
-          Obx(() => _CustomSwitch(
-            value: controller.isPrivate.value,
-            onTap: () => controller.isPrivate.toggle(),
-          )),
+          Obx(() =>
+              _CustomSwitch(
+                value: controller.isPrivate.value,
+                onTap: () => controller.isPrivate.toggle(),
+              )),
         ],
       ),
     );
@@ -298,49 +300,65 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 헤더
-          Obx(() => Row(
-            children: [
-              const Text(
-                '작품들',
-                style: TextStyle(
-                  color: Color(0xFF3F3F3F),
-                  fontSize: 17,
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w600,
-                  height: 1.65,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                '${controller.selectedBooks.length}',
-                style: const TextStyle(
-                  color: Color(0xFF717171),
-                  fontSize: 15,
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w400,
-                  height: 1.87,
-                ),
-              ),
-            ],
-          )),
+          Obx(() =>
+              Row(
+                children: [
+                  const Text(
+                    '작품들',
+                    style: TextStyle(
+                      color: Color(0xFF3F3F3F),
+                      fontSize: 17,
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.w600,
+                      height: 1.65,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${controller.selectedBooks.length}',
+                    style: const TextStyle(
+                      color: Color(0xFF717171),
+                      fontSize: 15,
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.w400,
+                      height: 1.87,
+                    ),
+                  ),
+                ],
+              )),
           const SizedBox(height: 15),
 
           // 책 목록 + 추가 버튼
-          Obx(() => SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                ...controller.selectedBooks.map((book) => Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: CollectionBookThumbnail(
-                    book: book,
-                    onRemove: () => controller.removeBook(book.id),
-                  ),
-                )),
-                AddBookButton(onTap: controller.navigateToBookSearch),
-              ],
-            ),
-          )),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final itemWidth = (constraints.maxWidth - 24) / 3;
+              final itemHeight = itemWidth * 3 / 2;
+
+              return Obx(() =>
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                      ...controller.selectedBooks.map((book) =>
+                          SizedBox(
+                            width: itemWidth,
+                            height: itemHeight,
+                            child: CollectionBookThumbnail(
+                              book: book,
+                              onRemove: () => controller.removeBook(book.id),
+                            ),
+                          )),
+                      SizedBox(
+                        width: itemWidth,
+                        height: itemHeight,
+                        child: AddBookButton(
+                          onTap: controller.navigateToBookSearch,
+                        ),
+                      ),
+                    ],
+                  ));
+            },
+          ),
         ],
       ),
     );

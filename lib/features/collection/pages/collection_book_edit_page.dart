@@ -10,48 +10,33 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildAppBar(),
-            const Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
-            _buildSearchBar(),
-            Expanded(child: _buildBody()),
-          ],
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF3F3F3F)),
+          onPressed: controller.onBack,
+        ),
+        title: const Text(
+          '작품들',
+          style: TextStyle(
+            color: Color(0xFF3F3F3F),
+            fontSize: 16,
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w500,
+            height: 1.75,
+          ),
+        ),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
         ),
       ),
-    );
-  }
-
-  // ── 앱바 ──────────────────────────────────────────────────────────────────
-  Widget _buildAppBar() {
-    return SizedBox(
-      height: 48,
-      child: Stack(
-        alignment: Alignment.center,
+      body: Column(
         children: [
-          Positioned(
-            left: 17,
-            child: GestureDetector(
-              onTap: controller.onBack,
-              child: const Icon(
-                Icons.arrow_back,
-                size: 24,
-                color: Color(0xFF3F3F3F),
-              ),
-            ),
-          ),
-          const Text(
-            '작품들',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Color(0xFF3F3F3F),
-              fontSize: 16,
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w500,
-              height: 1.75,
-            ),
-          ),
+          _buildSearchBar(),
+          Expanded(child: _buildBody()),
         ],
       ),
     );
@@ -139,7 +124,6 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 17),
       itemCount: results.length,
       separatorBuilder: (_, __) => const Divider(
         height: 1,
@@ -156,7 +140,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
     );
   }
 
-  // ── 현재 도서 리스트 (드래그 순서 변경 + 스와이프 삭제) ─────────────────
+  // ── 현재 도서 리스트 ───────────────────────────────────────────────────
   Widget _buildBookList() {
     if (controller.books.isEmpty) {
       return const Center(
@@ -173,6 +157,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
 
     return ReorderableListView.builder(
       padding: const EdgeInsets.only(bottom: 20),
+      buildDefaultDragHandles: false,
       itemCount: controller.books.length,
       onReorder: controller.reorderBooks,
       proxyDecorator: (child, index, animation) => Material(
@@ -203,15 +188,22 @@ class _SearchResultItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            bottom: BorderSide(width: 0.5, color: Color(0xFFD4D4D4)),
+          ),
+        ),
+        padding: const EdgeInsets.only(top: 15, left: 20, right: 20, bottom: 15),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // 책 커버
             Container(
-              width: 48,
-              height: 72,
+              width: 60,
+              height: 90,
               decoration: ShapeDecoration(
                 color: const Color(0xFFEEEEEE),
                 image: book.coverUrl != null
@@ -226,11 +218,10 @@ class _SearchResultItem extends StatelessWidget {
                 ),
               ),
               child: book.coverUrl == null
-                  ? const Icon(Icons.book, size: 20, color: Color(0xFFABABAB))
+                  ? const Icon(Icons.book, size: 24, color: Color(0xFFABABAB))
                   : null,
             ),
             const SizedBox(width: 14),
-            // 제목 / 저자
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -239,7 +230,7 @@ class _SearchResultItem extends StatelessWidget {
                     book.title,
                     style: const TextStyle(
                       color: Colors.black,
-                      fontSize: 18,
+                      fontSize: 15,
                       fontFamily: 'Roboto',
                       fontWeight: FontWeight.w500,
                       height: 1.11,
@@ -247,7 +238,6 @@ class _SearchResultItem extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 5),
-
                   Text(
                     book.author,
                     style: const TextStyle(
@@ -262,7 +252,6 @@ class _SearchResultItem extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.add, size: 20, color: Color(0xFF4DB56C)),
           ],
         ),
       ),
@@ -270,8 +259,8 @@ class _SearchResultItem extends StatelessWidget {
   }
 }
 
-// ── 도서 리스트 아이템 (스와이프 삭제 + 드래그 핸들) ──────────────────────────
-class _BookListItem extends StatelessWidget {
+// ── 도서 리스트 아이템 ───────────────────────────────────────
+class _BookListItem extends StatefulWidget {
   final CollectionBook book;
   final int index;
   final VoidCallback onDelete;
@@ -284,109 +273,147 @@ class _BookListItem extends StatelessWidget {
   });
 
   @override
+  State<_BookListItem> createState() => _BookListItemState();
+}
+
+class _BookListItemState extends State<_BookListItem> {
+  bool _isRevealed = false;
+  static const double _deleteWidth = 80;
+
+  @override
   Widget build(BuildContext context) {
-    return Dismissible(
-      key: ValueKey('dismiss_${book.id}'),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: Alignment.centerRight,
-        color: const Color(0xB2D4D4D4),
-        child: const SizedBox(
-          width: 100,
-          child: Center(
-            child: Text(
-              '삭제',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Color(0xFFEA1717),
-                fontSize: 18,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w400,
-                height: 1.11,
-                letterSpacing: 0.25,
-              ),
-            ),
-          ),
-        ),
-      ),
-      confirmDismiss: (_) async {
-        onDelete();
-        return false; // Obx가 리스트를 직접 갱신하므로 false 반환
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        if (details.primaryVelocity != null) {
+          if (details.primaryVelocity! < -100) {
+            setState(() => _isRevealed = true);
+          } else if (details.primaryVelocity! > 100) {
+            setState(() => _isRevealed = false);
+          }
+        }
       },
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(bottom: BorderSide(width: 0.5, color: Color(0xFFD4D4D4))
-          ),
-        ),
-        padding: const EdgeInsets.only(top: 15, left: 20, right: 30, bottom: 15),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // 책 커버
-            Container(
-              width: 84,
-              height: 126,
-              decoration: ShapeDecoration(
-                color: const Color(0xFFEEEEEE),
-                image: book.coverUrl != null
-                    ? DecorationImage(
-                  image: NetworkImage(book.coverUrl!),
-                  fit: BoxFit.cover,
-                )
-                    : null,
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(width: 0.5, color: Color(0xFFD4D4D4)),
-                  borderRadius: BorderRadius.circular(2),
+      child: Stack(
+        children: [
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            width: _deleteWidth,
+            child: GestureDetector(
+              onTap: () {
+                setState(() => _isRevealed = false);
+                widget.onDelete();
+              },
+              child: Container(
+                color: const Color(0xB2D4D4D4),
+                alignment: Alignment.center,
+                child: const Text(
+                  '삭제',
+                  style: TextStyle(
+                    color: Color(0xFFEA1717),
+                    fontSize: 15,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w400,
+                    height: 1.11,
+                    letterSpacing: 0.25,
+                  ),
                 ),
               ),
-              child: book.coverUrl == null
-                  ? const Icon(Icons.book, size: 28, color: Color(0xFFABABAB))
-                  : null,
             ),
-            const SizedBox(width: 20),
-            // 제목 / 저자
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    book.title,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.w500,
-                      height: 1.11,
-                      letterSpacing: 0.25,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    book.author,
-                    style: const TextStyle(
-                      color: Color(0xFF717171),
-                      fontSize: 13,
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.w400,
-                      height: 1.54,
-                      letterSpacing: 0.25,
-                    ),
-                  ),
-                ],
+          ),
+
+          // 콘텐츠
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            transform: Matrix4.translationValues(
+              _isRevealed ? -_deleteWidth : 0,
+              0,
+              0,
+            ),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              border: Border(
+                bottom: BorderSide(width: 0.5, color: Color(0xFFD4D4D4)),
               ),
             ),
-            // 드래그 핸들 (줄 세 개 아이콘)
-            ReorderableDragStartListener(
-              index: index,
-              child: const Icon(
-                Icons.drag_handle,
-                size: 24,
-                color: Color(0xFFABABAB),
+            padding: const EdgeInsets.only(
+                top: 15, left: 20, right: 20, bottom: 15),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 60,
+                  height: 90,
+                  decoration: ShapeDecoration(
+                    color: const Color(0xFFEEEEEE),
+                    image: widget.book.coverUrl != null
+                        ? DecorationImage(
+                      image: NetworkImage(widget.book.coverUrl!),
+                      fit: BoxFit.cover,
+                    )
+                        : null,
+                    shape: RoundedRectangleBorder(
+                      side: const BorderSide(
+                          width: 0.5, color: Color(0xFFD4D4D4)),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  child: widget.book.coverUrl == null
+                      ? const Icon(Icons.book,
+                      size: 24, color: Color(0xFFABABAB))
+                      : null,
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.book.title,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w500,
+                          height: 1.11,
+                          letterSpacing: 0.25,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        widget.book.author,
+                        style: const TextStyle(
+                          color: Color(0xFF717171),
+                          fontSize: 13,
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w400,
+                          height: 1.54,
+                          letterSpacing: 0.25,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                ReorderableDragStartListener(
+                  index: widget.index,
+                  child: const Icon(
+                    Icons.menu,
+                    size: 24,
+                    color: Color(0xFFABABAB),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          if (_isRevealed)
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () => setState(() => _isRevealed = false),
+                behavior: HitTestBehavior.translucent,
               ),
             ),
           ],
-        ),
       ),
     );
   }

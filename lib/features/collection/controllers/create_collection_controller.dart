@@ -14,14 +14,23 @@ class CreateCollectionController extends GetxController {
   final RxList<CollectionBook> selectedBooks = <CollectionBook>[].obs;
   final RxString description = ''.obs;
 
-  final RxString selectedCategory = '장르'.obs;
+  final RxString selectedCategory = ''.obs;
   final RxString tagSearchQuery = ''.obs;
   final RxBool isTagSearchActive = false.obs;
+  final RxBool isTagDropdownOpen = false.obs;
 
   final RxBool isEditMode = false.obs;
   String? editingCollectionId;
 
   final List<TagCategory> categories = allTagCategories;
+
+  final List<CollectionTag> popularTags = const [
+    CollectionTag(label: '#소설', category: '장르'),
+    CollectionTag(label: '#초보추천', category: '난이도'),
+    CollectionTag(label: '#몰입감있는', category: '분위기'),
+    CollectionTag(label: '#로맨스', category: '장르'),
+    CollectionTag(label: '#여운이남는', category: '감정'),
+  ];
 
   @override
   void onInit() {
@@ -39,6 +48,7 @@ class CreateCollectionController extends GetxController {
     final args = Get.arguments;
     if (args == null){ } // 컬렉션 리스트 -> 새 컬렉션
     else if (args is CollectionBook) { // 도서 상세에서 넘어온 경우 해당 도서 자동 추가
+      // TODO: Replace dummy data with API response
       selectedBooks.add(args);
     }
     else if (args is CollectionListItem) { // 수정 모드
@@ -105,6 +115,14 @@ class CreateCollectionController extends GetxController {
   void clearTagSearch() {
     tagSearchController.clear();
     isTagSearchActive.value = false;
+  }
+
+  void openTagDropdown() => isTagDropdownOpen.value = true;
+
+  void closeTagDropdown() {
+    isTagDropdownOpen.value = false;
+    selectedCategory.value = '';
+    clearTagSearch();
   }
 
   // ── Book 관련 ──────────────────────────────────────────────────────────────

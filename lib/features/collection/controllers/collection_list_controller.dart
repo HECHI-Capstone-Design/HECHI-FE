@@ -31,9 +31,27 @@ class CollectionListController extends GetxController {
     // Call API: POST /collections/{id}/like or DELETE /collections/{id}/like
   }
 
-  void navigateToCreateCollection() {
-    // TODO: 생성 페이지 라우트 연결
-    Get.toNamed('/create_collection');
+  void navigateToCreateCollection() async {
+    final result = await Get.toNamed('/collection/create');
+
+    if (result != null && result is Map<String, dynamic>) {
+      // TODO: Replace dummy data with API response
+      // 실제로는 POST /collections 응답에서 생성된 컬렉션 데이터를 받아야 함
+      final newCollection = CollectionListItem(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: result['title'] ?? '',
+        description: result['description'] ?? '',
+        authorName: '나', // TODO: 실제 사용자 이름으로 교체
+        tags: List<String>.from(result['tags'] ?? []),
+        bookCoverUrls: [],
+        likeCount: 0,
+        bookCount: (result['bookIds'] as List?)?.length ?? 0,
+        isLiked: false,
+        isPublic: !(result['isPrivate'] ?? false),
+      );
+
+      collections.insert(0, newCollection);
+    }
   }
 
   void navigateToCollectionDetail(String collectionId) {
