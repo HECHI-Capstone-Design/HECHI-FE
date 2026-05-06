@@ -32,7 +32,7 @@ class CollectionListController extends GetxController {
   }
 
   void navigateToCreateCollection() async {
-    final result = await Get.toNamed('/collection/create');
+    final result = await Get.toNamed('/create_collection');
 
     if (result != null && result is Map<String, dynamic>) {
       // TODO: Replace dummy data with API response

@@ -25,6 +25,7 @@ class ActionButtons extends GetView<BookDetailController> {
               isActive: controller.isCommented.value,
               onTap: controller.onWriteReview,
             ),
+            /*
             _buildBtn(
               icon: Icons.remove_red_eye,
               label: controller.readingStatus.value == "COMPLETED"
@@ -34,11 +35,26 @@ class ActionButtons extends GetView<BookDetailController> {
                   controller.readingStatus.value == "COMPLETED",
               onTap: controller.onReadingStatus,
             ),
+             */
             _buildBtn(
-              icon: Icons.more_horiz,
-              label: "더보기",
+              icon: Icons.notes,
+              label: '독서 기록',
               isActive: false,
-              onTap: controller.openMoreMenu,
+              onTap: () => Get.toNamed('/book_note', arguments: {
+                'bookId': controller.bookId,
+                'tabIndex': 0,
+              }),
+            ),
+            _buildBtn(
+              icon: Icons.library_add_outlined,
+              label: '컬렉션',
+              isActive: false,
+              onTap: () {
+                Get.toNamed(
+                  '/collection/add',
+                  arguments: { 'bookId': controller.bookId, },
+                );
+              },
             ),
           ],
         ),

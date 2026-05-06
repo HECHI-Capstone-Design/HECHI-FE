@@ -14,10 +14,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF3F3F3F)),
-          onPressed: controller.onBack,
-        ),
+        automaticallyImplyLeading: false,
         title: const Text(
           '작품들',
           style: TextStyle(
@@ -28,6 +25,41 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
             height: 1.75,
           ),
         ),
+        leading: GestureDetector(
+          onTap: () => Get.back(),
+          child: const Center(
+            child: Text(
+              '취소',
+              style: TextStyle(
+                color: Color(0xFF3F3F3F),
+                fontSize: 15,
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.w400,
+                height: 1.87,
+              ),
+            ),
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 17),
+            child: GestureDetector(
+              onTap: controller.onConfirm,
+              child: const Center(
+                child: Text(
+                  '확인',
+                  style: TextStyle(
+                    color: Color(0xFF4DB56C),
+                    fontSize: 15,
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.w500,
+                    height: 1.87,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
           child: Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
@@ -108,8 +140,13 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
 
   // ── 검색 결과 리스트 ──────────────────────────────────────────────────────
   Widget _buildSearchResults() {
-    final results = controller.searchResults;
+    if (controller.isSearchLoading.value) {
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xFF4DB56C)),
+      );
+    }
 
+    final results = controller.searchResults;
     if (results.isEmpty) {
       return const Center(
         child: Text(

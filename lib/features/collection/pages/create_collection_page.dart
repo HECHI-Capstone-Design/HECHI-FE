@@ -13,85 +13,77 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildAppBar(),
-            const Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
-            Expanded(
-              child: SingleChildScrollView(
-                keyboardDismissBehavior:
-                ScrollViewKeyboardDismissBehavior.onDrag,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildTitleField(),
-                    _buildDivider(),
-                    _buildDescriptionField(),
-                    _buildDivider(),
-                    _buildPrivacyToggle(),
-                    _buildDivider(),
-                    _buildTagSection(),
-                    _buildDivider(),
-                    _buildBookSection(),
-                    const SizedBox(height: 40),
-                  ],
-                ),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        title: Obx(() => Text(
+          controller.isEditMode.value ? '컬렉션 수정' : '새 컬렉션',
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Color(0xFF3F3F3F),
+            fontSize: 16,
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w500,
+            height: 1.75,
+          ),
+        )),
+        leading: GestureDetector(
+          onTap: controller.onCancel,
+          child: const Center(
+            child: Text(
+              '취소',
+              style: TextStyle(
+                color: Color(0xFF3F3F3F),
+                fontSize: 15,
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.w400,
+                height: 1.87,
               ),
             ),
-          ],
+          ),
         ),
-      ),
-    );
-  }
-
-  // ── 앱바 ──────────────────────────────────────────────────────────────────
-  Widget _buildAppBar() {
-    return SizedBox(
-      height: 48,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 17),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            GestureDetector(
-              onTap: controller.onCancel,
-              child: const Text(
-                '취소',
-                style: TextStyle(
-                  color: Color(0xFF3F3F3F),
-                  fontSize: 15,
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w400,
-                  height: 1.87,
-                ),
-              ),
-            ),
-            Obx(() =>
-                Text(
-                  controller.isEditMode.value ? '컬렉션 수정' : '새 컬렉션',
-                  textAlign: TextAlign.center,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 17),
+            child: GestureDetector(
+              onTap: controller.onConfirm,
+              child: const Center(
+                child: Text(
+                  '확인',
                   style: TextStyle(
-                    color: Color(0xFF3F3F3F),
-                    fontSize: 16,
+                    color: Color(0xFF4DB56C),
+                    fontSize: 15,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w500,
-                    height: 1.75,
+                    height: 1.87,
                   ),
-                )),
-            GestureDetector(
-              onTap: controller.onConfirm,
-              child: const Text(
-                '확인',
-                style: TextStyle(
-                  color: Color(0xFF4DB56C),
-                  fontSize: 15,
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w500,
-                  height: 1.87,
                 ),
               ),
             ),
+          ),
+        ],
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+        ),
+      ),
+      body: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTitleField(),
+            _buildDivider(),
+            _buildDescriptionField(),
+            _buildDivider(),
+            _buildPrivacyToggle(),
+            _buildDivider(),
+            _buildTagSection(),
+            _buildDivider(),
+            _buildBookSection(),
+            const SizedBox(height: 40),
           ],
         ),
       ),
@@ -221,11 +213,10 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
               height: 2,
             ),
           ),
-          Obx(() =>
-              _CustomSwitch(
-                value: controller.isPrivate.value,
-                onTap: () => controller.isPrivate.toggle(),
-              )),
+          Obx(() => _CustomSwitch(
+            value: controller.isPrivate.value,
+            onTap: () => controller.isPrivate.toggle(),
+          )),
         ],
       ),
     );
@@ -238,7 +229,6 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 헤더
           const Text(
             '태그',
             style: TextStyle(
@@ -250,11 +240,7 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
             ),
           ),
           const SizedBox(height: 12),
-
-          // 검색 + 대분류 탭 + 추천 태그
           const TagSearchSection(),
-
-          // 선택된 태그
           Obx(() {
             if (controller.selectedTags.isEmpty) return const SizedBox.shrink();
             return Column(
@@ -299,64 +285,58 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 헤더
-          Obx(() =>
-              Row(
+          Obx(() => Row(
+            children: [
+              const Text(
+                '작품들',
+                style: TextStyle(
+                  color: Color(0xFF3F3F3F),
+                  fontSize: 17,
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w600,
+                  height: 1.65,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '${controller.selectedBooks.length}',
+                style: const TextStyle(
+                  color: Color(0xFF717171),
+                  fontSize: 15,
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  height: 1.87,
+                ),
+              ),
+            ],
+          )),
+          const SizedBox(height: 15),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final itemWidth = (constraints.maxWidth - 36) / 3;
+              final itemHeight = itemWidth * 3 / 2;
+
+              return Obx(() => Wrap(
+                spacing: 12,
+                runSpacing: 12,
                 children: [
-                  const Text(
-                    '작품들',
-                    style: TextStyle(
-                      color: Color(0xFF3F3F3F),
-                      fontSize: 17,
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.w600,
-                      height: 1.65,
+                  ...controller.selectedBooks.map((book) => SizedBox(
+                    width: itemWidth,
+                    height: itemHeight,
+                    child: CollectionBookThumbnail(
+                      book: book,
+                      onRemove: () => controller.removeBook(book.id),
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    '${controller.selectedBooks.length}',
-                    style: const TextStyle(
-                      color: Color(0xFF717171),
-                      fontSize: 15,
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.w400,
-                      height: 1.87,
+                  )),
+                  SizedBox(
+                    width: itemWidth,
+                    height: itemHeight,
+                    child: AddBookButton(
+                      onTap: controller.navigateToBookSearch,
                     ),
                   ),
                 ],
-              )),
-          const SizedBox(height: 15),
-
-          // 책 목록 + 추가 버튼
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final itemWidth = (constraints.maxWidth - 24) / 3;
-              final itemHeight = itemWidth * 3 / 2;
-
-              return Obx(() =>
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    children: [
-                      ...controller.selectedBooks.map((book) =>
-                          SizedBox(
-                            width: itemWidth,
-                            height: itemHeight,
-                            child: CollectionBookThumbnail(
-                              book: book,
-                              onRemove: () => controller.removeBook(book.id),
-                            ),
-                          )),
-                      SizedBox(
-                        width: itemWidth,
-                        height: itemHeight,
-                        child: AddBookButton(
-                          onTap: controller.navigateToBookSearch,
-                        ),
-                      ),
-                    ],
-                  ));
+              ));
             },
           ),
         ],
