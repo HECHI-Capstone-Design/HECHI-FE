@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../controllers/review_detail_controller.dart';
-import '../../review_list/widgets/option_bottom_sheet.dart';
+import '../widgets/option_bottom_sheet.dart';
 
 class ReviewDetailPage extends GetView<ReviewDetailController> {
   const ReviewDetailPage({super.key});

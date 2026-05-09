@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../controllers/review_list_controller.dart';
 import '../../book_detail_page/controllers/book_detail_controller.dart';
-import 'option_bottom_sheet.dart';
+import '../../review_detail/widgets/option_bottom_sheet.dart';
 
 enum ReviewCardType { simple, detail, }
 
