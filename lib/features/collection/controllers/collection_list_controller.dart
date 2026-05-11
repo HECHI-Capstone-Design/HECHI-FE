@@ -16,8 +16,8 @@ class CollectionListController extends GetxController {
     await Future.delayed(const Duration(milliseconds: 300));
 
     // TODO: Replace dummy data with API response
-    // collections.assignAll(dummyCollections);
-    collections.assignAll([]);
+    collections.assignAll(dummyCollections);
+    // collections.assignAll([]);
     isLoading.value = false;
   }
 
