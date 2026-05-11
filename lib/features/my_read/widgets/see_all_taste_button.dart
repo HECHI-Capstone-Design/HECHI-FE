@@ -13,14 +13,14 @@ class SeeAllTasteButton extends StatelessWidget {
         onTap: () => Get.toNamed(Routes.tasteAnalysis),
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          // ✅ [수정] 박스 슬림하게 (14 -> 11)
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+
+          padding: const EdgeInsets.symmetric(vertical: 11),
           decoration: BoxDecoration(
             color: const Color(0xFFF7F7F7),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: const [
               Text(
                 "모든 취향 분석 보기",

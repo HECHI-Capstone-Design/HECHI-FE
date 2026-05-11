@@ -10,6 +10,8 @@ import '../widgets/section_title.dart';
 import '../widgets/taste_analysis_preview.dart';
 import '../widgets/see_all_taste_button.dart';
 import '../widgets/book_storage_link.dart';
+import '../widgets/my_collection_section.dart';
+import '../../collection_detail/pages/collection_detail_view.dart';
 
 class MyReadView extends GetView<MyReadController> {
   const MyReadView({super.key});
@@ -67,6 +69,13 @@ class MyReadView extends GetView<MyReadController> {
               const SizedBox(height: 10),
               // 6. 취향 분석 전체 보기 버튼
               const SeeAllTasteButton(),
+
+              // 두꺼운 구분선
+              Container(height: 8, color: const Color(0xFFF5F5F5)),
+
+              const SizedBox(height: 30),
+              // 컬렉션 UI
+              const MyCollectionSection(),
 
               const SizedBox(height: 40),
             ],
