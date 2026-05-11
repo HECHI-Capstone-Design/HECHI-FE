@@ -8,7 +8,12 @@ import '../../../app/controllers/app_controller.dart';
 
 class MyReadController extends GetxController {
   final box = GetStorage();
-  final String baseUrl = "https://api.43-202-101-63.sslip.io";
+
+  // 🌟 [핵심 수정] 컴퓨터가 $baseUrl이 뭔지 알 수 있도록 주소를 정의해 주는 이 한 줄이 빠져있었습니다!
+  static const String baseUrl = "https://api.43-202-101-63.sslip.io";
+
+  // 이제 여기서부터는 에러가 나지 않습니다.
+  final loginUrl = Uri.parse('$baseUrl/auth/login');
 
   RxMap<String, dynamic> get userProfile => Get.find<AppController>().userProfile;
   RxString get description => Get.find<AppController>().description;
@@ -81,8 +86,7 @@ class MyReadController extends GetxController {
       'month': currentMonth.value.toString(),
     };
 
-    final url = Uri.parse('$baseUrl/analytics/calendar-month').replace(queryParameters: queryParams);
-
+    final url = Uri.parse("$baseUrl/analytics/calendar-month").replace(queryParameters: queryParams);
     try {
       final response = await http.get(url, headers: {"Authorization": "Bearer $token"});
 
@@ -124,8 +128,7 @@ class MyReadController extends GetxController {
 
   Future<void> _fetchStats(String token) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/analytics/my-stats'), headers: {"Authorization": "Bearer $token"});
-
+      final response = await http.get(Uri.parse("$baseUrl/analytics/my-stats"), headers: {"Authorization": "Bearer $token"});
       if (response.statusCode == 200) {
         final json = jsonDecode(utf8.decode(response.bodyBytes));
         final stats = UserStatsResponse.fromJson(json);
@@ -178,7 +181,7 @@ class MyReadController extends GetxController {
   }
 
   Future<void> _fetchInsightTags(String token) async {
-    final url = Uri.parse('$baseUrl/analytics/my-insights');
+    final url = Uri.parse("$baseUrl/analytics/my-insights");
     try {
       final response = await http.get(url, headers: {"Authorization": "Bearer $token"});
       if (response.statusCode == 200) {
