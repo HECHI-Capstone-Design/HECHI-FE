@@ -19,8 +19,8 @@ class ActivityStats extends StatelessWidget {
           Container(width: 1, height: 24, color: const Color(0xFFEEEEEE)),
           Expanded(
             child: GestureDetector(
-              onTap: () => Get.toNamed('/collection'),
-              child: _buildStatItem(controller.totalCollections.value, "컬렉션"), // ★ 추가
+              onTap: () => Get.toNamed('/collection_list'),
+              child: _buildStatItem(controller.totalCollections.value, "컬렉션"),
             ),
           ),
         ],

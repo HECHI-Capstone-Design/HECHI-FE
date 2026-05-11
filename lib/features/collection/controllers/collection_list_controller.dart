@@ -16,7 +16,8 @@ class CollectionListController extends GetxController {
     await Future.delayed(const Duration(milliseconds: 300));
 
     // TODO: Replace dummy data with API response
-    collections.assignAll(dummyCollections);
+    // collections.assignAll(dummyCollections);
+    collections.assignAll([]);
     isLoading.value = false;
   }
 
@@ -55,7 +56,6 @@ class CollectionListController extends GetxController {
   }
 
   void navigateToCollectionDetail(String collectionId) {
-    // TODO: 상세 페이지 라우트 연결
     Get.toNamed('/collection_detail', arguments: collectionId);
   }
 }

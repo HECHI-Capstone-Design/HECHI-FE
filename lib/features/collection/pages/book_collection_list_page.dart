@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../controllers/book_collection_list_controller.dart';
 import '../widgets/collection_thumbnail.dart';
-import '../models/collection_list_model.dart';
 
-class BookCollectionListPage extends StatelessWidget {
+class BookCollectionListPage extends GetView<BookCollectionListController> {
   const BookCollectionListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Replace dummy data with API response
-    // GET /collections?book_id={bookId}
-    final collections = dummyCollections;
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -23,7 +19,7 @@ class BookCollectionListPage extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
         title: const Text(
-          '이 작품이 담긴 컬렉션',
+          '이 도서가 담긴 컬렉션',
           style: TextStyle(
             color: Color(0xFF3F3F3F),
             fontSize: 16,
@@ -36,83 +32,91 @@ class BookCollectionListPage extends StatelessWidget {
           child: Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
         ),
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          const crossAxisCount = 2;
-          const crossAxisSpacing = 15.0;
-          const padding = 17.0;
-          const itemPadding = 15.0;
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(color: Color(0xFF4DB56C)),
+          );
+        }
 
-          final itemWidth = (constraints.maxWidth - padding * 2 - crossAxisSpacing) / crossAxisCount;
-          final thumbnailWidth = itemWidth - itemPadding * 2;
-          final thumbnailHeight = thumbnailWidth * 3 / 2;
-          const textHeight = 10 + 36 + 10 + 18 + 10;
-          final itemHeight = thumbnailHeight + textHeight + itemPadding * 2;
-          final childAspectRatio = itemWidth / itemHeight;
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            const crossAxisCount = 2;
+            const crossAxisSpacing = 15.0;
+            const padding = 17.0;
+            const itemPadding = 15.0;
 
-          return GridView.builder(
-            padding: const EdgeInsets.all(padding),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
-              crossAxisSpacing: crossAxisSpacing,
-              mainAxisSpacing: 15,
-              childAspectRatio: childAspectRatio,
-            ),
-            itemCount: collections.length,
-            itemBuilder: (context, index) {
-              final collection = collections[index];
-              return GestureDetector(
-                onTap: () {},
-                child: Container(
-                  padding: const EdgeInsets.all(itemPadding),
-                  decoration: ShapeDecoration(
-                    color: const Color(0x4CDADADA),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(3),
+            final itemWidth = (constraints.maxWidth - padding * 2 - crossAxisSpacing) / crossAxisCount;
+            final thumbnailWidth = itemWidth - itemPadding * 2;
+            final thumbnailHeight = thumbnailWidth * 3 / 2;
+            const textHeight = 10 + 36 + 10 + 18 + 10;
+            final itemHeight = thumbnailHeight + textHeight + itemPadding * 2;
+            final childAspectRatio = itemWidth / itemHeight;
+
+            return GridView.builder(
+              padding: const EdgeInsets.all(padding),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: crossAxisSpacing,
+                mainAxisSpacing: 15,
+                childAspectRatio: childAspectRatio,
+              ),
+              itemCount: controller.collections.length,
+              itemBuilder: (context, index) {
+                final collection = controller.collections[index];
+                return GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                    padding: const EdgeInsets.all(itemPadding),
+                    decoration: ShapeDecoration(
+                      color: const Color(0x4CDADADA),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CollectionThumbnail(
+                          bookCoverUrls: collection.bookCoverUrls,
+                          width: thumbnailWidth,
+                          height: thumbnailHeight,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          collection.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 14,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.w400,
+                            height: 1.29,
+                            letterSpacing: 0.25,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          '좋아요 ${collection.likeCount}',
+                          style: const TextStyle(
+                            color: Color(0xFF717171),
+                            fontSize: 13,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.w400,
+                            height: 1.38,
+                            letterSpacing: 0.25,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CollectionThumbnail(
-                        bookCoverUrls: collection.bookCoverUrls,
-                        width: thumbnailWidth,
-                        height: thumbnailHeight,
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        collection.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 14,
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.w400,
-                          height: 1.29,
-                          letterSpacing: 0.25,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        '좋아요 ${collection.likeCount}',
-                        style: const TextStyle(
-                          color: Color(0xFF717171),
-                          fontSize: 13,
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.w400,
-                          height: 1.38,
-                          letterSpacing: 0.25,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
+                );
+              },
+            );
+          },
+        );
+      }),
     );
   }
 }
