@@ -5,7 +5,7 @@ class CollectionListItem {
   final String authorName;
   final String? authorProfileUrl;
   final List<String> tags;
-  final List<String> bookCoverUrls; // 최대 5장
+  final List<String> bookCoverUrls;
   final int likeCount;
   final int bookCount;
   final bool isLiked;

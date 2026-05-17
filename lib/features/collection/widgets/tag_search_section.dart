@@ -12,35 +12,27 @@ class TagSearchSection extends GetView<CreateCollectionController> {
     return Obx(() => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── 검색 필드 ────────────────────────────────────────────────
         _buildSearchField(),
-
-        // ── 검색 중: 드롭다운 결과 ───────────────────────────────────
-        if (controller.isTagSearchActive.value) ...[
-          const SizedBox(height: 4),
-          _buildSearchDropdown(),
-        ],
-
-        // ── 검색 아닐 때: 대분류 탭 + 추천 태그 ─────────────────────
-        if (!controller.isTagSearchActive.value) ...[
-          const SizedBox(height: 12),
-          _buildCategoryTabs(),
-          const SizedBox(height: 10),
-          _buildSuggestedTags(),
-        ],
+        if (controller.isTagDropdownOpen.value) _buildDropdown(),
+        const SizedBox(height: 12),
+        _buildRecommendedTags(),
       ],
     ));
   }
 
   // ── 검색 필드 ─────────────────────────────────────────────────────────────
   Widget _buildSearchField() {
+    final isOpen = controller.isTagDropdownOpen.value;
     return Container(
       height: 33,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: ShapeDecoration(
+        color: Colors.white,
         shape: RoundedRectangleBorder(
           side: const BorderSide(width: 1, color: Color(0xFF717171)),
-          borderRadius: BorderRadius.circular(5),
+          borderRadius: isOpen
+              ? const BorderRadius.vertical(top: Radius.circular(5))
+              : BorderRadius.circular(5),
         ),
       ),
       child: Row(
@@ -48,19 +40,22 @@ class TagSearchSection extends GetView<CreateCollectionController> {
           Expanded(
             child: TextField(
               controller: controller.tagSearchController,
+              onTap: controller.openTagDropdown,
               style: const TextStyle(
                 color: Color(0xFF3F3F3F),
                 fontSize: 15,
                 fontFamily: 'Roboto',
                 fontWeight: FontWeight.w400,
+                height: 1.87,
               ),
               decoration: const InputDecoration(
                 hintText: '#태그 검색',
                 hintStyle: TextStyle(
                   color: Color(0xFF717171),
-                  fontSize: 15,
+                  fontSize: 14,
                   fontFamily: 'Roboto',
                   fontWeight: FontWeight.w400,
+                  height: 1.87,
                 ),
                 border: InputBorder.none,
                 isDense: true,
@@ -68,55 +63,63 @@ class TagSearchSection extends GetView<CreateCollectionController> {
               ),
             ),
           ),
-          if (controller.isTagSearchActive.value)
-            GestureDetector(
-              onTap: controller.clearTagSearch,
-              child: const Icon(Icons.close, size: 16, color: Color(0xFF717171)),
+          // ★ 드롭다운 토글 아이콘
+          GestureDetector(
+            onTap: isOpen
+                ? controller.closeTagDropdown
+                : controller.openTagDropdown,
+            child: Icon(
+              isOpen
+                  ? Icons.keyboard_arrow_up
+                  : Icons.keyboard_arrow_down,
+              size: 20,
+              color: const Color(0xFF717171),
             ),
+          ),
         ],
       ),
     );
   }
 
-  // ── 검색 드롭다운 ─────────────────────────────────────────────────────────
-  Widget _buildSearchDropdown() {
+  // ── 드롭다운 ─────────────────────────────────────────────────────────────
+  Widget _buildDropdown() {
+    final isFiltering = controller.isTagSearchActive.value;
+    final hasSelectedCategory = controller.selectedCategory.value.isNotEmpty;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: const Border(
+          left: BorderSide(width: 1, color: Color(0xFF717171)),
+          right: BorderSide(width: 1, color: Color(0xFF717171)),
+          bottom: BorderSide(width: 1, color: Color(0xFF717171)),
+        ),
+        borderRadius:
+        const BorderRadius.vertical(bottom: Radius.circular(5)),
+      ),
+      child: isFiltering
+          ? _buildSearchResults()
+          : hasSelectedCategory
+          ? _buildSelectedCategoryContent()
+          : _buildCategoryList(),
+    );
+  }
+
+  // ── 검색어 있을 때: 검색 결과 ────────────────────────────────────────────
+  Widget _buildSearchResults() {
     final results = controller.filteredSearchTags;
 
     if (results.isEmpty) {
-      return Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(width: 1, color: const Color(0xFF717171)),
-          borderRadius: BorderRadius.circular(5),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDropdownRow(
-              child: const Text(
-                '추천 태그',
-                style: TextStyle(
-                  color: Color(0xFF717171),
-                  fontSize: 14,
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w400,
-                  height: 2,
-                ),
-              ),
-            ),
-            _buildDropdownRow(
-              child: const Text(
-                '검색 결과가 없어요',
-                style: TextStyle(
-                  color: Color(0xFFABABAB),
-                  fontSize: 14,
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w400,
-                  height: 2,
-                ),
-              ),
-            ),
-          ],
+      return _buildDropdownRow(
+        child: const Text(
+          '검색 결과가 없습니다',
+          style: TextStyle(
+            color: Color(0xFFABABAB),
+            fontSize: 14,
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w400,
+            height: 2,
+          ),
         ),
       );
     }
@@ -126,28 +129,16 @@ class TagSearchSection extends GetView<CreateCollectionController> {
       grouped.putIfAbsent(tag.category, () => []).add(tag);
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(width: 1, color: const Color(0xFF717171)),
-        borderRadius: BorderRadius.circular(5),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        maxHeight: 168,
+        minWidth: double.infinity, // ★ 너비 유지
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildDropdownRow(
-            child: const Text(
-              '추천 태그',
-              style: TextStyle(
-                color: Color(0xFF717171),
-                fontSize: 14,
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w400,
-                height: 2,
-              ),
-            ),
-          ),
-          ...grouped.entries.expand((entry) => [
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: grouped.entries.expand((entry) => [
+            // ★ 대분류명 헤더
             _buildDropdownRow(
               child: Text(
                 entry.key,
@@ -160,10 +151,116 @@ class TagSearchSection extends GetView<CreateCollectionController> {
                 ),
               ),
             ),
-            ...entry.value.map((tag) => _SearchResultItem(tag: tag)),
-          ]),
-        ],
+            // ★ 해당 카테고리 태그 Wrap 칩
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: entry.value.map((tag) {
+                  return Obx(() => TagChip(
+                    tag: tag,
+                    isSelected: controller.isTagSelected(tag),
+                    onTap: () {
+                      controller.toggleTag(tag);
+                      controller.closeTagDropdown();
+                    },
+                  ));
+                }).toList(),
+              ),
+            ),
+          ]).toList(),
+        ),
       ),
+    );
+  }
+
+  // ── 대분류 카테고리 목록 ─────────────────────────────────────
+  Widget _buildCategoryList() {
+    final visibleCategories = controller.categories.take(5).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: visibleCategories.map((category) {
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => controller.selectCategory(category.name),
+          child: _buildDropdownRow(
+            child: Text(
+              category.name,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 14,
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.w400,
+                height: 2,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // ── 대분류 선택 시 태그 목록 ────────────────────────────────────
+  Widget _buildSelectedCategoryContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: double.infinity,
+          height: 33,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          color: const Color(0xFFF0FAF3),
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () => controller.selectedCategory.value = '',
+                child: const Icon(
+                  Icons.arrow_back_ios,
+                  size: 14,
+                  color: Color(0xFF4DB56C),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                controller.selectedCategory.value,
+                style: const TextStyle(
+                  color: Color(0xFF4DB56C),
+                  fontSize: 14,
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w500,
+                  height: 2,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+
+        // 해당 카테고리 태그 목록
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 168),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(10),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: controller.currentCategoryTags.map((tag) {
+                return Obx(() => TagChip(
+                  tag: tag,
+                  isSelected: controller.isTagSelected(tag),
+                  onTap: () {
+                    controller.toggleTag(tag);
+                    controller.closeTagDropdown();
+                  },
+                ));
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -177,48 +274,8 @@ class TagSearchSection extends GetView<CreateCollectionController> {
     );
   }
 
-    // ── 대분류 탭 ─────────────────────────────────────────────────────────────
-  Widget _buildCategoryTabs() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: controller.categories.map((category) {
-          final isActive = controller.selectedCategory.value == category.name;
-          return GestureDetector(
-            onTap: () => controller.selectCategory(category.name),
-            child: Container(
-              margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: ShapeDecoration(
-                color: isActive ? const Color(0xFF4DB56C) : Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                    width: 1,
-                    color: isActive
-                        ? const Color(0xFF4DB56C)
-                        : const Color(0xFFDADADA),
-                  ),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
-              child: Text(
-                category.name,
-                style: TextStyle(
-                  color: isActive ? Colors.white : const Color(0xFF717171),
-                  fontSize: 13,
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  // ── 추천 태그 (현재 대분류 기준) ──────────────────────────────────────────
-  Widget _buildSuggestedTags() {
+  // ── 추천 태그 (항상 표시) ─────────────────────────────────────────────────
+  Widget _buildRecommendedTags() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -236,7 +293,8 @@ class TagSearchSection extends GetView<CreateCollectionController> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: controller.currentCategoryTags.map((tag) {
+          // TODO: Replace dummy data with API response - GET /tags/popular
+          children: controller.popularTags.map((tag) {
             return TagChip(
               tag: tag,
               isSelected: controller.isTagSelected(tag),
@@ -263,6 +321,7 @@ class _SearchResultItem extends StatelessWidget {
         onTap: () {
           c.toggleTag(tag);
           c.clearTagSearch();
+          c.closeTagDropdown();
         },
         child: Container(
           width: double.infinity,

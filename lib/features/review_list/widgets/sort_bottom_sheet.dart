@@ -31,9 +31,9 @@ class SortBottomSheet extends GetView<ReviewListController> {
                   const Text(
                     '정렬',
                     style: TextStyle(
-                      color: Colors.black,
+                      color: Color(0xFF3F3F3F),
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   Positioned(

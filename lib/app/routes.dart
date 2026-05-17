@@ -1,5 +1,8 @@
 import 'package:get/get.dart';
 import 'package:hechi/app/main_app.dart';
+import 'package:hechi/features/collection/bindings/add_to_collection_binding.dart';
+import 'package:hechi/features/collection/bindings/book_collection_list_binding.dart';
+import 'package:hechi/features/collection_detail/bindings/collection_detail_binding.dart';
 import 'package:hechi/features/customer_service/pages/customer_service_page.dart';
 import 'package:hechi/app/bindings/app_binding.dart';
 import '../features/login/bindings/login_binding.dart';
@@ -52,6 +55,9 @@ import '../features/collection/bindings/create_collection_binding.dart';
 import '../features/collection/pages/create_collection_page.dart';
 import '../features/collection/bindings/collection_book_edit_binding.dart';
 import '../features/collection/pages/collection_book_edit_page.dart';
+import '../features/collection/pages/add_to_collection_page.dart';
+import '../features/collection/pages/book_collection_list_page.dart';
+import '../features/collection_detail/pages/collection_detail_view.dart';
 
 abstract class Routes {
   static const splash = '/splash';
@@ -84,9 +90,12 @@ abstract class Routes {
   // ✅ 이메일 인증 라우트 추가
   static const emailVerify = '/email_verify';
 
-  static const collectionList = '/collection';
+  static const collectionList = '/collection_list';
   static const createCollection = '/create_collection';
   static const collectionBookEdit = '/collection/book_edit';
+  static const addToCollection = '/collection/add';
+  static const bookCollectionList = '/book_collection_list';
+  static const collectionDetail = '/collection_detail';
 }
 
 class AppPages {
@@ -123,5 +132,8 @@ class AppPages {
     GetPage(name: Routes.collectionList, page: () => const CollectionListPage(), binding: CollectionListBinding()),
     GetPage(name: Routes.createCollection, page: () => const CreateCollectionPage(), binding: CreateCollectionBinding()),
     GetPage(name: Routes.collectionBookEdit, page: () => const CollectionBookEditPage(), binding: CollectionBookEditBinding()),
+    GetPage(name: Routes.addToCollection, page: () => const AddToCollectionPage(), binding: AddToCollectionBinding()),
+    GetPage(name: Routes.bookCollectionList, page: () => const BookCollectionListPage(), binding: BookCollectionListBinding()),
+    GetPage(name: Routes.collectionDetail, page: () => const CollectionDetailView(), binding: CollectionDetailBinding()),
   ];
 }

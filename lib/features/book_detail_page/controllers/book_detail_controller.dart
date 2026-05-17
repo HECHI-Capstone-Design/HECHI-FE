@@ -3,12 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
-
-// ✅ [추가] 나의 독서 컨트롤러 임포트 (경로 확인 필요)
 import '../../my_read/controllers/my_read_controller.dart';
-
 import '../widgets/overlays/comment_overlay.dart';
-import '../widgets/overlays/reading_status_overlay.dart';
 import '../widgets/overlays/more_menu_overlay.dart';
 
 class BookDetailController extends GetxController {
@@ -363,7 +359,6 @@ class BookDetailController extends GetxController {
       this.isSpoiler.value = isSpoiler;
       await fetchReviews();
 
-      // ✅ [추가] 0.5초 후 나의 독서 통계 새로고침 (코멘트 등록 시)
       await Future.delayed(const Duration(milliseconds: 500));
       if (Get.isRegistered<MyReadController>()) {
         await Get.find<MyReadController>().fetchMyReadData();
@@ -391,7 +386,6 @@ class BookDetailController extends GetxController {
       await fetchReviews();
       print("🗑️ 리뷰 삭제 완료");
 
-      // ✅ [추가] 0.5초 후 나의 독서 통계 새로고침 (삭제 시)
       await Future.delayed(const Duration(milliseconds: 500));
       if (Get.isRegistered<MyReadController>()) {
         await Get.find<MyReadController>().fetchMyReadData();
@@ -475,26 +469,12 @@ class BookDetailController extends GetxController {
 
       await fetchBookDetail();
 
-      // ✅ [추가] 0.5초 후 나의 독서 통계 새로고침 (별점 저장 시)
       await Future.delayed(const Duration(milliseconds: 500));
       if (Get.isRegistered<MyReadController>()) {
         await Get.find<MyReadController>().fetchMyReadData();
         print("✅ 나의 독서 통계 갱신 요청 완료");
       }
     }
-  }
-
-  // ==========================
-  // 독서 상태 Overlay 띄우기
-  // ==========================
-  void onReadingStatus() {
-    Get.bottomSheet(
-      ReadingStatusOverlay(onSelect: updateReadingStatus),
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
-      ),
-    );
   }
 
   // ==========================

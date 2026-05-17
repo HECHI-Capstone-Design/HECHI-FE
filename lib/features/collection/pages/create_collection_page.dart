@@ -4,7 +4,7 @@ import '../controllers/create_collection_controller.dart';
 import '../widgets/tag_chip.dart';
 import '../widgets/tag_search_section.dart';
 import '../widgets/collection_book_thumbnail.dart';
-import 'collection_description_overlay.dart';
+import '../widgets/overlay/collection_description_overlay.dart';
 
 class CreateCollectionPage extends GetView<CreateCollectionController> {
   const CreateCollectionPage({super.key});
@@ -13,84 +13,77 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildAppBar(),
-            const Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
-            Expanded(
-              child: SingleChildScrollView(
-                keyboardDismissBehavior:
-                ScrollViewKeyboardDismissBehavior.onDrag,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildTitleField(),
-                    _buildDivider(),
-                    _buildDescriptionField(),
-                    _buildDivider(),
-                    _buildPrivacyToggle(),
-                    _buildDivider(),
-                    _buildTagSection(),
-                    _buildDivider(),
-                    _buildBookSection(),
-                    const SizedBox(height: 40),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ── 앱바 ──────────────────────────────────────────────────────────────────
-  Widget _buildAppBar() {
-    return SizedBox(
-      height: 48,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 17),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            GestureDetector(
-              onTap: controller.onCancel,
-              child: const Text(
-                '취소',
-                style: TextStyle(
-                  color: Color(0xFF3F3F3F),
-                  fontSize: 15,
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w400,
-                  height: 1.87,
-                ),
-              ),
-            ),
-            Obx(() => Text(
-              controller.isEditMode.value ? '컬렉션 수정' : '새 컬렉션',
-              textAlign: TextAlign.center,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        title: Obx(() => Text(
+          controller.isEditMode.value ? '컬렉션 수정' : '새 컬렉션',
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Color(0xFF3F3F3F),
+            fontSize: 16,
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w500,
+            height: 1.75,
+          ),
+        )),
+        leading: GestureDetector(
+          onTap: controller.onCancel,
+          child: const Center(
+            child: Text(
+              '취소',
               style: TextStyle(
                 color: Color(0xFF3F3F3F),
-                fontSize: 16,
+                fontSize: 15,
                 fontFamily: 'Roboto',
-                fontWeight: FontWeight.w500,
-                height: 1.75,
+                fontWeight: FontWeight.w400,
+                height: 1.87,
               ),
-            )),
-            GestureDetector(
+            ),
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 17),
+            child: GestureDetector(
               onTap: controller.onConfirm,
-              child: const Text(
-                '확인',
-                style: TextStyle(
-                  color: Color(0xFF4DB56C),
-                  fontSize: 15,
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w500,
-                  height: 1.87,
+              child: const Center(
+                child: Text(
+                  '확인',
+                  style: TextStyle(
+                    color: Color(0xFF4DB56C),
+                    fontSize: 15,
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.w500,
+                    height: 1.87,
+                  ),
                 ),
               ),
             ),
+          ),
+        ],
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+        ),
+      ),
+      body: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTitleField(),
+            _buildDivider(),
+            _buildDescriptionField(),
+            _buildDivider(),
+            _buildPrivacyToggle(),
+            _buildDivider(),
+            _buildTagSection(),
+            _buildDivider(),
+            _buildBookSection(),
+            const SizedBox(height: 40),
           ],
         ),
       ),
@@ -140,12 +133,12 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
   Widget _buildDescriptionField() {
     return GestureDetector(
       onTap: () async {
-        final result = await Get.to<String>(
-              () => CollectionDescriptionOverlay(
+        final result = await Get.bottomSheet<String>(
+          CollectionDescriptionOverlay(
             initialText: controller.descriptionController.text,
           ),
-          transition: Transition.downToUp,
-          duration: const Duration(milliseconds: 250),
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
         );
         if (result != null) {
           controller.descriptionController.text = result;
@@ -236,7 +229,6 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 헤더
           const Text(
             '태그',
             style: TextStyle(
@@ -248,11 +240,7 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
             ),
           ),
           const SizedBox(height: 12),
-
-          // 검색 + 대분류 탭 + 추천 태그
           const TagSearchSection(),
-
-          // 선택된 태그
           Obx(() {
             if (controller.selectedTags.isEmpty) return const SizedBox.shrink();
             return Column(
@@ -297,7 +285,6 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 헤더
           Obx(() => Row(
             children: [
               const Text(
@@ -324,23 +311,34 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
             ],
           )),
           const SizedBox(height: 15),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final itemWidth = (constraints.maxWidth - 36) / 3;
+              final itemHeight = itemWidth * 3 / 2;
 
-          // 책 목록 + 추가 버튼
-          Obx(() => SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                ...controller.selectedBooks.map((book) => Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: CollectionBookThumbnail(
-                    book: book,
-                    onRemove: () => controller.removeBook(book.id),
+              return Obx(() => Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  ...controller.selectedBooks.map((book) => SizedBox(
+                    width: itemWidth,
+                    height: itemHeight,
+                    child: CollectionBookThumbnail(
+                      book: book,
+                      onRemove: () => controller.removeBook(book.id),
+                    ),
+                  )),
+                  SizedBox(
+                    width: itemWidth,
+                    height: itemHeight,
+                    child: AddBookButton(
+                      onTap: controller.navigateToBookSearch,
+                    ),
                   ),
-                )),
-                AddBookButton(onTap: controller.navigateToBookSearch),
-              ],
-            ),
-          )),
+                ],
+              ));
+            },
+          ),
         ],
       ),
     );

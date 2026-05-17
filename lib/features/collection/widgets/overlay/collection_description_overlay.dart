@@ -47,88 +47,89 @@ class _CollectionDescriptionOverlayState
     super.dispose();
   }
 
-  void _onConfirm() {
-    Get.back(result: _controller.text);
-  }
-
-  void _onCancel() {
-    Get.back(result: null);
-  }
+  void _onConfirm() => Get.back(result: _controller.text);
+  void _onCancel() => Get.back(result: null);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildAppBar(),
-            const Divider(
-              height: 1,
-              thickness: 1,
-              color: Color(0xFFF3F3F3),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 17),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _controller,
-                        focusNode: _focusNode,
-                        maxLength: widget.maxLength,
-                        maxLines: null,
-                        expands: true,
-                        textAlignVertical: TextAlignVertical.top,
-                        style: const TextStyle(
-                          color: Color(0xFF3F3F3F),
-                          fontSize: 13,
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.w400,
-                          height: 2.15,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: '컬렉션에 대한 설명을 입력해주세요.',
-                          hintStyle: const TextStyle(
-                            color: Color(0xFFABABAB),
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.9,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+      ),
+      clipBehavior: Clip.hardEdge,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        resizeToAvoidBottomInset: true,
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              _buildAppBar(),
+              Container(
+                width: double.infinity,
+                height: 1,
+                color: const Color(0xFFF3F3F3),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 17),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _controller,
+                          focusNode: _focusNode,
+                          maxLength: widget.maxLength,
+                          maxLines: null,
+                          expands: true,
+                          textAlignVertical: TextAlignVertical.top,
+                          style: const TextStyle(
+                            color: Color(0xFF3F3F3F),
                             fontSize: 13,
                             fontFamily: 'Roboto',
                             fontWeight: FontWeight.w400,
                             height: 2.15,
                           ),
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding:
-                          const EdgeInsets.symmetric(vertical: 12),
-                          // 기본 글자수 카운터 숨김 (커스텀으로 표시)
-                          counterText: '',
-                        ),
-                      ),
-                    ),
-                    // 글자수 카운터 (우측 하단)
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Text(
-                          '$_charCount/${widget.maxLength}',
-                          style: const TextStyle(
-                            color: Color(0xFFABABAB),
-                            fontSize: 13,
-                            fontFamily: 'Roboto',
-                            fontWeight: FontWeight.w400,
+                          decoration: const InputDecoration(
+                            hintText: '컬렉션에 대한 설명을 입력해주세요.',
+                            hintStyle: TextStyle(
+                              color: Color(0xFFABABAB),
+                              fontSize: 13,
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.w400,
+                              height: 2.15,
+                            ),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.symmetric(vertical: 12),
+                            counterText: '',
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            '$_charCount/${widget.maxLength}',
+                            style: const TextStyle(
+                              color: Color(0xFFABABAB),
+                              fontSize: 13,
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

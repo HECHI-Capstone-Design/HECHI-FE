@@ -96,7 +96,7 @@ class CollectionListPage extends GetView<CollectionListController> {
               size: 60, color: Color(0xFFDADADA)),
           const SizedBox(height: 16),
           const Text(
-            '아직 컬렉션이 없어요',
+            '아직 컬렉션이 없습니다.',
             style: TextStyle(
               color: Color(0xFF717171),
               fontSize: 15,
