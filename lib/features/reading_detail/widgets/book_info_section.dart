@@ -9,22 +9,22 @@ class BookInfoSection extends GetView<ReadingDetailController> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 30),
+      padding: const EdgeInsets.fromLTRB(17, 24, 17, 17),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Obx(() => Text(
             controller.bookTitle.value,
             style: const TextStyle(
-              color: Color(0xFF000000),
-              fontSize: 28,
               fontFamily: 'Roboto',
+              color: Colors.black,
+              fontSize: 22,
               fontWeight: FontWeight.w700,
-              height: 1.2,
-              letterSpacing: -0.5,
+              height: 1.3,
+              letterSpacing: 0.10,
             ),
           )),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
 
           Obx(() => Text.rich(
             TextSpan(

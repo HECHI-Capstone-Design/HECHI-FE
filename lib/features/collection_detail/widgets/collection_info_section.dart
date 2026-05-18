@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/collection_detail_controller.dart';
+import '../../../features/collection/models/collection_list_model.dart';
 
-// 작성자 프사, 컬렉션 제목, 설명, #태그 들이 있는 영역입니다.
 class CollectionInfoSection extends StatelessWidget {
   final CollectionDetailController controller;
 
@@ -11,74 +11,125 @@ class CollectionInfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      // 📝 [수정 꿀팁] 이 구역 전체의 여백 (좌우 24, 위 20, 아래 20)
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      child: Column(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      child: Obx(() => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. 작성자 프로필 & 수정하기 버튼
+          // ── 작성자 프로필
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 16,
-                    backgroundImage: NetworkImage(controller.creatorProfileImg),
-                    backgroundColor: Colors.grey[200],
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: const Color(0xFF4DB56C), width: 2),
+                    ),
+                    child: CircleAvatar(
+                      radius: 18,
+                      backgroundColor: const Color(0xFFA5D6A7),
+                      child: const Icon(Icons.person, color: Colors.white, size: 25),
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    controller.creatorName,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF3F3F3F)),
+                    controller.creatorName.value,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF3F3F3F),
+                    ),
                   ),
                 ],
               ),
-              // 내 컬렉션일 때만 '수정하기' 버튼 노출
               if (controller.isMine.value)
                 OutlinedButton(
-                  onPressed: () {}, // 나중에 수정 페이지 연결
+                  onPressed: () async {
+                    final item = CollectionListItem(
+                      id: controller.collectionId.toString(),
+                      title: controller.collectionTitle.value,
+                      description: controller.collectionDesc.value,
+                      authorName: controller.creatorName.value,
+                      tags: List<String>.from(controller.tags),
+                      bookCoverUrls: List<String>.from(controller.thumbnailCovers),
+                      likeCount: controller.likeCount.value,
+                      bookCount: controller.books.length,
+                      isLiked: controller.isLiked.value,
+                      isPublic: !controller.isPrivate.value,
+                    );
+                    final result = await Get.toNamed('/create_collection', arguments: item);
+                    if (result != null) {
+                      controller.fetchDetail(modified: true);
+                    };
+                  },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                     minimumSize: const Size(0, 32),
-                    side: const BorderSide(color: Color(0xFF89C99C)), // 테두리 색상
+                    side: const BorderSide(color: Color(0xFF89C99C)),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                   ),
-                  child: const Text("수정하기", style: TextStyle(color: Color(0xFF4DB56C), fontSize: 13)),
+                  child: const Text(
+                    '수정하기',
+                    style: TextStyle(color: Color(0xFF4DB56C), fontSize: 13),
+                  ),
                 ),
             ],
           ),
           const SizedBox(height: 20),
 
-          // 2. 컬렉션 제목
+          // ── 제목
           Text(
-            controller.collectionTitle,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+            controller.collectionTitle.value,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
           ),
           const SizedBox(height: 12),
 
-          // 3. 컬렉션 설명
-          Text(
-            controller.collectionDesc,
-            style: const TextStyle(fontSize: 15, color: Color(0xFF555555), height: 1.4),
-          ),
-          const SizedBox(height: 16),
-
-          // 4. 태그 리스트 (#소설, #인생책)
-          Wrap(
-            spacing: 8, // 태그 사이 가로 간격
-            runSpacing: 8, // 태그 사이 세로 간격
-            children: controller.tags.map((tag) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF3F3F3), // 회색 알약 배경
-                borderRadius: BorderRadius.circular(20),
+          // ── 설명
+          if (controller.collectionDesc.value.isNotEmpty) ...[
+            Text(
+              controller.collectionDesc.value,
+              style: const TextStyle(
+                fontSize: 15,
+                color: Color(0xFF555555),
+                height: 1.4,
               ),
-              child: Text(tag, style: const TextStyle(fontSize: 13, color: Color(0xFF717171))),
-            )).toList(),
-          ),
+            ),
+            if (controller.tags.isNotEmpty) const SizedBox(height: 16),
+          ],
+
+          // ── 태그
+          if (controller.tags.isNotEmpty)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: controller.tags.map((tag) => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: ShapeDecoration(
+                  color: const Color(0x7FDADADA),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                ),
+                child: Text(
+                  '#$tag',
+                  style: const TextStyle(
+                    color: Color(0xFF3F3F3F),
+                    fontSize: 14,
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.w400,
+                    height: 1.79,
+                  ),
+                ),
+              )).toList(),
+            ),
         ],
-      ),
+      )),
     );
   }
 }

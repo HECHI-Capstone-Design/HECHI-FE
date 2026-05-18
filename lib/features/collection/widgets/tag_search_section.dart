@@ -63,7 +63,6 @@ class TagSearchSection extends GetView<CreateCollectionController> {
               ),
             ),
           ),
-          // ★ 드롭다운 토글 아이콘
           GestureDetector(
             onTap: isOpen
                 ? controller.closeTagDropdown
@@ -132,13 +131,12 @@ class TagSearchSection extends GetView<CreateCollectionController> {
     return ConstrainedBox(
       constraints: const BoxConstraints(
         maxHeight: 168,
-        minWidth: double.infinity, // ★ 너비 유지
+        minWidth: double.infinity,
       ),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: grouped.entries.expand((entry) => [
-            // ★ 대분류명 헤더
             _buildDropdownRow(
               child: Text(
                 entry.key,
@@ -151,7 +149,6 @@ class TagSearchSection extends GetView<CreateCollectionController> {
                 ),
               ),
             ),
-            // ★ 해당 카테고리 태그 Wrap 칩
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
               child: Wrap(
@@ -177,28 +174,37 @@ class TagSearchSection extends GetView<CreateCollectionController> {
 
   // ── 대분류 카테고리 목록 ─────────────────────────────────────
   Widget _buildCategoryList() {
-    final visibleCategories = controller.categories.take(5).toList();
+    final visibleCategories = controller.categories;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: visibleCategories.map((category) {
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => controller.selectCategory(category.name),
-          child: _buildDropdownRow(
-            child: Text(
-              category.name,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 14,
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w400,
-                height: 2,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        maxHeight: 165, // 33px * 5개 = 딱 5개 높이로 고정
+        minWidth: double.infinity,
+      ),
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: visibleCategories.map((category) {
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => controller.selectCategory(category.name),
+              child: _buildDropdownRow(
+                child: Text(
+                  category.name,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 14,
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.w400,
+                    height: 2,
+                  ),
+                ),
               ),
-            ),
-          ),
-        );
-      }).toList(),
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 
@@ -241,9 +247,12 @@ class TagSearchSection extends GetView<CreateCollectionController> {
 
         // 해당 카테고리 태그 목록
         ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 168),
+          constraints: const BoxConstraints(
+            maxHeight: 170,
+          ),
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(10),
+            physics: const ClampingScrollPhysics(),
             child: Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -293,7 +302,6 @@ class TagSearchSection extends GetView<CreateCollectionController> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          // TODO: Replace dummy data with API response - GET /tags/popular
           children: controller.popularTags.map((tag) {
             return TagChip(
               tag: tag,

@@ -10,7 +10,7 @@ import '../widgets/section_title.dart';
 import '../widgets/taste_analysis_preview.dart';
 import '../widgets/see_all_taste_button.dart';
 import '../widgets/book_storage_link.dart';
-import '../widgets/my_collection_section.dart';
+import '../widgets/like_collection_section.dart';
 import '../../collection_detail/pages/collection_detail_view.dart';
 
 class MyReadView extends GetView<MyReadController> {
@@ -75,7 +75,7 @@ class MyReadView extends GetView<MyReadController> {
 
               const SizedBox(height: 30),
               // 컬렉션 UI
-              const MyCollectionSection(),
+              const LikeCollectionSection(),
 
               const SizedBox(height: 40),
             ],

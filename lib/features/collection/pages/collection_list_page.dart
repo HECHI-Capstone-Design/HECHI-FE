@@ -79,7 +79,6 @@ class CollectionListPage extends GetView<CollectionListController> {
           return CollectionCard(
             collection: collection,
             onTap: () => controller.navigateToCollectionDetail(collection.id),
-            onLikeTap: () => controller.toggleLike(collection.id),
           );
         },
       );

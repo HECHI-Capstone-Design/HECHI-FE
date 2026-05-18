@@ -4,13 +4,13 @@ import '../models/collection_list_model.dart';
 class CollectionCard extends StatelessWidget {
   final CollectionListItem collection;
   final VoidCallback onTap;
-  final VoidCallback onLikeTap;
+  final VoidCallback? onLikeTap;
 
   const CollectionCard({
     super.key,
     required this.collection,
     required this.onTap,
-    required this.onLikeTap,
+    this.onLikeTap,
   });
 
   @override
@@ -31,7 +31,7 @@ class CollectionCard extends StatelessWidget {
           children: [
             _buildCoverImage(),
             _buildTitleSection(),
-            _buildTagSection(),
+            if (collection.tags.isNotEmpty) _buildTagSection(),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 17),
               child: Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
@@ -49,14 +49,11 @@ class CollectionCard extends StatelessWidget {
       builder: (context, constraints) {
         final double totalWidth = constraints.maxWidth;
 
-        // 현재 비율(378:200) 유지
         final double thumbnailHeight = totalWidth * 200 / 378;
 
-        // 첫 번째 책: 높이 = 썸네일 높이, 너비 = 높이 * 2/3
         final double bookHeight = thumbnailHeight;
         final double bookWidth = bookHeight * 2 / 3;
 
-        // 나머지 4권이 나눠 가질 너비
         final double remainWidth = totalWidth - bookWidth;
         final double step = remainWidth / 4;
 
@@ -116,8 +113,8 @@ class CollectionCard extends StatelessWidget {
                   child: Row(
                     children: [
                       Container(
-                        width: 40,
-                        height: 40,
+                        width: 38,
+                        height: 38,
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.7),
                           shape: BoxShape.circle,
@@ -135,7 +132,7 @@ class CollectionCard extends StatelessWidget {
                           color: Colors.white,
                           fontSize: 18,
                           fontFamily: 'Roboto',
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                           height: 1.11,
                           letterSpacing: 0.25,
                         ),
@@ -168,11 +165,6 @@ class CollectionCard extends StatelessWidget {
         )
             : null,
       ),
-      child: coverUrl.isEmpty
-          ? const Center(
-        child: Icon(Icons.book, color: Color(0xFFABABAB), size: 32),
-      )
-          : null,
     );
   }
 
@@ -194,20 +186,22 @@ class CollectionCard extends StatelessWidget {
               letterSpacing: 0.25,
             ),
           ),
-          const SizedBox(height: 15),
-          Text(
-            collection.description,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Color(0xFF3F3F3F),
-              fontSize: 15,
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w400,
-              height: 1.33,
-              letterSpacing: 0.25,
+          if (collection.description.isNotEmpty) ...[
+            const SizedBox(height: 15),
+            Text(
+              collection.description,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Color(0xFF3F3F3F),
+                fontSize: 15,
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.w400,
+                height: 1.33,
+                letterSpacing: 0.25,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -230,7 +224,7 @@ class CollectionCard extends StatelessWidget {
               ),
             ),
             child: Text(
-              tag,
+              '#$tag',
               style: const TextStyle(
                 color: Color(0xFF3F3F3F),
                 fontSize: 14,
@@ -259,8 +253,10 @@ class CollectionCard extends StatelessWidget {
               children: [
                 Text(
                   '좋아요',
-                  style: const TextStyle(
-                    color: Color(0xFF717171),
+                  style: TextStyle(
+                    color: onLikeTap != null
+                        ? const Color(0xFF4EB56D)
+                        : const Color(0xFF717171),
                     fontSize: 13,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w400,
@@ -271,8 +267,10 @@ class CollectionCard extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   '${collection.likeCount}',
-                  style: const TextStyle(
-                    color: Color(0xFF717171),
+                  style: TextStyle(
+                    color: onLikeTap != null
+                        ? const Color(0xFF4EB56D)
+                        : const Color(0xFF717171),
                     fontSize: 13,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w400,

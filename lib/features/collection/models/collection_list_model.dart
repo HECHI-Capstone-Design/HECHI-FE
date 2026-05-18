@@ -10,6 +10,7 @@ class CollectionListItem {
   final int bookCount;
   final bool isLiked;
   final bool isPublic;
+  final bool hasBook;
 
   const CollectionListItem({
     required this.id,
@@ -23,6 +24,7 @@ class CollectionListItem {
     required this.bookCount,
     this.isLiked = false,
     this.isPublic = true,
+    this.hasBook = false,
   });
 
   CollectionListItem copyWith({bool? isLiked}) {
@@ -34,10 +36,27 @@ class CollectionListItem {
       authorProfileUrl: authorProfileUrl,
       tags: tags,
       bookCoverUrls: bookCoverUrls,
-      likeCount: isLiked == true ? likeCount + 1 : likeCount,
+      likeCount: isLiked == true ? likeCount + 1 : likeCount - 1,
       bookCount: bookCount,
       isLiked: isLiked ?? this.isLiked,
       isPublic: isPublic,
+      hasBook: hasBook ?? this.hasBook,
+    );
+  }
+
+  factory CollectionListItem.fromJson(Map<String, dynamic> json) {
+    return CollectionListItem(
+      id: json['collectionId'].toString(),
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
+      authorName: json['userName'] ?? '',
+      tags: List<String>.from(json['tags'] ?? []),
+      bookCoverUrls: List<String>.from(json['thumbnailCovers'] ?? []),
+      likeCount: json['likeCount'] ?? 0,
+      bookCount: json['bookCount'] ?? 0,
+      isLiked: json['isLiked'] ?? false,
+      isPublic: !(json['isPrivate'] ?? false),
+      hasBook: json['hasBook'] ?? false,
     );
   }
 }

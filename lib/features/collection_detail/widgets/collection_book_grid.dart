@@ -2,90 +2,176 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/collection_detail_controller.dart';
 
-// "작품들 O개" 텍스트와 책들이 3줄 격자(Grid)로 나열되는 영역입니다.
-class CollectionBookGrid extends StatelessWidget {
+class CollectionBookGrid extends StatefulWidget {
   final CollectionDetailController controller;
 
   const CollectionBookGrid({super.key, required this.controller});
 
   @override
+  State<CollectionBookGrid> createState() => _CollectionBookGridState();
+}
+
+class _CollectionBookGridState extends State<CollectionBookGrid> {
+  int _visibleCount = 15;
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      padding: const EdgeInsets.fromLTRB(20, 15, 20, 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. "작품들 N" 헤더
-          Row(
+          // ── 헤더
+          Obx(() => Row(
             children: [
-              const Text("작품들", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF3F3F3F))),
-              const SizedBox(width: 8),
-              Obx(() => Text(
-                "${controller.books.length}",
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF9E9E9E)),
-              )),
-            ],
-          ),
-          const SizedBox(height: 20),
-
-          // 2. 책 표지 3칸 격자(Grid) 배치
-          Obx(() {
-            return GridView.builder(
-              shrinkWrap: true, // 안쪽 리스트가 스크롤 에러를 일으키지 않게 꽉 잡아줌
-              physics: const NeverScrollableScrollPhysics(), // 바깥 화면 스크롤 사용
-              itemCount: controller.books.length,
-              // 📝 [수정 꿀팁] 피그마처럼 가로로 3권씩 보여주기 위한 세팅!
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3, // 1줄에 3권씩
-                crossAxisSpacing: 12, // 가로 간격
-                mainAxisSpacing: 20, // 세로 간격
-                childAspectRatio: 0.55, // 책 표지(세로로 김) + 글자 공간 확보
+              const Text(
+                '작품들',
+                style: TextStyle(
+                  color: Color(0xFF3F3F3F),
+                  fontSize: 17,
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w600,
+                  height: 1.65,
+                ),
               ),
-              itemBuilder: (context, index) {
-                final book = controller.books[index];
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 책 표지 이미지
-                    Expanded(
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          // 그림자를 넣어서 피그마처럼 살짝 띄워줍니다.
-                          boxShadow: [
-                            BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(0, 2)),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: Image.network(
-                            book['cover']!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(color: Colors.grey[200]),
+              const SizedBox(width: 6),
+              Text(
+                '${widget.controller.books.length}',
+                style: const TextStyle(
+                  color: Color(0xFF717171),
+                  fontSize: 15,
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  height: 1.87,
+                ),
+              ),
+            ],
+          )),
+          const SizedBox(height: 15),
+
+          // ── 작품 그리드
+          Obx(() {
+            if (widget.controller.books.isEmpty) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(40),
+                  child: Text(
+                    '담긴 작품이 없습니다.',
+                    style: TextStyle(color: Color(0xFFABABAB), fontSize: 15),
+                  ),
+                ),
+              );
+            }
+
+            final books = widget.controller.books;
+            final visibleBooks = books.take(_visibleCount).toList();
+            final hasMore = books.length > _visibleCount;
+
+            return Column(
+              children: [
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: EdgeInsets.zero,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 0.45,
+                    crossAxisSpacing: 10,
+                  ),
+                  itemCount: visibleBooks.length,
+                  itemBuilder: (context, index) {
+                    final book = visibleBooks[index];
+                    final coverUrl = book['thumbnail'] as String? ?? '';
+                    final title = book['title'] as String? ?? '';
+                    final authors = book['authors'];
+                    final author = (authors is List && authors.isNotEmpty)
+                        ? authors.join(', ')
+                        : '';
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AspectRatio(
+                          aspectRatio: 2 / 3,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: const Color(0xFFE0E0E0), width: 0.5),
+                              image: coverUrl.isNotEmpty
+                                  ? DecorationImage(
+                                image: NetworkImage(coverUrl),
+                                fit: BoxFit.cover,
+                              )
+                                  : null,
+                            ),
+                            child: coverUrl.isEmpty
+                                ? const Icon(Icons.book, color: Colors.grey)
+                                : null,
                           ),
                         ),
+                        const SizedBox(height: 8),
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          author,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Color(0xFF717171),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+
+                // ── 목록 더 불러오기
+                if (hasMore) ...[
+                  const SizedBox(height: 16),
+                  InkWell(
+                    onTap: () => setState(() => _visibleCount += 15),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF7F7F7),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '목록 더 불러오기',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Icon(
+                            Icons.chevron_right,
+                            size: 16,
+                            color: Colors.grey,
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    // 책 제목 (길면 ... 처리)
-                    Text(
-                      book['title']!,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF3F3F3F)),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    // 작가 이름
-                    Text(
-                      book['author']!,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                );
-              },
+                  ),
+                ],
+              ],
             );
           }),
         ],

@@ -23,8 +23,8 @@ class TagChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
         decoration: ShapeDecoration(
           color: isSelected
-              ? const Color(0x7FD1ECD9) // 초록 반투명
-              : const Color(0x7FDADADA), // 회색 반투명
+              ? const Color(0x7FD1ECD9)
+              : const Color(0x7FDADADA),
           shape: RoundedRectangleBorder(
             side: isSelected
                 ? const BorderSide(width: 0.5, color: Color(0xFF4DB56C))
@@ -36,13 +36,13 @@ class TagChip extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              tag.label,
+              '#${tag.label}',
               style: const TextStyle(
                 color: Colors.black,
-                fontSize: 15,
+                fontSize: 14,
                 fontFamily: 'Roboto',
                 fontWeight: FontWeight.w400,
-                height: 1.87,
+                height: 1.75,
               ),
             ),
             if (showRemove && isSelected) ...[

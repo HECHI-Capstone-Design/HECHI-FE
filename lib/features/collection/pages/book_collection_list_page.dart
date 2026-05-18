@@ -65,7 +65,15 @@ class BookCollectionListPage extends GetView<BookCollectionListController> {
               itemBuilder: (context, index) {
                 final collection = controller.collections[index];
                 return GestureDetector(
-                  onTap: () {},
+                  onTap: () async {
+                    final result = await Get.toNamed(
+                      '/collection_detail',
+                      arguments: int.tryParse(collection.id),
+                    );
+                    if (result != null && result is Map<String, dynamic> && result['updated'] == true) {
+                      controller.loadCollections();
+                    }
+                  },
                   child: Container(
                     padding: const EdgeInsets.all(itemPadding),
                     decoration: ShapeDecoration(

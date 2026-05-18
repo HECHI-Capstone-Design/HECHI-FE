@@ -112,7 +112,6 @@ class AddToCollectionPage extends GetView<AddToCollectionController> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         child: Row(
           children: [
-            // + 아이콘 컨테이너 (84x126)
             Container(
               width: 84,
               height: 126,
@@ -185,7 +184,6 @@ class AddToCollectionPage extends GetView<AddToCollectionController> {
                 ),
               ),
               const SizedBox(width: 20),
-              // 체크 아이콘
               isSelected
                   ? const Icon(
                 Icons.check_circle,

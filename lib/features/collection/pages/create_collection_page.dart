@@ -172,22 +172,6 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
                     height: lineHeight,
                   ),
                 ),
-                if (!isEmpty)
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: Container(
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Colors.transparent, Colors.white],
-                        ),
-                      ),
-                    ),
-                  ),
               ],
             ),
           );
@@ -308,18 +292,39 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
                   height: 1.87,
                 ),
               ),
+              const Spacer(),
+              GestureDetector(
+                onTap: controller.navigateToBookSearch,
+                child: const Text(
+                  '수정하기',
+                  style: TextStyle(
+                    color: Color(0xFF4DB56C),
+                    fontSize: 15,
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.w400,
+                    height: 1.87,
+                  ),
+                ),
+              ),
             ],
           )),
           const SizedBox(height: 15),
           LayoutBuilder(
             builder: (context, constraints) {
-              final itemWidth = (constraints.maxWidth - 36) / 3;
+              final itemWidth = (constraints.maxWidth - 12 * 2) / 3;
               final itemHeight = itemWidth * 3 / 2;
 
               return Obx(() => Wrap(
                 spacing: 12,
                 runSpacing: 12,
                 children: [
+                  SizedBox(
+                    width: itemWidth,
+                    height: itemHeight,
+                    child: AddBookButton(
+                      onTap: controller.navigateToBookSearch,
+                    ),
+                  ),
                   ...controller.selectedBooks.map((book) => SizedBox(
                     width: itemWidth,
                     height: itemHeight,
@@ -328,13 +333,6 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
                       onRemove: () => controller.removeBook(book.id),
                     ),
                   )),
-                  SizedBox(
-                    width: itemWidth,
-                    height: itemHeight,
-                    child: AddBookButton(
-                      onTap: controller.navigateToBookSearch,
-                    ),
-                  ),
                 ],
               ));
             },

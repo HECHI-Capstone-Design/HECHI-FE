@@ -1,10 +1,16 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
 import '../models/collection_tag_model.dart';
 import '../models/collection_book_model.dart';
 import '../models/collection_list_model.dart';
 
 class CreateCollectionController extends GetxController {
+  final String baseUrl = "https://api.43-202-101-63.sslip.io";
+  final box = GetStorage();
+
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
   final tagSearchController = TextEditingController();
@@ -18,19 +24,19 @@ class CreateCollectionController extends GetxController {
   final RxString tagSearchQuery = ''.obs;
   final RxBool isTagSearchActive = false.obs;
   final RxBool isTagDropdownOpen = false.obs;
+  final RxBool isLoading = false.obs;
 
   final RxBool isEditMode = false.obs;
-  String? editingCollectionId;
+  int? editingCollectionId;
 
-  final List<TagCategory> categories = allTagCategories;
+  final RxList<TagCategory> categories = <TagCategory>[].obs;
+  final RxList<CollectionTag> popularTags = <CollectionTag>[].obs;
 
-  final List<CollectionTag> popularTags = const [
-    CollectionTag(label: '#소설', category: '장르'),
-    CollectionTag(label: '#초보추천', category: '난이도'),
-    CollectionTag(label: '#몰입감있는', category: '분위기'),
-    CollectionTag(label: '#로맨스', category: '장르'),
-    CollectionTag(label: '#여운이남는', category: '감정'),
-  ];
+  String? get _token => box.read('access_token');
+  Map<String, String> get _headers => {
+    'Content-Type': 'application/json',
+    if (_token != null) 'Authorization': 'Bearer $_token',
+  };
 
   @override
   void onInit() {
@@ -45,31 +51,26 @@ class CreateCollectionController extends GetxController {
       description.value = descriptionController.text;
     });
 
+    fetchCategories();
+    fetchPopularTags();
+
     final args = Get.arguments;
-    if (args == null){ } // 컬렉션 리스트 -> 새 컬렉션
-    else if (args is CollectionBook) { // 도서 상세에서 넘어온 경우 해당 도서 자동 추가
-      // TODO: Replace dummy data with API response
+    if (args == null) {
+    } else if (args is CollectionBook) {
       selectedBooks.add(args);
-    }
-    else if (args is CollectionListItem) { // 수정 모드
-      // TODO: Replace dummy data with API response
+    } else if (args is CollectionListItem) {
       isEditMode.value = true;
-      editingCollectionId = args.id;
+      editingCollectionId = int.tryParse(args.id);
       titleController.text = args.title;
       descriptionController.text = args.description;
       description.value = args.description;
       isPrivate.value = !args.isPublic;
-
-      final allTags = allTagCategories.expand((c) => c.tags).toList();
-      for (final label in args.tags) {
-        final match = allTags.firstWhereOrNull((t) => t.label == label);
-        if (match != null) selectedTags.add(match);
-      }
-      // 도서 목록은 API에서 별도로 받아와야 함
-      // TODO: Replace dummy data with API response
-      // GET /collections/{id}/books
+      _pendingTagLabels = List<String>.from(args.tags);
+      _fetchCollectionBooks(editingCollectionId!);
     }
   }
+
+  List<String> _pendingTagLabels = [];
 
   @override
   void onClose() {
@@ -80,11 +81,97 @@ class CreateCollectionController extends GetxController {
   }
 
   // ── Tag 관련 ───────────────────────────────────────────────────────────────
+  Future<void> fetchCategories() async {
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/tags/categories'),
+        headers: _headers,
+      );
+      if (res.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(res.bodyBytes));
+        final list = (data['categories'] as List)
+            .map((e) => TagCategory.fromJson(e))
+            .toList();
+        categories.assignAll(list);
+
+        for (final cat in list) {
+          await fetchTagsByCategory(cat);
+        }
+
+        if (_pendingTagLabels.isNotEmpty) {
+          final allTags = categories.expand((c) => c.tags).toList();
+          for (final label in _pendingTagLabels) {
+            final match = allTags.firstWhereOrNull((t) => t.label == label);
+            if (match != null) selectedTags.add(match);
+          }
+          _pendingTagLabels = [];
+        }
+      }
+    } catch (e) {
+      print('❌ fetchCategories error: $e');
+    }
+  }
+
+  Future<void> fetchTagsByCategory(TagCategory category) async {
+    try {
+      final uri = Uri.parse('$baseUrl/tags').replace(queryParameters: {
+        'category': category.name,
+        'limit': '100',
+      });
+      final res = await http.get(uri, headers: _headers);
+      if (res.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(res.bodyBytes));
+        category.tags = (data['tags'] as List)
+            .map((e) => CollectionTag.fromJson(e))
+            .toList();
+        categories.refresh();
+      }
+    } catch (e) {
+      print('❌ fetchTagsByCategory error: $e');
+    }
+  }
+
+  Future<void> fetchPopularTags() async {
+    try {
+      final uri = Uri.parse('$baseUrl/tags').replace(queryParameters: {
+        'limit': '5',
+      });
+      final res = await http.get(uri, headers: _headers);
+      if (res.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(res.bodyBytes));
+        final tags = (data['tags'] as List)
+            .map((e) => CollectionTag.fromJson(e))
+            .toList();
+        popularTags.assignAll(tags);
+      }
+    } catch (e) {
+      print('❌ fetchPopularTags error: $e');
+    }
+  }
+
+  Future<List<CollectionTag>> searchTags(String query) async {
+    try {
+      final uri = Uri.parse('$baseUrl/tags').replace(queryParameters: {
+        'query': query,
+        'limit': '30',
+      });
+      final res = await http.get(uri, headers: _headers);
+      if (res.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(res.bodyBytes));
+        return (data['tags'] as List)
+            .map((e) => CollectionTag.fromJson(e))
+            .toList();
+      }
+    } catch (e) {
+      print('❌ searchTags error: $e');
+    }
+    return [];
+  }
+
   List<CollectionTag> get currentCategoryTags {
     return categories
         .firstWhereOrNull((c) => c.name == selectedCategory.value)
-        ?.tags ??
-        [];
+        ?.tags ?? [];
   }
 
   List<CollectionTag> get filteredSearchTags {
@@ -126,6 +213,37 @@ class CreateCollectionController extends GetxController {
   }
 
   // ── Book 관련 ──────────────────────────────────────────────────────────────
+  List<String> _originalBookIds = [];
+
+  Future<void> _fetchCollectionBooks(int collectionId) async {
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/collections/$collectionId'),
+        headers: _headers,
+      );
+      if (res.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(res.bodyBytes));
+        final bookList = data['books'] as List? ?? [];
+        _originalBookIds = bookList.map((b) => b['bookId'].toString()).toList();
+        selectedBooks.assignAll(
+          bookList.map((b) => CollectionBook(
+            id: b['bookId'].toString(),
+            title: b['title'] ?? '',
+            author: (b['authors'] is List && (b['authors'] as List).isNotEmpty)
+                ? (b['authors'] as List).join(', ')
+                : '',
+            coverUrl: (b['thumbnail'] != null &&
+                b['thumbnail'].toString().startsWith('http'))
+                ? b['thumbnail']
+                : null,
+          )).toList(),
+        );
+      }
+    } catch (e) {
+      print('❌ _fetchCollectionBooks error: $e');
+    }
+  }
+
   void addBook(CollectionBook book) {
     if (!selectedBooks.any((b) => b.id == book.id)) {
       selectedBooks.add(book);
@@ -138,7 +256,7 @@ class CreateCollectionController extends GetxController {
   // ── 확인 / 취소 ────────────────────────────────────────────────────────────
   bool get isFormValid => titleController.text.trim().isNotEmpty;
 
-  void onConfirm() {
+  void onConfirm() async {
     if (!isFormValid) {
       Get.snackbar(
         '입력 오류',
@@ -152,25 +270,129 @@ class CreateCollectionController extends GetxController {
       return;
     }
 
-    // TODO: Replace dummy data with API response
-    // POST /collections
-    final payload = {
-      'title': titleController.text.trim(),
-      'description': descriptionController.text.trim(),
-      'isPrivate': isPrivate.value,
-      'tags': selectedTags.map((t) => t.label).toList(),
-      'bookIds': selectedBooks.map((b) => b.id).toList(),
-    };
-    if (isEditMode.value) {
-      // TODO: Replace dummy data with API response
-      // PATCH /collections/{editingCollectionId}
-      debugPrint('Editing collection $editingCollectionId: $payload');
-    } else {
-      // TODO: Replace dummy data with API response
-      // POST /collections
-      debugPrint('Creating collection: $payload');
+    isLoading.value = true;
+
+    try {
+      if (isEditMode.value && editingCollectionId != null) {
+        await _updateCollection();
+      } else {
+        await _createCollection();
+      }
+    } finally {
+      isLoading.value = false;
     }
-    Get.back(result: payload);
+  }
+
+  Future<void> _createCollection() async {
+    final body = jsonEncode({
+      'title': titleController.text.trim(),
+      'isPrivate': isPrivate.value,
+      'description': descriptionController.text.trim().isEmpty
+          ? null
+          : descriptionController.text.trim(),
+      'tags': selectedTags.map((t) => t.toJson()).toList(),
+      'bookIds': selectedBooks.map((b) => int.tryParse(b.id) ?? 0).toList(),
+    });
+
+    final res = await http.post(
+      Uri.parse('$baseUrl/collections'),
+      headers: _headers,
+      body: body,
+    );
+
+    if (res.statusCode == 201) {
+      final data = jsonDecode(res.body);
+      print('✅ 컬렉션 생성 완료: ${data['collectionId']}');
+      Get.back(result: {
+        'collectionId': data['collectionId'],
+        'title': titleController.text.trim(),
+        'description': descriptionController.text.trim(),
+        'isPrivate': isPrivate.value,
+        'tags': selectedTags.map((t) => t.label).toList(),
+        'bookIds': selectedBooks.map((b) => b.id).toList(),
+      });
+    } else {
+      print('❌ 컬렉션 생성 실패: ${res.statusCode} ${res.body}');
+      Get.snackbar('오류', '컬렉션 생성에 실패했습니다.');
+    }
+  }
+
+  Future<void> _updateCollection() async {
+    final body = jsonEncode({
+      'title': titleController.text.trim(),
+      'isPrivate': isPrivate.value,
+      'description': descriptionController.text.trim().isEmpty
+          ? null
+          : descriptionController.text.trim(),
+      'tags': selectedTags.map((t) => t.toJson()).toList(),
+    });
+
+    final res = await http.put(
+      Uri.parse('$baseUrl/collections/$editingCollectionId'),
+      headers: _headers,
+      body: body,
+    );
+
+    if (res.statusCode == 200) {
+      await _syncBookChanges();
+      await _updateBookOrder();
+
+      print('✅ 컬렉션 수정 완료');
+
+      Get.back(result: {
+        'collectionId': editingCollectionId,
+        'title': titleController.text.trim(),
+        'description': descriptionController.text.trim(),
+        'isPrivate': isPrivate.value,
+        'tags': selectedTags.map((t) => t.label).toList(),
+        'bookIds': selectedBooks.map((b) => b.id).toList(),
+      });
+    } else {
+      print('❌ 컬렉션 수정 실패: ${res.statusCode} ${res.body}');
+      Get.snackbar('오류', '컬렉션 수정에 실패했습니다.');
+    }
+  }
+
+  Future<void> _syncBookChanges() async {
+    final originalIds = _originalBookIds.toSet();
+    final currentIds = selectedBooks.map((b) => b.id).toSet();
+
+    final toAdd = currentIds.difference(originalIds);
+    for (final id in toAdd) {
+      await http.post(
+        Uri.parse('$baseUrl/collections/$editingCollectionId/books'),
+        headers: _headers,
+        body: jsonEncode({'bookId': int.tryParse(id) ?? 0}),
+      );
+    }
+
+    final toDelete = originalIds.difference(currentIds);
+    for (final id in toDelete) {
+      await http.delete(
+        Uri.parse('$baseUrl/collections/$editingCollectionId/books/$id'),
+        headers: _headers,
+      );
+    }
+    _originalBookIds = selectedBooks.map((b) => b.id).toList();
+  }
+
+  Future<void> _updateBookOrder() async {
+    try {
+      final bookIds = selectedBooks
+          .map((b) => int.tryParse(b.id) ?? 0)
+          .toList();
+
+      final body = jsonEncode({'bookIds': bookIds});
+
+      await http.put(
+        Uri.parse('$baseUrl/collections/$editingCollectionId/books/order'),
+        headers: _headers,
+        body: body,
+      );
+      print('✅ 도서 순서 변경 완료');
+    } catch (e) {
+      print('❌ _updateBookOrder error: $e');
+    }
   }
 
   void onCancel() => Get.back();
@@ -182,7 +404,7 @@ class CreateCollectionController extends GetxController {
       arguments: List<CollectionBook>.from(selectedBooks),
     );
     if (result != null && result is List<CollectionBook>) {
-      selectedBooks.assignAll(result); // 결과 반영
+      selectedBooks.assignAll(result);
     }
   }
 }

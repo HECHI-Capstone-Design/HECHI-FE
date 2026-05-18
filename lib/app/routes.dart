@@ -59,6 +59,7 @@ import '../features/collection/pages/add_to_collection_page.dart';
 import '../features/collection/pages/book_collection_list_page.dart';
 import '../features/collection_detail/pages/collection_detail_view.dart';
 
+
 abstract class Routes {
   static const splash = '/splash';
   static const initial = '/';

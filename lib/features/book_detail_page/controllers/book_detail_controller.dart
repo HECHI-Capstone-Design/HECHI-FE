@@ -28,6 +28,7 @@ class BookDetailController extends GetxController {
   final RxDouble myRating = 0.0.obs;
   final RxDouble averageRating = 0.0.obs;
   final RxInt totalReviewCount = 0.obs;
+  final RxInt collectionRefreshTrigger = 0.obs;
 
   bool get isReadingOrCompleted =>
       ["READING", "COMPLETED"].contains(readingStatus.value);
