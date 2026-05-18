@@ -58,7 +58,14 @@ import '../features/collection/pages/collection_book_edit_page.dart';
 import '../features/collection/pages/add_to_collection_page.dart';
 import '../features/collection/pages/book_collection_list_page.dart';
 import '../features/collection_detail/pages/collection_detail_view.dart';
+import '../features/my_read/widgets/see_all_like_collection.dart';
 
+import '../features/myGroup/pages/my_group_page.dart';
+import '../features/myGroup/pages/group_recommendation_page.dart';
+import '../features/myGroup/bindings/my_group_binding.dart';
+import '../features/myGroup/bindings/group_recommendation_binding.dart';
+import '../features/myGroup/pages/group_create_page.dart';
+import '../features/myGroup/bindings/group_create_binding.dart';
 
 abstract class Routes {
   static const splash = '/splash';
@@ -97,6 +104,11 @@ abstract class Routes {
   static const addToCollection = '/collection/add';
   static const bookCollectionList = '/book_collection_list';
   static const collectionDetail = '/collection_detail';
+  static const likeCollectionList = '/like_collection_list';
+
+  static const myGroup = '/myGroup';
+  static const groupRecommendation = '/groupRecommendation';
+  static const groupCreate = '/groupCreate';
 }
 
 class AppPages {
@@ -136,5 +148,10 @@ class AppPages {
     GetPage(name: Routes.addToCollection, page: () => const AddToCollectionPage(), binding: AddToCollectionBinding()),
     GetPage(name: Routes.bookCollectionList, page: () => const BookCollectionListPage(), binding: BookCollectionListBinding()),
     GetPage(name: Routes.collectionDetail, page: () => const CollectionDetailView(), binding: CollectionDetailBinding()),
+    GetPage(name: Routes.likeCollectionList, page: () => const SeeAllLikeCollectionPage()),
+
+    GetPage(name: Routes.myGroup, page: () => const MyGroupPage(), binding: MyGroupBinding(),),
+    GetPage(name: Routes.groupRecommendation, page: () => const GroupRecommendationPage(), binding: GroupRecommendationBinding(),),
+    GetPage(name: Routes.groupCreate, page: () => const GroupCreatePage(), binding: GroupCreateBinding()),
   ];
 }

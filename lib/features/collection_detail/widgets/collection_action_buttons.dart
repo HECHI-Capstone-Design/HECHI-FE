@@ -24,7 +24,7 @@ class CollectionActionButtons extends StatelessWidget {
             children: [
               Expanded(
                 child: Obx(() => InkWell(
-                  onTap: controller.isMine.value ? null : () => controller.toggleLike(),
+                  onTap: () => controller.toggleLike(),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Row(

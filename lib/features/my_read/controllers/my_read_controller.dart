@@ -28,6 +28,7 @@ class MyReadController extends GetxController {
   RxString totalComments = "0".obs;
 
   final RxString totalCollections = '0'.obs;
+  final RxInt collectionRefreshKey = 0.obs;
 
   RxList<Map<String, dynamic>> insightTags = <Map<String, dynamic>>[].obs;
 

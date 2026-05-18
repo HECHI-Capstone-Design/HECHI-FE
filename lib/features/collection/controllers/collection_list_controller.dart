@@ -116,6 +116,8 @@ class CollectionListController extends GetxController {
       } else if (result['updated'] == true) {
         await loadCollections();
       }
+    } else {
+      await loadCollections();
     }
   }
 

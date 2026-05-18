@@ -70,6 +70,7 @@ class BookCollectionListPage extends GetView<BookCollectionListController> {
                       '/collection_detail',
                       arguments: int.tryParse(collection.id),
                     );
+                    controller.loadCollections();
                     if (result != null && result is Map<String, dynamic> && result['updated'] == true) {
                       controller.loadCollections();
                     }

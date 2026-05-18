@@ -5,6 +5,7 @@ import '../../features/search/controllers/search_controller.dart';
 import '../../features/my_read/controllers/my_read_controller.dart';
 import '../../features/reading_registration/controllers/reading_registration_controller.dart';
 import '../../features/reading_registration/data/repository/reading_registration_repository.dart';
+import '../../features/myGroup/controllers/my_group_controller.dart';
 
 class AppBinding extends Bindings {
   @override
@@ -15,5 +16,6 @@ class AppBinding extends Bindings {
     Get.put(MyReadController());
     Get.lazyPut<ReadingRegistrationRepository>(() => ReadingRegistrationRepository());
     Get.put(ReadingRegistrationController(repository: Get.find()));
+    Get.put(MyGroupController());
   }
 }

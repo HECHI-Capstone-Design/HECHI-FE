@@ -67,9 +67,9 @@ class _MyCollectionSectionState extends State<LikeCollectionSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // ── 타이틀
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.0),
-          child: Text(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+          child: const Text(
             '좋아요한 컬렉션',
             style: TextStyle(
               fontSize: 18,
@@ -79,76 +79,85 @@ class _MyCollectionSectionState extends State<LikeCollectionSection> {
           ),
         ),
 
-        const SizedBox(height: 16),
-
         // ── 가로 스크롤 카드
-        SizedBox(
-          height: 210,
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            scrollDirection: Axis.horizontal,
-            itemCount: collections.length,
-            itemBuilder: (context, index) {
-              final collection = collections[index];
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: collections.map((collection) {
+              final index = collections.indexOf(collection);
               return GestureDetector(
                 onTap: () => Get.toNamed(
-                  Routes.collectionDetail,
+                  '/collection_detail',
                   arguments: int.tryParse(collection.id),
                 ),
                 child: Container(
-                  width: 140,
+                  width: 120,
                   margin: EdgeInsets.only(
-                    right: index == collections.length - 1 ? 0 : 16.0,
+                    right: index == collections.length - 1 ? 0 : 15.0,
+                  ),
+                  padding: const EdgeInsets.all(10),
+                  decoration: ShapeDecoration(
+                    color: const Color(0x4CDADADA),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(3),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // ── 썸네일
                       CollectionThumbnail(
                         bookCoverUrls: collection.bookCoverUrls,
-                        width: 140,
-                        height: 140,
+                        width: 100,
+                        height: 150,
                       ),
-                      const SizedBox(height: 8),
-                      // ── 제목
+                      const SizedBox(height: 10),
                       Text(
                         collection.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
                           color: Colors.black,
+                          fontSize: 14,
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w400,
+                          height: 1.29,
+                          letterSpacing: 0.25,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
-                      // ── 작성자
+                      const SizedBox(height: 10),
                       Text(
-                        '컬렉션 · ${collection.authorName}',
+                        '좋아요 ${collection.likeCount}',
                         style: const TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF9E9E9E),
-                          height: 1.2,
+                          color: Color(0xFF717171),
+                          fontSize: 13,
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w400,
+                          height: 1.38,
+                          letterSpacing: 0.25,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
                 ),
               );
-            },
+            }).toList(),
           ),
         ),
 
         const SizedBox(height: 20),
 
         // ── 좋아요한 컬렉션 모두보기 버튼
-        // TODO: 좋아요한 컬렉션 전체 목록 페이지 만들기
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: const EdgeInsets.only(
+            left: 24.0,
+            right: 24.0,
+            top: 12.0,
+            bottom: 20.0,
+          ),
           child: InkWell(
-            onTap: () {}, // TODO: Routes.likedCollectionList
+            onTap: () => Get.toNamed('/like_collection_list'),
             borderRadius: BorderRadius.circular(12),
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 11),

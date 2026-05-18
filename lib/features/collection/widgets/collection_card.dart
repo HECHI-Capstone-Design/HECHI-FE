@@ -254,7 +254,7 @@ class CollectionCard extends StatelessWidget {
                 Text(
                   '좋아요',
                   style: TextStyle(
-                    color: onLikeTap != null
+                    color: collection.isLiked
                         ? const Color(0xFF4EB56D)
                         : const Color(0xFF717171),
                     fontSize: 13,
@@ -268,7 +268,7 @@ class CollectionCard extends StatelessWidget {
                 Text(
                   '${collection.likeCount}',
                   style: TextStyle(
-                    color: onLikeTap != null
+                    color: collection.isLiked
                         ? const Color(0xFF4EB56D)
                         : const Color(0xFF717171),
                     fontSize: 13,

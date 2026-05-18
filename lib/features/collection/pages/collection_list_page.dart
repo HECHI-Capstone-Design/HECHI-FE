@@ -76,10 +76,14 @@ class CollectionListPage extends GetView<CollectionListController> {
         separatorBuilder: (_, __) => const SizedBox(height: 20),
         itemBuilder: (context, index) {
           final collection = controller.collections[index];
-          return CollectionCard(
-            collection: collection,
-            onTap: () => controller.navigateToCollectionDetail(collection.id),
-          );
+          return Obx(() {
+            final c = controller.collections[index];
+            return CollectionCard(
+              collection: c,
+              onTap: () => controller.navigateToCollectionDetail(c.id),
+              onLikeTap: () => controller.toggleLike(c.id),
+            );
+          });
         },
       );
     });
