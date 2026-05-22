@@ -65,10 +65,6 @@ class BookmarkItem extends StatelessWidget {
                     ],
                   ),
 
-                  // 퍼센트 (데이터에 있다면 표시, 현재는 하드코딩 예시 or 생략)
-                  // const SizedBox(height: 4),
-                  // const Text("0%", style: TextStyle(fontSize: 12, color: Color(0xFF9E9E9E))),
-
                   const SizedBox(height: 8),
 
                   Text(

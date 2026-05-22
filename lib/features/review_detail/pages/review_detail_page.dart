@@ -34,18 +34,23 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
             Obx(() {
               final isMyReview = controller.review['is_my_review'] ?? false;
               if (!isMyReview) return const SizedBox.shrink();
-              return IconButton(
-                icon: const Icon(Icons.more_horiz, color: Colors.black),
-                onPressed: () {
-                  Get.bottomSheet(
-                    OptionBottomSheet(
-                      reviewId: controller.reviewId,
-                      onEdit: (_) => controller.showEditOverlay(),
-                      onDelete: (_) => controller.deleteReview(),
-                    ),
-                    backgroundColor: Colors.transparent,
-                  );
-                },
+              return Padding(
+                padding: const EdgeInsets.only(right: 17),
+                child: IconButton(
+                  icon: const Icon(Icons.more_horiz, color: Colors.black),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () {
+                    Get.bottomSheet(
+                      OptionBottomSheet(
+                        reviewId: controller.reviewId,
+                        onEdit: (_) => controller.showEditOverlay(),
+                        onDelete: (_) => controller.deleteReview(),
+                      ),
+                      backgroundColor: Colors.transparent,
+                    );
+                  },
+                ),
               );
             }),
           ],

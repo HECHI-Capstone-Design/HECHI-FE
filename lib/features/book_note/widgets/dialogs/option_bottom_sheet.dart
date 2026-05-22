@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/book_note_controller.dart';
 import '../overlays/creation_overlay.dart';
+import 'group_share_mixin.dart';
 
-class OptionBottomSheet extends StatelessWidget {
-  final String type; // bookmark | highlight | memo
+class OptionBottomSheet extends StatelessWidget with GroupShareMixin {
+  final String type;
   final Map<String, dynamic> data;
 
   const OptionBottomSheet({
@@ -22,7 +23,7 @@ class OptionBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<BookNoteController>();
 
-    return _SelectBottomSheet(
+    return _buildBottomSheet(
       title: type == "bookmark" ? "북마크"
           : type == "highlight" ? "하이라이트"
           : "메모",
@@ -39,80 +40,19 @@ class OptionBottomSheet extends StatelessWidget {
       onSelect: (index) {
         Get.back();
         if (index == 0) {
-          if (type == "bookmark")
-            controller.deleteBookmark(data["id"]);
-          else if (type == "highlight")
-            controller.deleteHighlight(data["id"]);
-          else
-            controller.deleteMemo(data["id"]);
+          _showDeleteDialog(controller);
         } else if (index == 1) {
           _openEditor();
         } else {
-          _openGroupSelectSheet();
+          openGroupShareFlow(
+            itemType: type,
+            itemData: data,
+          );
         }
       },
     );
   }
 
-  // -------------------------------------------------------------
-  // 그룹 선택 바텀시트
-  // -------------------------------------------------------------
-  void _openGroupSelectSheet() {
-    // TODO: Replace dummy data with API response
-    // GET /groups/my → 내가 포함된 그룹 목록
-    final dummyGroups = [
-      {"id": "1", "name": "그룹 1"},
-      {"id": "2", "name": "그룹 2"},
-    ];
-
-    Get.bottomSheet(
-      _SelectBottomSheet(
-        title: "그룹 선택",
-        items: dummyGroups.map((g) => g["name"]!).toList(),
-        onSelect: (index) {
-          final selectedGroup = dummyGroups[index];
-          Get.back();
-          _openBoardSelectSheet(selectedGroup["id"]!, selectedGroup["name"]!);
-        },
-      ),
-    );
-  }
-
-  // -------------------------------------------------------------
-  // 게시판 선택 바텀시트
-  // -------------------------------------------------------------
-  void _openBoardSelectSheet(String groupId, String groupName) {
-    // TODO: Replace dummy data with API response
-    // GET /groups/{groupId}/boards → 해당 그룹의 게시판 목록
-    final dummyBoards = {
-      "1": [
-        {"id": "1", "name": "게시판 1"},
-        {"id": "2", "name": "게시판 2"},
-      ],
-      "2": [
-        {"id": "3", "name": "게시판 1"},
-        {"id": "4", "name": "게시판 2"},
-      ],
-    };
-
-    final boards = dummyBoards[groupId] ?? [];
-
-    Get.bottomSheet(
-      _SelectBottomSheet(
-        title: "게시판 선택",
-        items: boards.map((b) => b["name"]!).toList(),
-        onSelect: (index) {
-          final selectedBoard = boards[index];
-          Get.back();
-          // TODO: POST /groups/{groupId}/boards/{boardId}/posts
-        },
-      ),
-    );
-  }
-
-  // -------------------------------------------------------------
-  // CreationOverlay 호출 (작성/수정 공통 처리)
-  // -------------------------------------------------------------
   void _openEditor() {
     if (type == "bookmark") {
       Get.bottomSheet(
@@ -154,26 +94,108 @@ class OptionBottomSheet extends StatelessWidget {
       isScrollControlled: true,
     );
   }
-}
 
-// -------------------------------------------------------------
-// 공통 선택 바텀시트
-// -------------------------------------------------------------
-class _SelectBottomSheet extends StatelessWidget {
-  final String title;
-  final List<String> items;
-  final void Function(int index) onSelect;
-  final List<Color>? itemColors;
+  void _showDeleteDialog(BookNoteController controller) {
+    final label = type == "bookmark" ? "북마크"
+        : type == "highlight" ? "하이라이트"
+        : "메모";
 
-  const _SelectBottomSheet({
-    required this.title,
-    required this.items,
-    required this.onSelect,
-    this.itemColors,
-  });
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Container(
+          width: 200,
+          height: 107,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
+            children: [
+              Expanded(
+                child: Center(
+                  child: Text(
+                    '$label를 삭제하시겠습니까',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Color(0xFF3F3F3F),
+                      fontSize: 15,
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ),
+              Container(height: 1, color: const Color(0xFFF3F3F3)),
+              SizedBox(
+                height: 36,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(10),
+                          ),
+                          onTap: () {
+                            Get.back();
+                            if (type == "bookmark") controller.deleteBookmark(data["id"]);
+                            else if (type == "highlight") controller.deleteHighlight(data["id"]);
+                            else controller.deleteMemo(data["id"]);
+                          },
+                          child: const Center(
+                            child: Text(
+                              '네',
+                              style: TextStyle(
+                                color: Color(0xFF4DB56C),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(width: 1, color: const Color(0xFFF3F3F3)),
+                    Expanded(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: const BorderRadius.only(
+                            bottomRight: Radius.circular(10),
+                          ),
+                          onTap: () => Get.back(),
+                          child: const Center(
+                            child: Text(
+                              '아니오',
+                              style: TextStyle(
+                                color: Color(0xFF4DB56C),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildBottomSheet({
+    required String title,
+    required List<String> items,
+    required void Function(int) onSelect,
+    List<Color>? itemColors,
+  }) {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -183,7 +205,6 @@ class _SelectBottomSheet extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // ── 헤더
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 14),
               child: Row(
@@ -213,8 +234,6 @@ class _SelectBottomSheet extends StatelessWidget {
               ),
             ),
             const Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
-
-            // ── 아이템 목록
             ...items.asMap().entries.map((entry) => InkWell(
               onTap: () => onSelect(entry.key),
               child: Container(
@@ -235,7 +254,6 @@ class _SelectBottomSheet extends StatelessWidget {
                 ),
               ),
             )),
-
             const SizedBox(height: 30),
           ],
         ),
