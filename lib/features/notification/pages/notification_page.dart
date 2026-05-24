@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
-// ▼ 아래 import 경로들의 "../" 가 에러를 해결하는 핵심입니다!
-import '../models/notification_item.dart';
+import 'package:get/get.dart';
+import '../controllers/notification_controller.dart';
 import '../widgets/notification_tab_bar.dart';
 import '../widgets/general_notification_tile.dart';
 import '../widgets/group_notification_tile.dart';
 import '../widgets/notification_empty_state.dart';
 
 class NotificationPage extends StatefulWidget {
-  const NotificationPage({Key? key}) : super(key: key);
+  const NotificationPage({super.key});
 
   @override
   State<NotificationPage> createState() => _NotificationPageState();
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-  int _selectedTab = 0; // 0: 일반, 1: 그룹
+  int _selectedTab = 0;
+  final NotificationController controller = Get.put(NotificationController());
 
   @override
   Widget build(BuildContext context) {
@@ -22,37 +23,37 @@ class _NotificationPageState extends State<NotificationPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: kNotifTextDark, size: 20),
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
-        title: Text(
-          _selectedTab == 0 ? '알림' : '그룹 알림',
-          style: const TextStyle(
-            color: kNotifTextDark,
-            fontSize: 17,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
         centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: kNotifBorder),
-        ),
+        title: const Text('알림', style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold)),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'read_all') controller.markAllAsRead();
+              else if (value == 'delete_all') controller.deleteAllNotifications();
+            },
+            icon: const Icon(Icons.more_vert, color: Colors.black),
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem(value: 'read_all', child: Text('전체 읽음')),
+              const PopupMenuItem(value: 'delete_all', child: Text('알림 전체 삭제', style: TextStyle(color: Colors.red))),
+            ],
+          ),
+        ],
       ),
       body: Column(
         children: [
-          // ── 탭 바 ──
           NotificationTabBar(
             selectedTab: _selectedTab,
             onTabChanged: (i) => setState(() => _selectedTab = i),
           ),
-          // ── 콘텐츠 ──
           Expanded(
-            child: _selectedTab == 0
-                ? const _GeneralListView()
-                : const _GroupListView(),
+            child: Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(child: CircularProgressIndicator(color: Color(0xFF4DB56C)));
+              }
+              return _selectedTab == 0 ? const _GeneralListView() : const _GroupListView();
+            }),
           ),
         ],
       ),
@@ -60,46 +61,42 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 }
 
-// ─────────────────────────────────────────
-// 일반 알림 리스트 뷰
-// ─────────────────────────────────────────
 class _GeneralListView extends StatelessWidget {
-  const _GeneralListView({Key? key}) : super(key: key);
+  const _GeneralListView();
 
   @override
   Widget build(BuildContext context) {
-    final items = generalNotificationDummies;
+    final controller = Get.find<NotificationController>();
 
-    if (items.isEmpty) {
-      return const NotificationEmptyState(message: '일반 알림이 없습니다.');
-    }
+    return Obx(() {
+      final items = controller.generalNotifications;
+      if (items.isEmpty) return const NotificationEmptyState(message: '일반 알림이 없습니다.');
 
-    return ListView.builder(
-      padding: const EdgeInsets.only(bottom: 30),
-      itemCount: items.length,
-      itemBuilder: (_, i) => GeneralNotificationTile(item: items[i]),
-    );
+      return ListView.builder(
+        padding: const EdgeInsets.only(bottom: 30),
+        itemCount: items.length,
+        itemBuilder: (_, i) => GeneralNotificationTile(item: items[i]),
+      );
+    });
   }
 }
 
-// ─────────────────────────────────────────
-// 그룹 알림 리스트 뷰
-// ─────────────────────────────────────────
 class _GroupListView extends StatelessWidget {
-  const _GroupListView({Key? key}) : super(key: key);
+  const _GroupListView();
 
   @override
   Widget build(BuildContext context) {
-    final items = groupNotificationDummies;
+    final controller = Get.find<NotificationController>();
 
-    if (items.isEmpty) {
-      return const NotificationEmptyState(message: '그룹 알림이 없습니다.');
-    }
+    return Obx(() {
+      final items = controller.groupNotifications;
+      if (items.isEmpty) return const NotificationEmptyState(message: '그룹 알림이 없습니다.');
 
-    return ListView.builder(
-      padding: const EdgeInsets.only(bottom: 30),
-      itemCount: items.length,
-      itemBuilder: (_, i) => GroupNotificationTile(item: items[i]),
-    );
+      return ListView.builder(
+        padding: const EdgeInsets.only(bottom: 30),
+        itemCount: items.length,
+        itemBuilder: (_, i) => GroupNotificationTile(item: items[i]),
+      );
+    });
   }
 }

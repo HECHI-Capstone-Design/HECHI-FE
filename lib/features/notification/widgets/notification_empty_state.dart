@@ -15,19 +15,9 @@ class NotificationEmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.notifications_none,
-            size: 52,
-            color: kNotifBorder,
-          ),
+          const Icon(Icons.notifications_none, size: 52, color: kNotifBorder),
           const SizedBox(height: 12),
-          Text(
-            message,
-            style: const TextStyle(
-              color: kNotifTextGrey,
-              fontSize: 14,
-            ),
-          ),
+          Text(message, style: const TextStyle(color: kNotifTextGrey, fontSize: 14)),
         ],
       ),
     );
