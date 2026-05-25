@@ -124,15 +124,61 @@ class GroupJoinController extends GetxController {
     isPublic.value = !isPublic.value;
   }
 
-  void joinGroup() {
-    Get.back();
-    Get.snackbar('알림', '${groupName.value} 그룹 가입이 완료되었습니다.', snackPosition: SnackPosition.BOTTOM);
-    
-    if (Get.isRegistered<MyGroupController>()) {
-      Get.find<MyGroupController>().fetchMyGroups();
+  /// 🚪 [실전 API 연동] 그룹 가입하기 (POST /groups/{groupId}/join)
+  Future<void> joinGroup() async {
+    if (currentGroup == null) return;
+
+    try {
+      final storage = GetStorage();
+      final String? token = storage.read('access_token');
+      
+      final headers = {
+        'accept': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      };
+
+      print('📡 [가입 요청] URL: $serverBaseUrl/groups/${currentGroup!.id}/join');
+      
+      final response = await _connect.post(
+        '$serverBaseUrl/groups/${currentGroup!.id}/join',
+        {},
+        headers: headers,
+      );
+
+      if (response.statusCode == 200 && response.body != null) {
+        final bool isSuccess = response.body['ok'] ?? false;
+        
+        if (isSuccess) {
+          print('✅ [서버 통신 성공] 그룹 가입 완료');
+          
+          Get.back();
+
+          // 💡 [수정 완료] 가입 성공 즉시 내 그룹 리스트 및 추천 리스트까지 올-리프레시 동기화 가동!
+          if (Get.isRegistered<MyGroupController>()) {
+            final myGroupCtrl = Get.find<MyGroupController>();
+            await myGroupCtrl.fetchMyGroups();
+            await myGroupCtrl.fetchRecommendedGroups();
+          }
+
+          await fetchGroupDetail();
+
+          Get.snackbar(
+            '가입 완료', 
+            '\'${groupName.value}\' 그룹 가입이 성공적으로 완료되었습니다. 함께 미션에 참여해 보세요! 📚', 
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.black87,
+            colorText: Colors.white,
+            margin: const EdgeInsets.all(20),
+          );
+        }
+      } else {
+        print('❌ 그룹 가입 API 실패 코드: ${response.statusCode}, 내역: ${response.statusText}');
+        Get.snackbar('오류', '그룹 가입 처리에 실패했습니다. 다시 시도해 주세요.', snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      print('❌ 그룹 가입 통신 중 예외 발생: $e');
+      Get.snackbar('오류', '네트워크 통신 중 예외가 발생했습니다.', snackPosition: SnackPosition.BOTTOM);
     }
-    // 가입 완료 후 상태 반영 리프레시
-    fetchGroupDetail();
   }
 
   /// 🚪 [실전 API 연동] 그룹 탈퇴하기 (DELETE /groups/{groupId}/leave)
@@ -228,10 +274,12 @@ class GroupJoinController extends GetxController {
         if (isSuccess) {
           print('✅ [서버 통신 성공] 그룹 탈퇴 처리 완료');
           
+          // 💡 [수정 완료] 탈퇴 성공 즉시 내 그룹 및 추천 리스트까지 통째로 완벽 리프레시!
           if (Get.isRegistered<MyGroupController>()) {
             final myGroupCtrl = Get.find<MyGroupController>();
             myGroupCtrl.myGroups.removeWhere((g) => g.id == currentGroup!.id);
             await myGroupCtrl.fetchMyGroups();
+            await myGroupCtrl.fetchRecommendedGroups();
           }
 
           Get.back();
