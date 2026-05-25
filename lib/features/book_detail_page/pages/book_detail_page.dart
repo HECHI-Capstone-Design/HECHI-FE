@@ -70,7 +70,6 @@ class _BookDetailPageState extends State<BookDetailPage> {
               child: Icon(
                 Icons.more_horiz,
                 color: opacity > 0.5 ? Colors.black : Colors.white,
-                size: 18,
               ),
             ),
           ),
