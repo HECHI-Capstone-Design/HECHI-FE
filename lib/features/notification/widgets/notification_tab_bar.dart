@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/notification_item.dart'; // 상대 경로 주의!
+import '../models/notification_item.dart';
 
 class NotificationTabBar extends StatelessWidget {
   final int selectedTab;
@@ -23,16 +23,8 @@ class NotificationTabBar extends StatelessWidget {
         ),
         child: Row(
           children: [
-            _TabItem(
-              label: '일반',
-              isSelected: selectedTab == 0,
-              onTap: () => onTabChanged(0),
-            ),
-            _TabItem(
-              label: '그룹',
-              isSelected: selectedTab == 1,
-              onTap: () => onTabChanged(1),
-            ),
+            _TabItem(label: '일반', isSelected: selectedTab == 0, onTap: () => onTabChanged(0)),
+            _TabItem(label: '그룹', isSelected: selectedTab == 1, onTap: () => onTabChanged(1)),
           ],
         ),
       ),
@@ -45,11 +37,7 @@ class _TabItem extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _TabItem({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
+  const _TabItem({required this.label, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -62,15 +50,7 @@ class _TabItem extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSelected ? Colors.white : Colors.transparent,
             borderRadius: BorderRadius.circular(6),
-            boxShadow: isSelected
-                ? [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 4,
-                offset: const Offset(0, 1),
-              ),
-            ]
-                : [],
+            boxShadow: isSelected ? [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 4, offset: const Offset(0, 1))] : [],
           ),
           alignment: Alignment.center,
           child: Text(
