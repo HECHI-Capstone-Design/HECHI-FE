@@ -66,6 +66,7 @@ import '../features/myGroup/bindings/group_recommendation_binding.dart';
 import '../features/myGroup/pages/group_create_page.dart';
 import '../features/myGroup/bindings/group_create_binding.dart';
 
+
 abstract class Routes {
   static const splash = '/splash';
   static const initial = '/';
