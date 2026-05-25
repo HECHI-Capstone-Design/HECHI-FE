@@ -20,7 +20,9 @@ class CategoryGrid extends StatelessWidget {
           Expanded(child: _buildCategoryItem('취향분석', Icons.bar_chart, const Color(0xFF4DB56C), onTap: () => Get.to(() => const TasteAnalysisView(), binding: TasteAnalysisBinding()),)),
           Expanded(child: _buildCategoryItem('보관함', Icons.inventory_2_outlined, const Color(0xFF4DB56C), onTap: () => Get.to(() => const BookStorageView(), binding: BookStorageBinding()),)),
           Expanded(child: _buildCategoryItem('추천', Icons.auto_awesome, const Color(0xFF4DB56C), onTap: () => Get.to(() => const RecommendationView(), binding: RecommendationBinding()),)),
-          Expanded(child: _buildCategoryItem('그룹', Icons.people_outline, const Color(0xFF4DB56C)),),
+          
+          // 🔔 [NEW] 그룹 버튼을 클릭하면 routes.dart에 연결된 대규모 커뮤니티 첫 화면(GroupMainView)으로 즉시 라우팅됩니다.
+          Expanded(child: _buildCategoryItem('그룹', Icons.people_outline, const Color(0xFF4DB56C), onTap: () => Get.toNamed('/group/main'))),
         ],
       );
   }

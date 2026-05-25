@@ -30,7 +30,6 @@ class MainWrapper extends GetView<AppController> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,

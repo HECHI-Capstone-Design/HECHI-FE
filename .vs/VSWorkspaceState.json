@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\lib",
+    "\\lib\\features",
+    "\\lib\\features\\myGroup",
+    "\\lib\\features\\myGroup\\controllers"
+  ],
+  "SelectedNode": "\\lib\\features\\myGroup\\controllers\\group_create_controller.dart",
+  "PreviewInSolutionExplorer": false
+}
