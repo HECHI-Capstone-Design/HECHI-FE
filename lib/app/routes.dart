@@ -59,6 +59,14 @@ import '../features/collection/pages/add_to_collection_page.dart';
 import '../features/collection/pages/book_collection_list_page.dart';
 import '../features/collection_detail/pages/collection_detail_view.dart';
 
+import 'package:hechi/features/groupcommunity/bindings/group_binding.dart';
+import 'package:hechi/features/groupcommunity/pages/group_main_view.dart';
+import 'package:hechi/features/groupcommunity/pages/group_menu_view.dart';
+import 'package:hechi/features/groupcommunity/pages/group_member_list_view.dart';
+import 'package:hechi/features/groupcommunity/pages/group_mission_history_view.dart';
+import 'package:hechi/features/groupcommunity/pages/group_announcement_write_view.dart';
+import 'package:hechi/features/groupcommunity/pages/group_post_list_view.dart';
+
 abstract class Routes {
   static const splash = '/splash';
   static const initial = '/';
@@ -96,12 +104,20 @@ abstract class Routes {
   static const addToCollection = '/collection/add';
   static const bookCollectionList = '/book_collection_list';
   static const collectionDetail = '/collection_detail';
+
+  static const groupMain = '/group/main';
+  static const groupMenu = '/group/menu';
+  static const groupMembers = '/group/members';
+  static const groupMissionHistory = '/group/mission-history';
+  static const groupAnnouncementWrite = '/group/announcement/write';
+  static const groupBoardMission = '/group/board/mission';
+  static const groupBoardFree = '/group/board/free';
 }
 
 class AppPages {
   static final pages = [
     GetPage(name: Routes.splash, page: () => const SplashView()),
-    GetPage(name: Routes.initial, page: () => const MainWrapper(), binding:AppBinding()),
+    GetPage(name: Routes.initial, page: () => const MainWrapper(), binding: AppBinding()),
     GetPage(name: Routes.customer, page: () => CustomerServicePage()),
 
     GetPage(name: Routes.login, page: () => const LoginView(), binding: LoginBinding()),
@@ -123,7 +139,7 @@ class AppPages {
     GetPage(name: Routes.calendar, page: () => const CalendarView(), binding: CalendarBinding()),
 
     GetPage(name: Routes.bookNote, page: () => const BookNotePage(), binding: BookNoteBinding()),
-    GetPage(name: Routes.readingRegistration, page: () => const ReadingRegistrationView(), binding: ReadingRegistrationBinding(),),
+    GetPage(name: Routes.readingRegistration, page: () => const ReadingRegistrationView(), binding: ReadingRegistrationBinding()),
     GetPage(name: Routes.recommendation, page: () => const RecommendationView(), binding: RecommendationBinding()),
 
     // ✅ 이메일 인증 페이지 등록
@@ -135,5 +151,13 @@ class AppPages {
     GetPage(name: Routes.addToCollection, page: () => const AddToCollectionPage(), binding: AddToCollectionBinding()),
     GetPage(name: Routes.bookCollectionList, page: () => const BookCollectionListPage(), binding: BookCollectionListBinding()),
     GetPage(name: Routes.collectionDetail, page: () => const CollectionDetailView(), binding: CollectionDetailBinding()),
+
+    GetPage(name: Routes.groupMain, page: () => const GroupMainView(), binding: GroupBinding()),
+    GetPage(name: Routes.groupMenu, page: () => const GroupMenuView()),
+    GetPage(name: Routes.groupMembers, page: () => const GroupMemberListView()),
+    GetPage(name: Routes.groupMissionHistory, page: () => const GroupMissionHistoryView()),
+    GetPage(name: Routes.groupAnnouncementWrite, page: () => const GroupAnnouncementWriteView()),
+    GetPage(name: Routes.groupBoardMission, page: () => const GroupPostListView(isMissionBoard: true)),
+    GetPage(name: Routes.groupBoardFree, page: () => const GroupPostListView(isMissionBoard: false)),
   ];
 }

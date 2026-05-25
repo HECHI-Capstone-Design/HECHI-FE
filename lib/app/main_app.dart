@@ -29,7 +29,6 @@ class MainWrapper extends GetView<AppController> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
@@ -39,7 +38,8 @@ class MainWrapper extends GetView<AppController> {
           children: [
             const MainpageView(),
             const SearchView(),
-            const ReadingRegistrationView(),            _buildPlaceholder("리워드 페이지"),
+            const ReadingRegistrationView(),            
+            _buildPlaceholder("리워드 페이지"),
             MyReadView(),
           ],
         )),
