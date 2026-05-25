@@ -45,9 +45,9 @@ class MyGroupPage extends GetView<MyGroupController> {
               ),
               const SizedBox(height: 16),
               
-              // 1. 내 그룹 리스트 영역
+              // 1. 👥 [가로 스크롤 정밀 수정 구역] 내 그룹 리스트 영역
               SizedBox(
-                height: 140,
+                height: 140, // 💡 사진 속 사각형 크기와 하단 텍스트(HECHI)가 여유 있게 들어가는 높이로 살짝 조절
                 child: Obx(() {
                   if (controller.myGroups.isEmpty) {
                     return const Center(
@@ -56,14 +56,17 @@ class MyGroupPage extends GetView<MyGroupController> {
                   }
                   return ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    // 💡 [추가] 터치 제스처 씹힘 방지를 위한 핵심 가드 스펙 2가지!
                     shrinkWrap: true,
                     physics: const ClampingScrollPhysics(), 
-                    
                     itemCount: controller.myGroups.length,
                     itemBuilder: (context, index) {
-                      return MyGroupItemWidget(
-                        group: controller.myGroups[index],
+                      // 💡 [핵심 교정] 각 카드 아이템이 고유한 너비를 유지하며 
+                      // 우측으로 듬성듬성 여백을 가지도록 마진 패딩(Padding) 레이아웃을 씌워줍니다.
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 18.0), // 👈 카드 사이의 간격을 밀어내어 스크롤 트리거 활성화!
+                        child: MyGroupItemWidget(
+                          group: controller.myGroups[index],
+                        ),
                       );
                     },
                   );
@@ -89,7 +92,7 @@ class MyGroupPage extends GetView<MyGroupController> {
               ),
               const SizedBox(height: 16),
               
-              // 3. 💡 고도화된 그룹 추천 리스트 영역 (로딩/예외처리 추가)
+              // 3. 고도화된 그룹 추천 리스트 영역 (로딩/예외처리 유지)
               Obx(() {
                 // 가) 서버와 통신하며 데이터를 받아오는 로딩 상태일 때
                 if (controller.isLoading.value) {
