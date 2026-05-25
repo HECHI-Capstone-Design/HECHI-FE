@@ -8,6 +8,7 @@ import '../features/mainpage/pages/mainpage_view.dart';
 import '../features/my_read/pages/my_read_view.dart';
 import '../features/search/pages/search_view.dart';
 import '../features/reading_registration/pages/reading_registration_view.dart';
+import '../features/myGroup/pages/my_group_page.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -38,25 +39,13 @@ class MainWrapper extends GetView<AppController> {
           children: [
             const MainpageView(),
             const SearchView(),
-            const ReadingRegistrationView(),            
-            _buildPlaceholder("리워드 페이지"),
+            const ReadingRegistrationView(),
+            const MyGroupPage(),
             MyReadView(),
           ],
         )),
       ),
       bottomNavigationBar: const BottomBar(),
-    );
-  }
-
-  Widget _buildPlaceholder(String text) {
-    return Container(
-      color: Colors.white,
-      child: Center(
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 20, color: Colors.grey),
-        ),
-      ),
     );
   }
 }

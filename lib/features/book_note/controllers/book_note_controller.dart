@@ -30,6 +30,9 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
   RxString sortTypeHighlight = "date".obs; // date | page
   RxString sortTextHighlight = "최신 순".obs;
 
+  /// ===================== Ai Summary =====================
+  RxBool hasSummary = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -42,6 +45,7 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
 
     fetchBookInfo();
     fetchAll();
+    fetchAiSummary();
   }
 
   @override
@@ -50,11 +54,32 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
     super.onClose();
   }
 
+  bool hasAiSummaryContent() {
+    final isStillLoading = isLoadingBookmarks.value ||
+        isLoadingHighlights.value ||
+        isLoadingNotes.value;
+    if (isStillLoading) return true;
+
+    return bookmarks.isNotEmpty || highlights.isNotEmpty || notes.isNotEmpty;
+  }
+
   /// ===================== FETCH ALL =====================
   void fetchAll() {
     fetchBookmarks();
     fetchHighlights();
     fetchNotes();
+  }
+
+  /// ===================== FETCH AI SUMMARY =====================
+  Future<void> fetchAiSummary() async {
+    try {
+      // TODO: AI 요약 API 호출
+      // 요약 데이터가 있으면 true
+      hasSummary.value = true;
+    } catch (e) {
+      hasSummary.value = false;
+      print("❌ Fetch AI Summary Error: $e");
+    }
   }
 
   /// ===================== BOOK INFO =====================

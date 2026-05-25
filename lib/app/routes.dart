@@ -59,6 +59,13 @@ import '../features/collection/pages/add_to_collection_page.dart';
 import '../features/collection/pages/book_collection_list_page.dart';
 import '../features/collection_detail/pages/collection_detail_view.dart';
 
+import '../features/myGroup/pages/my_group_page.dart';
+import '../features/myGroup/pages/group_recommendation_page.dart';
+import '../features/myGroup/bindings/my_group_binding.dart';
+import '../features/myGroup/bindings/group_recommendation_binding.dart';
+import '../features/myGroup/pages/group_create_page.dart';
+import '../features/myGroup/bindings/group_create_binding.dart';
+
 import 'package:hechi/features/groupcommunity/bindings/group_binding.dart';
 import 'package:hechi/features/groupcommunity/pages/group_main_view.dart';
 import 'package:hechi/features/groupcommunity/pages/group_menu_view.dart';
@@ -105,7 +112,11 @@ abstract class Routes {
   static const bookCollectionList = '/book_collection_list';
   static const collectionDetail = '/collection_detail';
 
-  static const groupMain = '/group/main';
+  static const myGroup = '/myGroup';
+  static const groupRecommendation = '/groupRecommendation';
+  static const groupCreate = '/groupCreate';
+
+ static const groupMain = '/group/main';
   static const groupMenu = '/group/menu';
   static const groupMembers = '/group/members';
   static const groupMissionHistory = '/group/mission-history';
@@ -152,6 +163,10 @@ class AppPages {
     GetPage(name: Routes.bookCollectionList, page: () => const BookCollectionListPage(), binding: BookCollectionListBinding()),
     GetPage(name: Routes.collectionDetail, page: () => const CollectionDetailView(), binding: CollectionDetailBinding()),
 
+    GetPage(name: Routes.myGroup, page: () => const MyGroupPage(), binding: MyGroupBinding(),),
+    GetPage(name: Routes.groupRecommendation, page: () => const GroupRecommendationPage(), binding: GroupRecommendationBinding(),),
+    GetPage(name: Routes.groupCreate, page: () => const GroupCreatePage(), binding: GroupCreateBinding()),
+
     GetPage(name: Routes.groupMain, page: () => const GroupMainView(), binding: GroupBinding()),
     GetPage(name: Routes.groupMenu, page: () => const GroupMenuView()),
     GetPage(name: Routes.groupMembers, page: () => const GroupMemberListView()),
@@ -159,5 +174,5 @@ class AppPages {
     GetPage(name: Routes.groupAnnouncementWrite, page: () => const GroupAnnouncementWriteView()),
     GetPage(name: Routes.groupBoardMission, page: () => const GroupPostListView(isMissionBoard: true)),
     GetPage(name: Routes.groupBoardFree, page: () => const GroupPostListView(isMissionBoard: false)),
-  ];
+    ];
 }
