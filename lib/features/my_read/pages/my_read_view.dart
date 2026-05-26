@@ -10,7 +10,7 @@ import '../widgets/section_title.dart';
 import '../widgets/taste_analysis_preview.dart';
 import '../widgets/see_all_taste_button.dart';
 import '../widgets/book_storage_link.dart';
-import '../widgets/my_collection_section.dart';
+import '../widgets/like_collection_section.dart';
 import '../../collection_detail/pages/collection_detail_view.dart';
 
 class MyReadView extends GetView<MyReadController> {
@@ -62,7 +62,7 @@ class MyReadView extends GetView<MyReadController> {
               Container(height: 8, color: const Color(0xFFF5F5F5)),
 
               // 5. 취향 분석
-              const SizedBox(height: 20),
+              //const SizedBox(height: 20),
               const SectionTitle(title: "취향 분석"),
               TasteAnalysisPreview(controller: controller),
 
@@ -73,9 +73,14 @@ class MyReadView extends GetView<MyReadController> {
               // 두꺼운 구분선
               Container(height: 8, color: const Color(0xFFF5F5F5)),
 
-              const SizedBox(height: 30),
               // 컬렉션 UI
-              const MyCollectionSection(),
+              Obx(() {
+                return LikeCollectionSection(
+                  key: ValueKey(controller.collectionRefreshKey.value),
+                );
+              }),
+
+              Container(height: 8, color: const Color(0xFFF5F5F5)),
 
               const SizedBox(height: 40),
             ],

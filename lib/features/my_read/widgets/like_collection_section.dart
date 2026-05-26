@@ -3,18 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
-import '../controllers/book_detail_controller.dart';
-import '../../../features/collection/widgets/collection_thumbnail.dart';
-import '../../../features/collection/models/collection_list_model.dart';
+import 'package:hechi/app/routes.dart';
+import '../../collection/models/collection_list_model.dart';
+import '../../collection/widgets/collection_thumbnail.dart';
 
-class BookCollectionSection extends StatefulWidget {
-  const BookCollectionSection({super.key});
+class LikeCollectionSection extends StatefulWidget {
+  const LikeCollectionSection({super.key});
 
   @override
-  State<BookCollectionSection> createState() => _BookCollectionSectionState();
+  State<LikeCollectionSection> createState() => _MyCollectionSectionState();
 }
 
-class _BookCollectionSectionState extends State<BookCollectionSection> {
+class _MyCollectionSectionState extends State<LikeCollectionSection> {
   final String baseUrl = "https://api.43-202-101-63.sslip.io";
   final box = GetStorage();
 
@@ -22,28 +22,21 @@ class _BookCollectionSectionState extends State<BookCollectionSection> {
   bool isLoading = true;
 
   String? get _token => box.read('access_token');
-  Map<String, String> get _headers => {
-    'Content-Type': 'application/json',
-    if (_token != null) 'Authorization': 'Bearer $_token',
-  };
 
   @override
   void initState() {
     super.initState();
-    _loadCollections();
-    ever(Get
-        .find<BookDetailController>()
-        .collectionRefreshTrigger, (_) {
-      _loadCollections();
-    });
+    _fetchLikedCollections();
   }
 
-  Future<void> _loadCollections() async {
-    final controller = Get.find<BookDetailController>();
+  Future<void> _fetchLikedCollections() async {
     try {
       final res = await http.get(
-        Uri.parse('$baseUrl/books/${controller.bookId}/collections'),
-        headers: _headers,
+        Uri.parse('$baseUrl/users/me/likes/collections'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (_token != null) 'Authorization': 'Bearer $_token',
+        },
       );
       if (res.statusCode == 200) {
         final data = jsonDecode(utf8.decode(res.bodyBytes));
@@ -60,7 +53,7 @@ class _BookCollectionSectionState extends State<BookCollectionSection> {
         if (mounted) setState(() => isLoading = false);
       }
     } catch (e) {
-      print('❌ BookCollectionSection error: $e');
+      print('❌ _fetchLikedCollections error: $e');
       if (mounted) setState(() => isLoading = false);
     }
   }
@@ -70,49 +63,40 @@ class _BookCollectionSectionState extends State<BookCollectionSection> {
     if (isLoading) return const SizedBox.shrink();
     if (collections.isEmpty) return const SizedBox.shrink();
 
-    final controller = Get.find<BookDetailController>();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // ── 타이틀
-        Container(
-          height: 55,
-          padding: const EdgeInsets.symmetric(horizontal: 17),
-          decoration: const BoxDecoration(
-            border: Border(
-              bottom: BorderSide(width: 0.5, color: Color(0xFFABABAB)),
-            ),
-          ),
-          alignment: Alignment.centerLeft,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
           child: const Text(
-            '이 도서가 담긴 컬렉션',
+            '좋아요한 컬렉션',
             style: TextStyle(
-              color: Colors.black,
               fontSize: 18,
               fontWeight: FontWeight.bold,
+              color: Color(0xFF3F3F3F),
             ),
           ),
         ),
 
-        // ── 컬렉션 카드 가로 스크롤
+        // ── 가로 스크롤 카드
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 15),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: collections.map((collection) {
+              final index = collections.indexOf(collection);
               return GestureDetector(
-                onTap: () async {
-                  await Get.toNamed(
-                    '/collection_detail',
-                    arguments: int.tryParse(collection.id),
-                  );
-                  Get.find<BookDetailController>().collectionRefreshTrigger.value++;
-                },
+                onTap: () => Get.toNamed(
+                  '/collection_detail',
+                  arguments: int.tryParse(collection.id),
+                ),
                 child: Container(
                   width: 120,
-                  margin: const EdgeInsets.only(right: 15),
+                  margin: EdgeInsets.only(
+                    right: index == collections.length - 1 ? 0 : 15.0,
+                  ),
                   padding: const EdgeInsets.all(10),
                   decoration: ShapeDecoration(
                     color: const Color(0x4CDADADA),
@@ -142,7 +126,7 @@ class _BookCollectionSectionState extends State<BookCollectionSection> {
                           letterSpacing: 0.25,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 10),
                       Text(
                         '좋아요 ${collection.likeCount}',
                         style: const TextStyle(
@@ -162,32 +146,39 @@ class _BookCollectionSectionState extends State<BookCollectionSection> {
           ),
         ),
 
-        // ── 모두보기 버튼
-        InkWell(
-          onTap: () => Get.toNamed(
-            '/book_collection_list',
-            arguments: controller.bookId,
+        const SizedBox(height: 20),
+
+        // ── 좋아요한 컬렉션 모두보기 버튼
+        Padding(
+          padding: const EdgeInsets.only(
+            left: 24.0,
+            right: 24.0,
+            top: 12.0,
+            bottom: 20.0,
           ),
-          child: Container(
-            width: double.infinity,
-            height: 50,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: const Color(0xFFC8E6C9).withOpacity(0.3),
-              border: const Border(
-                top: BorderSide(width: 1, color: Color(0xFFD4D4D4)),
-                bottom: BorderSide(width: 1, color: Color(0xFFD4D4D4)),
+          child: InkWell(
+            onTap: () => Get.toNamed('/like_collection_list'),
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 11),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF7F7F7),
+                borderRadius: BorderRadius.circular(12),
               ),
-            ),
-            child: const Text(
-              '모두보기',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 15,
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w400,
-                height: 1.33,
-                letterSpacing: 0.25,
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '좋아요한 컬렉션 모두보기',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(width: 4),
+                  Icon(Icons.chevron_right, size: 16, color: Colors.grey),
+                ],
               ),
             ),
           ),

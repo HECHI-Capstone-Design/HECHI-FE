@@ -62,7 +62,7 @@ class CommentSection extends GetView<BookDetailController> {
                     Text('${(controller.book["average_rating"] ?? 0).toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   ],
                 ),
-                const SizedBox(width: 50),
+                const SizedBox(width: 40),
                 Expanded(child: _buildRatingGraph(histogram, maxCount)),
               ],
             ),
@@ -186,6 +186,8 @@ Widget _buildRatingGraph(Map<String, dynamic> histogram, int maxCount) {
                         fontWeight: FontWeight.w500,
                         color: Color(0xFF757575),
                       ),
+                      overflow: TextOverflow.visible,
+                      softWrap: false,
                     ),
                     const SizedBox(height: 4),
                   ] else

@@ -49,11 +49,9 @@ class ActionButtons extends GetView<BookDetailController> {
               icon: Icons.library_add_outlined,
               label: '컬렉션',
               isActive: false,
-              onTap: () {
-                Get.toNamed(
-                  '/collection/add',
-                  arguments: { 'bookId': controller.bookId, },
-                );
+              onTap: () async {
+                await Get.toNamed('/collection/add', arguments: controller.bookId);
+                controller.collectionRefreshTrigger.value++;
               },
             ),
           ],

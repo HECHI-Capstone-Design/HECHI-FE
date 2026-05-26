@@ -14,8 +14,8 @@ class ActionButtonsRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 18),
       decoration: const BoxDecoration(
         border: Border(
-          top: BorderSide(width: 1, color: Color(0xFFABABAB)),
-          bottom: BorderSide(width: 1, color: Color(0xFFABABAB)),
+          top: BorderSide(width: 1, color: Color(0xFFD4D4D4)),
+          bottom: BorderSide(width: 1, color: Color(0xFFD4D4D4)),
         ),
       ),
       child: Row(
@@ -62,7 +62,7 @@ class ActionButtonsRow extends StatelessWidget {
   Widget _buildDivider() {
     return const SizedBox(
       height: 60,
-      child: VerticalDivider(color: Color(0xFF717171), width: 15),
+      child: VerticalDivider(color: Color(0xFFD4D4D4), width: 15),
     );
   }
 

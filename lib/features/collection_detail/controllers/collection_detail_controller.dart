@@ -1,49 +1,127 @@
+import 'dart:convert';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
 
 class CollectionDetailController extends GetxController {
+  final String baseUrl = "https://api.43-202-101-63.sslip.io";
+  final box = GetStorage();
 
-  // 1. 컬렉션 기본 정보
-  final String collectionTitle = "이런 소설만 읽을 수 있다면";
-  final String collectionDesc = "조금 더 행복하게 살 수 있을 것 같아 (소장 도서로만 컬렉션을 꾸립니다)";
-  final String creatorName = "Josee";
-  final String creatorProfileImg = "https://picsum.photos/100/100"; // 가짜 프사
-  final List<String> tags = ["#소설", "#인생책"];
+  late final int collectionId;
 
-  // 2. 좋아요 및 상태
-  RxInt likeCount = 2641.obs;
-  RxBool isLiked = false.obs;
-  RxBool isMine = true.obs; // 내 컬렉션인지 여부 (수정하기 버튼 노출용)
+  final RxString collectionTitle = ''.obs;
+  final RxString collectionDesc = ''.obs;
+  final RxString creatorName = ''.obs;
+  final RxList<String> tags = <String>[].obs;
+  final RxList<String> thumbnailCovers = <String>[].obs;
 
-  // 3. 상단 3개 책 표지 이미지 (배경 꾸미기용)
-  final List<String> topCoverImages = [
-    "https://picsum.photos/200/300?1",
-    "https://picsum.photos/200/300?2",
-    "https://picsum.photos/200/300?3",
-  ];
+  final RxInt likeCount = 0.obs;
+  final RxBool isLiked = false.obs;
+  final RxBool isMine = false.obs;
+  final RxBool isPrivate = false.obs;
+  final RxBool isLoading = true.obs;
+  final RxBool isModified = false.obs;
 
-  // 4. 컬렉션에 포함된 책 리스트 (피그마 디자인 기준)
-  final RxList<Map<String, String>> books = [
-    {"title": "절창", "author": "구병모", "cover": "https://picsum.photos/150/220?11"},
-    {"title": "나의 완벽한 장례식", "author": "조현선", "cover": "https://picsum.photos/150/220?12"},
-    {"title": "자몽 살구 클럽", "author": "한로로", "cover": "https://picsum.photos/150/220?13"},
-    {"title": "모순", "author": "양귀자", "cover": "https://picsum.photos/150/220?14"},
-    {"title": "혼모노", "author": "성해나", "cover": "https://picsum.photos/150/220?15"},
-    {"title": "브람스를 좋아하세요", "author": "프랑수아즈 사강", "cover": "https://picsum.photos/150/220?16"},
-    {"title": "쾨테는 모든 것을 말했다", "author": "스즈키 유이", "cover": "https://picsum.photos/150/220?17"},
-  ].obs;
+  final RxList<Map<String, dynamic>> books = <Map<String, dynamic>>[].obs;
 
-  // 좋아요 버튼 눌렀을 때 실행되는 함수
-  void toggleLike() {
-    isLiked.value = !isLiked.value;
-    if (isLiked.value) {
-      likeCount.value++;
-    } else {
-      likeCount.value--;
+  String? get _token => box.read('access_token');
+  Map<String, String> get _headers => {
+    'Content-Type': 'application/json',
+    if (_token != null) 'Authorization': 'Bearer $_token',
+  };
+
+  @override
+  void onInit() {
+    super.onInit();
+    final args = Get.arguments;
+    collectionId = args is int ? args : int.tryParse(args.toString()) ?? -1;
+    fetchDetail();
+  }
+
+  Future<void> fetchDetail({bool modified = false}) async {
+    isLoading.value = true;
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/collections/$collectionId'),
+        headers: _headers,
+      );
+      if (res.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(res.bodyBytes));
+        collectionTitle.value = data['title'] ?? '';
+        collectionDesc.value = data['description'] ?? '';
+        creatorName.value = data['userName'] ?? '';
+        likeCount.value = data['likeCount'] ?? 0;
+        isLiked.value = data['isLiked'] ?? false;
+        isMine.value = data['isMine'] ?? false;
+        isPrivate.value = data['isPrivate'] ?? false;
+        tags.assignAll(List<String>.from(data['tags'] ?? []));
+        thumbnailCovers.assignAll(List<String>.from(data['thumbnailCovers'] ?? []));
+        books.assignAll(List<Map<String, dynamic>>.from(data['books'] ?? []).toList(),);
+        if(modified) isModified.value = true;
+      } else {
+        print('❌ fetchDetail 실패: ${res.statusCode}');
+      }
+    } catch (e) {
+      print('❌ fetchDetail error: $e');
+    } finally {
+      isLoading.value = false;
     }
   }
 
-  // 공유 버튼 함수
+  // ── 좋아요 토글
+  void toggleLike() async {
+    final wasLiked = isLiked.value;
+    isLiked.value = !wasLiked;
+    likeCount.value += wasLiked ? -1 : 1;
+
+    try {
+      final res = wasLiked
+          ? await http.delete(
+        Uri.parse('$baseUrl/collections/$collectionId/like'),
+        headers: _headers,
+      )
+          : await http.post(
+        Uri.parse('$baseUrl/collections/$collectionId/like'),
+        headers: _headers,
+      );
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        isLiked.value = data['isLiked'];
+        likeCount.value = data['likeCount'];
+        isModified.value = true;
+      } else {
+        isLiked.value = wasLiked;
+        likeCount.value += wasLiked ? 1 : -1;
+      }
+    } catch (e) {
+      isLiked.value = wasLiked;
+      likeCount.value += wasLiked ? 1 : -1;
+      print('❌ toggleLike error: $e');
+    }
+  }
+
+  // ── 컬렉션 삭제
+  Future<void> deleteCollection() async {
+    try {
+      final res = await http.delete(
+        Uri.parse('$baseUrl/collections/$collectionId'),
+        headers: _headers,
+      );
+      if (res.statusCode == 200) {
+        print('✅ 컬렉션 삭제 완료');
+        Get.back(result: {'deleted': true, 'collectionId': collectionId});
+      } else {
+        print('❌ 삭제 실패: ${res.statusCode}');
+        Get.snackbar('오류', '컬렉션 삭제에 실패했습니다.');
+      }
+    } catch (e) {
+      print('❌ deleteCollection error: $e');
+    }
+  }
+
+  // ── 공유
   void shareCollection() {
-    Get.snackbar("공유", "컬렉션 링크가 복사되었습니다.", snackPosition: SnackPosition.BOTTOM);
+    Get.snackbar('공유', '컬렉션 링크가 복사되었습니다.', snackPosition: SnackPosition.BOTTOM);
   }
 }

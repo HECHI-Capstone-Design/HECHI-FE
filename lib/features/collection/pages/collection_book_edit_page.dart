@@ -170,6 +170,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
       itemBuilder: (context, index) {
         final book = results[index];
         return _SearchResultItem(
+          key: ValueKey(book.id),
           book: book,
           onTap: () => controller.addBook(book),
         );
@@ -205,7 +206,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
       itemBuilder: (context, index) {
         final book = controller.books[index];
         return _BookListItem(
-          key: ValueKey(book.id),
+          key: ValueKey('${book.id}_$index'),
           book: book,
           index: index,
           onDelete: () => controller.removeBook(book.id),
@@ -220,7 +221,11 @@ class _SearchResultItem extends StatelessWidget {
   final CollectionBook book;
   final VoidCallback onTap;
 
-  const _SearchResultItem({required this.book, required this.onTap});
+  const _SearchResultItem({
+    super.key,
+    required this.book,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {

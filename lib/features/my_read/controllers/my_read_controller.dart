@@ -28,6 +28,7 @@ class MyReadController extends GetxController {
   RxString totalComments = "0".obs;
 
   final RxString totalCollections = '0'.obs;
+  final RxInt collectionRefreshKey = 0.obs;
 
   RxList<Map<String, dynamic>> insightTags = <Map<String, dynamic>>[].obs;
 
@@ -56,6 +57,7 @@ class MyReadController extends GetxController {
       _fetchStats(token),
       _fetchInsightTags(token),
       fetchCalendarData(token),
+      _fetchCollectionCount(token),
     ]);
   }
 
@@ -73,6 +75,21 @@ class MyReadController extends GetxController {
     String? token = box.read('access_token');
     if (token != null) {
       fetchCalendarData(token);
+    }
+  }
+
+  Future<void> _fetchCollectionCount(String token) async {
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/users/me/collections'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (res.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(res.bodyBytes));
+        totalCollections.value = (data['totalCount'] ?? 0).toString();
+      }
+    } catch (e) {
+      print('❌ _fetchCollectionCount error: $e');
     }
   }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../controllers/collection_detail_controller.dart';
 
-// 피그마 상단에 책 표지 여러 장이 배경처럼 깔려있는 영역입니다.
 class CollectionTopImages extends StatelessWidget {
   final CollectionDetailController controller;
 
@@ -9,25 +9,96 @@ class CollectionTopImages extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      // 📝 [수정 꿀팁] 상단 배경 이미지들의 전체 높이입니다.
-      height: 180,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal, // 가로로 스크롤 되게 만들기
-        itemCount: controller.topCoverImages.length,
-        itemBuilder: (context, index) {
-          return Container(
-            // 📝 [수정 꿀팁] 이미지 1장당 너비입니다. (화면 너비의 1/3 정도로 설정)
-            width: MediaQuery.of(context).size.width * 0.35,
-            margin: const EdgeInsets.only(right: 8), // 이미지 사이 간격
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: NetworkImage(controller.topCoverImages[index]),
-                fit: BoxFit.cover,
+    return Obx(() {
+      const int maxCovers = 5;
+      final covers = controller.thumbnailCovers.take(maxCovers).toList();
+      while (covers.length < maxCovers) covers.add('');
+
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final double totalWidth = constraints.maxWidth;
+          final double thumbnailHeight = totalWidth * 200 / 378;
+          final double bookHeight = thumbnailHeight;
+          final double bookWidth = bookHeight * 2 / 3;
+          final double remainWidth = totalWidth - bookWidth;
+          final double step = remainWidth / 4;
+
+          return Stack(
+            children: [
+              // ── 책 커버들
+              SizedBox(
+                width: totalWidth,
+                height: thumbnailHeight,
+                child: Stack(
+                  clipBehavior: Clip.antiAlias,
+                  children: [
+                    for (int i = maxCovers - 1; i >= 1; i--)
+                      Positioned(
+                        right: (maxCovers - 1 - i) * step,
+                        top: 0,
+                        child: _buildCover(covers[i], bookWidth, bookHeight),
+                      ),
+                    Positioned(
+                      left: 0,
+                      top: 0,
+                      child: _buildCover(covers[0], bookWidth, bookHeight),
+                    ),
+                    // ── 그라데이션 오버레이
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: 120,
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.black54,
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: 80,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [
+                              Colors.white,
+                              Colors.white.withOpacity(0.0),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+            ],
           );
         },
+      );
+    });
+  }
+
+  Widget _buildCover(String url, double width, double height) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: const Color(0xFFDDDDDD),
+        image: url.isNotEmpty
+            ? DecorationImage(image: NetworkImage(url), fit: BoxFit.cover)
+            : null,
       ),
     );
   }

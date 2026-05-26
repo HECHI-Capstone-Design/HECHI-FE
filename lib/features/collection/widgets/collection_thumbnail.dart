@@ -66,11 +66,6 @@ class CollectionThumbnail extends StatelessWidget {
         )
             : null,
       ),
-      child: url.isEmpty
-          ? const Center(
-        child: Icon(Icons.book, size: 16, color: Color(0xFFABABAB)),
-      )
-          : null,
     );
   }
 }

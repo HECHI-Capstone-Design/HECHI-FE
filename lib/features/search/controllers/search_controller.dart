@@ -1,12 +1,15 @@
 // lib/features/search/controllers/search_controller.dart
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart'; // 💡 토큰을 꺼내오기 위한 임포트
 import '../data/book_model.dart';
 import '../data/search_repository.dart';
 import '../pages/isbn_scan_view.dart';
 import 'package:hechi/features/myGroup/models/group_model.dart';
+import '../../collection/models/collection_list_model.dart';
 
 enum SearchState { initial, emptyHistory, hasHistory, result }
 
@@ -16,7 +19,13 @@ class BookSearchController extends GetxController {
   static const String baseUrl = 'https://api.43-202-101-63.sslip.io';
   
   // 로컬 스토리지에 저장된 access_token을 읽기 위한 스토리지 선언
-  final GetStorage _storage = GetStorage();
+  final box = GetStorage();
+
+  String? get _token => box.read('access_token');
+  Map<String, String> get _headers => {
+    'Content-Type': 'application/json',
+    if (_token != null) 'Authorization': 'Bearer $_token',
+  };
 
   final Rx<SearchState> currentView = SearchState.initial.obs;
   final TextEditingController searchTextController = TextEditingController();
@@ -35,6 +44,18 @@ class BookSearchController extends GetxController {
   final RxList<GroupModel> groupSearchResults = <GroupModel>[].obs;
   final RxBool isGroupLoading = false.obs;
 
+  // ── 컬렉션 검색 관련 상태 변수
+  final RxList<CollectionListItem> collectionSearchResults = <CollectionListItem>[].obs;
+  final RxBool isCollectionLoading = false.obs;
+
+  // ── 태그 드롭다운 관련
+  final RxBool isTagDropdownVisible = false.obs;
+  final RxList<Map<String, dynamic>> tagDropdownResults = <Map<String, dynamic>>[].obs;
+  final RxList<Map<String, dynamic>> tagCategories = <Map<String, dynamic>>[].obs;
+  final RxString selectedTagCategory = ''.obs;
+  final RxList<Map<String, dynamic>> currentCategoryTags = <Map<String, dynamic>>[].obs;
+  final RxList<Map<String, dynamic>> selectedSearchTags = <Map<String, dynamic>>[].obs;
+
   // 💡 현재 선택된 검색 카테고리 탭 인덱스 상태 관리 (0: 책, 1: 컬렉션, 2: 그룹)
   final RxInt selectedTabIndex = 0.obs;
 
@@ -44,8 +65,48 @@ class BookSearchController extends GetxController {
     searchFocusNode.addListener(_onFocusChange);
     searchTextController.addListener(() {
       isTextEmpty.value = searchTextController.text.isEmpty;
+      _onSearchTextChanged(searchTextController.text);
     });
     loadServerHistory();
+    _fetchTagCategories();
+  }
+
+  void _onSearchTextChanged(String text) async {
+    final trimmed = text.trim();
+    if (trimmed.startsWith('#')) {
+      isTagDropdownVisible.value = true;
+      final query = text.substring(1);
+      if (query.isEmpty) {
+        // # 만 입력 시 카테고리 목록 표시
+        tagDropdownResults.clear();
+        selectedTagCategory.value = '';
+        currentCategoryTags.clear();
+        return;
+      }
+      // 태그 검색
+      selectedTagCategory.value = '';
+      currentCategoryTags.clear();
+      try {
+        final uri = Uri.parse('$baseUrl/tags').replace(queryParameters: {
+          'query': query,
+          'limit': '30',
+        });
+        final res = await http.get(uri, headers: _headers);
+        if (res.statusCode == 200) {
+          final data = jsonDecode(utf8.decode(res.bodyBytes));
+          tagDropdownResults.assignAll(
+              List<Map<String, dynamic>>.from(data['tags'] ?? [])
+          );
+        }
+      } catch (e) {
+        print('❌ tag search error: $e');
+      }
+    } else {
+      isTagDropdownVisible.value = false;
+      tagDropdownResults.clear();
+      selectedTagCategory.value = '';
+      currentCategoryTags.clear();
+    }
   }
 
   // 사용자가 상단 카테고리 탭을 변경했을 때 호출되는 함수
@@ -57,7 +118,7 @@ class BookSearchController extends GetxController {
       if (index == 0) {
         refreshSearch(); 
       } else if (index == 1) {
-        // TODO: 컬렉션 검색 API 연동 필요 시 호출
+        searchCollectionsWithFilter();
       } else if (index == 2) {
         searchGroups(currentKeyword.value); 
       }
@@ -99,15 +160,37 @@ class BookSearchController extends GetxController {
 
   /// 🌐 사용자가 키워드를 치고 검색(엔터)했을 때 호출되는 핵심 함수
   Future<void> onSubmit(String value) async {
-    if (value.isEmpty) return;
-    recentSearches.removeWhere((item) => item.query == value);
-    final tempItem = SearchHistoryItem(id: -1, query: value);
+    final trimmed = value.trim();
+    if (trimmed.isEmpty && selectedSearchTags.isEmpty) return;
+    isTagDropdownVisible.value = false;
+
+    if (trimmed.startsWith('#')) {
+      final tagName = trimmed.substring(1).trim();
+      if (tagName.isEmpty) return;
+      searchFocusNode.unfocus();
+      currentView.value = SearchState.result;
+      selectedTabIndex.value = 1;
+      await searchCollectionsByRawTagName(tagName);
+      return;
+    }
+
+    if (selectedSearchTags.isNotEmpty && trimmed.isEmpty) {
+      currentKeyword.value = selectedSearchTags.map((t) => '#${t['name']}').join(' ');
+      searchFocusNode.unfocus();
+      currentView.value = SearchState.result;
+      selectedTabIndex.value = 1;
+      await searchCollectionsWithFilter();
+      return;
+    }
+
+    recentSearches.removeWhere((item) => item.query == trimmed);
+    final tempItem = SearchHistoryItem(id: -1, query: trimmed);
     recentSearches.insert(0, tempItem);
 
-    currentKeyword.value = value;
+    currentKeyword.value = trimmed;
     searchFocusNode.unfocus();
     currentView.value = SearchState.result;
-    
+
     isLoading.value = true;
     searchResults.clear();
 
@@ -119,7 +202,8 @@ class BookSearchController extends GetxController {
       await loadServerHistory();
       
       // 2. 그룹 검색 API도 백그라운드에서 한 번에 같이 호출
-      await searchGroups(value);
+      await searchGroups(trimmed);
+      await searchCollectionsWithFilter();
       
     } catch (e) {
       print("에러 발생: $e");
@@ -191,6 +275,7 @@ class BookSearchController extends GetxController {
       await _syncReadingStatus(books);
       
       await searchGroups(currentKeyword.value);
+      await searchCollections(currentKeyword.value);
     }
   }
 
@@ -231,7 +316,9 @@ class BookSearchController extends GetxController {
   void backToSearch() {
     searchTextController.clear();
     searchResults.clear();
-    groupSearchResults.clear(); 
+    groupSearchResults.clear();
+    collectionSearchResults.clear();
+    selectedSearchTags.clear();
     currentView.value = SearchState.initial;
     loadServerHistory();
   }
@@ -311,6 +398,243 @@ class BookSearchController extends GetxController {
         ),
       ),
     );
+  }
+
+  // ── 컬렉션 검색 메서드 추가
+  Future<void> _fetchTagCategories() async {
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/tags/categories'),
+        headers: _headers,
+      );
+      if (res.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(res.bodyBytes));
+        tagCategories.assignAll(
+          List<Map<String, dynamic>>.from(data['categories'] ?? []),
+        );
+      }
+    } catch (e) {
+      print('❌ _fetchTagCategories error: $e');
+    }
+  }
+
+  Future<void> selectTagCategory(Map<String, dynamic> category) async {
+    selectedTagCategory.value = category['name'] ?? '';
+    try {
+      final uri = Uri.parse('$baseUrl/tags').replace(queryParameters: {
+        'category': category['name'],
+        'limit': '100',
+      });
+      final res = await http.get(uri, headers: _headers);
+      if (res.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(res.bodyBytes));
+        currentCategoryTags.assignAll(
+          List<Map<String, dynamic>>.from(data['tags'] ?? []),
+        );
+      }
+    } catch (e) {
+      print('❌ selectTagCategory error: $e');
+    }
+  }
+
+  void clearTagCategory() {
+    selectedTagCategory.value = '';
+    currentCategoryTags.clear();
+  }
+
+  Future<void> searchCollectionsWithFilter() async {
+    try {
+      isCollectionLoading.value = true;
+      collectionSearchResults.clear();
+
+      final String queryText = searchTextController.text.trim();
+      final String finalQuery = queryText.startsWith('#') ? '' : queryText;
+
+      final Map<String, String> queryParams = {
+        'sort': 'like',
+        'limit': '50',
+      };
+
+      if (finalQuery.isNotEmpty) {
+        queryParams['query'] = finalQuery;
+      }
+
+      if (selectedSearchTags.isNotEmpty) {
+        final tagIdsStr = selectedSearchTags.map((t) => t['tagId'].toString()).join(',');
+        queryParams['tagIds'] = tagIdsStr;
+      }
+
+      if (queryParams['query'] == null && queryParams['tagIds'] == null) {
+        return;
+      }
+
+      final uri = Uri.parse('$baseUrl/collections').replace(queryParameters: queryParams);
+      print("📡 공개 컬렉션 필터 질의 URL: $uri");
+
+      final res = await http.get(uri, headers: _headers);
+      if (res.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(res.bodyBytes));
+        final list = (data['collections'] as List)
+            .map((e) => CollectionListItem.fromJson(e))
+            .toList();
+        collectionSearchResults.assignAll(list);
+      }
+    } catch (e) {
+      print('❌ searchCollectionsWithFilter 예외 발생: $e');
+    } finally {
+      isCollectionLoading.value = false;
+    }
+  }
+
+  Future<void> searchCollectionsByRawTagName(String tagName) async {
+    try {
+      isCollectionLoading.value = true;
+      collectionSearchResults.clear();
+
+      final tagUri = Uri.parse('$baseUrl/tags').replace(queryParameters: {'query': tagName, 'limit': '1'});
+      final tagRes = await http.get(tagUri, headers: _headers);
+      if (tagRes.statusCode == 200) {
+        final tagData = jsonDecode(utf8.decode(tagRes.bodyBytes));
+        final List tagsList = tagData['tags'] ?? [];
+        if (tagsList.isNotEmpty) {
+          final targetTag = tagsList.first;
+          selectedSearchTags.add(targetTag);
+          searchTextController.text = '';
+          isTextEmpty.value = true;
+          currentKeyword.value = selectedSearchTags.map((t) => '#${t['name']}').join(' '); // ★ 추가
+          await searchCollectionsWithFilter();
+          return;
+        }
+      }
+    } catch (e) {
+      print('❌ searchCollectionsByRawTagName error: $e');
+    } finally {
+      isCollectionLoading.value = false;
+    }
+  }
+
+  void selectTag(Map<String, dynamic> tag) {
+    if (!selectedSearchTags.any((t) => t['tagId'] == tag['tagId'])) {
+      selectedSearchTags.add(tag);
+    }
+    searchTextController.text = '';
+    isTextEmpty.value = true;
+    isTagDropdownVisible.value = false;
+    tagDropdownResults.clear();
+    selectedTagCategory.value = '';
+    currentCategoryTags.clear();
+    currentKeyword.value = selectedSearchTags.map((t) => '#${t['name']}').join(' ');
+    searchFocusNode.unfocus();
+    currentView.value = SearchState.result;
+    selectedTabIndex.value = 1;
+    searchCollectionsWithFilter();
+  }
+
+  void removeSearchTag(Map<String, dynamic> tag) {
+    selectedSearchTags.removeWhere((t) => t['tagId'] == tag['tagId']);
+    if (selectedSearchTags.isEmpty) {
+      searchTextController.clear();
+      backToSearch();
+    } else {
+      currentKeyword.value = selectedSearchTags.map((t) => '#${t['name']}').join(' ');
+      searchCollectionsWithFilter();
+    }
+  }
+
+  Future<void> _searchCollectionsByTagIds(List<String> tagIds) async {
+    try {
+      isCollectionLoading.value = true;
+      collectionSearchResults.clear();
+      final uri = Uri.parse(
+          '$baseUrl/collections?tagIds=${tagIds.join(",")}&sort=like&limit=50'
+      );
+      final res = await http.get(uri, headers: _headers);
+      if (res.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(res.bodyBytes));
+        final list = (data['collections'] as List)
+            .map((e) => CollectionListItem.fromJson(e))
+            .toList();
+        collectionSearchResults.assignAll(list);
+      }
+    } catch (e) {
+      print('❌ _searchCollectionsByTagIds error: $e');
+    } finally {
+      isCollectionLoading.value = false;
+    }
+  }
+
+  Future<void> searchCollections(String query) async {
+    if (query.trim().isEmpty || query.startsWith('#')) return;
+    try {
+      isCollectionLoading.value = true;
+      collectionSearchResults.clear();
+
+      final uri = Uri.parse('$baseUrl/collections').replace(queryParameters: {
+        'query': query,
+        'sort': 'like',
+        'limit': '50',
+      });
+
+      final res = await http.get(uri, headers: _headers);
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(res.bodyBytes));
+        final list = (data['collections'] as List)
+            .map((e) => CollectionListItem.fromJson(e))
+            .toList();
+        collectionSearchResults.assignAll(list);
+        print('✅ 컬렉션 검색 성공: ${list.length}개');
+      } else {
+        print('❌ 컬렉션 검색 실패: ${res.statusCode}');
+      }
+    } catch (e) {
+      print('❌ searchCollections error: $e');
+    } finally {
+      isCollectionLoading.value = false;
+    }
+  }
+
+// ── 컬렉션 좋아요 토글
+  void toggleCollectionLike(String collectionId) async {
+    final index = collectionSearchResults.indexWhere((c) => c.id == collectionId);
+    if (index == -1) return;
+
+    final item = collectionSearchResults[index];
+    final isCurrentlyLiked = item.isLiked;
+    collectionSearchResults[index] = item.copyWith(isLiked: !isCurrentlyLiked);
+
+    try {
+      final res = isCurrentlyLiked
+          ? await http.delete(
+        Uri.parse('$baseUrl/collections/$collectionId/like'),
+        headers: _headers,
+      )
+          : await http.post(
+        Uri.parse('$baseUrl/collections/$collectionId/like'),
+        headers: _headers,
+      );
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        collectionSearchResults[index] = CollectionListItem(
+          id: collectionSearchResults[index].id,
+          title: collectionSearchResults[index].title,
+          description: collectionSearchResults[index].description,
+          authorName: collectionSearchResults[index].authorName,
+          tags: collectionSearchResults[index].tags,
+          bookCoverUrls: collectionSearchResults[index].bookCoverUrls,
+          likeCount: data['likeCount'],
+          bookCount: collectionSearchResults[index].bookCount,
+          isLiked: data['isLiked'],
+          isPublic: collectionSearchResults[index].isPublic,
+        );
+      } else {
+        collectionSearchResults[index] = item;
+      }
+    } catch (e) {
+      collectionSearchResults[index] = item;
+      print('❌ toggleCollectionLike error: $e');
+    }
   }
 
   @override
