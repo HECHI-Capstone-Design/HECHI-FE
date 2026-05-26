@@ -7,7 +7,7 @@ import '../../../data/models/user_stats_model.dart';
 import '../../../app/controllers/app_controller.dart';
 
 class TasteAnalysisController extends GetxController {
-  final String baseUrl = "https://api.43-202-101-63.sslip.io";
+  final String baseUrl="https://api.43-202-101-63.sslip.io";
   final box = GetStorage();
   RxBool isLoading = true.obs;
 

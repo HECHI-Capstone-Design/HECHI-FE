@@ -8,13 +8,12 @@ class LoginLogo extends StatelessWidget {
     return Center(
       child: Text(
         "HECHI",
-        style: const TextStyle(
+        style: TextStyle(
 
-          fontFamily: 'MoveSans',
           fontSize: 45,
           fontWeight: FontWeight.w700,
-          color: Color(0xFF4DB56C),
-          letterSpacing: 1.5,
+          color: const Color(0xFF4DB56C),
+          letterSpacing: 0.25,
         ),
       ),
     );

@@ -88,37 +88,52 @@ class NotificationController extends GetxController {
     } catch (e) {}
   }
 
-  Future<void> deleteNotification(int notificationId) async {
-    try {
-      final url = Uri.parse('$baseUrl/notifications/$notificationId');
-      final response = await http.delete(url, headers: _getHeaders());
-      if (response.statusCode == 200) {
-        generalNotifications.removeWhere((item) => item.notificationId == notificationId);
-        groupNotifications.removeWhere((item) => item.notificationId == notificationId);
-        fetchUnreadCount();
-      }
-    } catch (e) {}
-  }
-
   Future<void> deleteAllNotifications() async {
     try {
+      isLoading.value = true;
       final url = Uri.parse('$baseUrl/notifications/all');
       final response = await http.delete(url, headers: _getHeaders());
-      if (response.statusCode == 200) {
+
+      print("📢 전체삭제 응답: ${response.statusCode} / ${response.body}");
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
         generalNotifications.clear();
         groupNotifications.clear();
         unreadCount.value = 0;
+        Get.snackbar("성공", "모든 알림이 삭제되었습니다.");
+      } else {
+        Get.snackbar("오류", "전체 삭제 실패: ${response.statusCode}");
       }
-    } catch (e) {}
+    } catch (e) {
+      print("🚨 전체 삭제 시스템 에러: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // 개별 삭제 API 호출부 (ID 타입 체크 강화)
+  Future<void> deleteNotification(dynamic notificationId) async {
+    try {
+      final url = Uri.parse('$baseUrl/notifications/$notificationId');
+      final response = await http.delete(url, headers: _getHeaders());
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        generalNotifications.removeWhere((item) => item.notificationId.toString() == notificationId.toString());
+        groupNotifications.removeWhere((item) => item.notificationId.toString() == notificationId.toString());
+        fetchUnreadCount();
+      }
+    } catch (e) {
+      print("🚨 삭제 에러: $e");
+    }
   }
 
   void _updateLocalReadStatus(int notificationId) {
-    int genIndex = generalNotifications.indexWhere((item) => item.notificationId == notificationId);
+    int genIndex = generalNotifications.indexWhere((item) => int.tryParse(item.notificationId.toString()) == notificationId);
     if (genIndex != -1) {
       generalNotifications[genIndex] = _cloneWithReadTrue(generalNotifications[genIndex]);
       return;
     }
-    int grpIndex = groupNotifications.indexWhere((item) => item.notificationId == notificationId);
+    int grpIndex = groupNotifications.indexWhere((item) => int.tryParse(item.notificationId.toString()) == notificationId);
     if (grpIndex != -1) {
       groupNotifications[grpIndex] = _cloneWithReadTrue(groupNotifications[grpIndex]);
     }
