@@ -5,6 +5,7 @@ import '../widgets/notification_tab_bar.dart';
 import '../widgets/general_notification_tile.dart';
 import '../widgets/group_notification_tile.dart';
 import '../widgets/notification_empty_state.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -61,13 +62,52 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 }
 
+// 공통 리스트 아이템 빌더 (스와이프 UI 적용)
+Widget _buildSwipeableTile({
+  required dynamic item,
+  required Widget tileWidget,
+  required Function(dynamic) onDelete,
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 4),
+    child: Slidable(
+      key: Key(item.notificationId.toString()),
+      // 우측에서 좌측으로 밀었을 때(end) 액션 메뉴가 나타납니다.
+      endActionPane: ActionPane(
+        motion: const ScrollMotion(), // 자연스럽게 밀려오는 애니메이션
+        extentRatio: 0.25, // 휴지통이 차지하는 너비 비율 (화면의 25%)
+        children: [
+          CustomSlidableAction(
+            onPressed: (context) => onDelete(item.notificationId),
+            backgroundColor: Colors.transparent, // 기본 배경 투명하게
+            padding: const EdgeInsets.only(left: 8, right: 16),
+            child: Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFDEAEA), // 연한 핑크/레드 배경
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.delete_outline,
+                color: Color(0xFFE57373), // 차분한 레드 아이콘
+                size: 28,
+              ),
+            ),
+          ),
+        ],
+      ),
+      child: tileWidget,
+    ),
+  );
+}
+
 class _GeneralListView extends StatelessWidget {
   const _GeneralListView();
 
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<NotificationController>();
-
     return Obx(() {
       final items = controller.generalNotifications;
       if (items.isEmpty) return const NotificationEmptyState(message: '일반 알림이 없습니다.');
@@ -75,7 +115,11 @@ class _GeneralListView extends StatelessWidget {
       return ListView.builder(
         padding: const EdgeInsets.only(bottom: 30),
         itemCount: items.length,
-        itemBuilder: (_, i) => GeneralNotificationTile(item: items[i]),
+        itemBuilder: (_, i) => _buildSwipeableTile(
+          item: items[i],
+          tileWidget: GeneralNotificationTile(item: items[i]),
+          onDelete: (id) => controller.deleteNotification(id),
+        ),
       );
     });
   }
@@ -87,7 +131,6 @@ class _GroupListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<NotificationController>();
-
     return Obx(() {
       final items = controller.groupNotifications;
       if (items.isEmpty) return const NotificationEmptyState(message: '그룹 알림이 없습니다.');
@@ -95,7 +138,11 @@ class _GroupListView extends StatelessWidget {
       return ListView.builder(
         padding: const EdgeInsets.only(bottom: 30),
         itemCount: items.length,
-        itemBuilder: (_, i) => GroupNotificationTile(item: items[i]),
+        itemBuilder: (_, i) => _buildSwipeableTile(
+          item: items[i],
+          tileWidget: GroupNotificationTile(item: items[i]),
+          onDelete: (id) => controller.deleteNotification(id),
+        ),
       );
     });
   }
