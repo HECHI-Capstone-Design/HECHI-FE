@@ -89,6 +89,7 @@ class CollectionDetailController extends GetxController {
         final data = jsonDecode(res.body);
         isLiked.value = data['isLiked'];
         likeCount.value = data['likeCount'];
+        isModified.value = true;
       } else {
         isLiked.value = wasLiked;
         likeCount.value += wasLiked ? 1 : -1;

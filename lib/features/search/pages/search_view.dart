@@ -10,6 +10,7 @@ import 'package:hechi/features/myGroup/widgets/recommended_group_item_widget.dar
 import 'package:hechi/features/myGroup/models/group_model.dart';
 import '../../group_join/pages/group_join_page.dart'; // 💡 상세페이지 이동을 위해 임포트 확인
 import '../../group_join/bindings/group_join_binding.dart';
+import '../widgets/search_collection_result_widget.dart';
 
 class SearchView extends GetView<BookSearchController> {
   const SearchView({super.key});
@@ -99,7 +100,7 @@ class SearchView extends GetView<BookSearchController> {
             const SearchResultWidget(), 
 
             // [탭 1] 컬렉션 검색 결과
-            const Center(child: Text('컬렉션 검색 결과가 없습니다.', style: TextStyle(color: Colors.grey))),
+            const SearchCollectionResultWidget(),
 
             // [탭 2] 💡 [수정] 더미 리스트 대신 서버 실시간 데이터를 뿌려주는 위젯 호출!
             _buildRealGroupSearchResultList(),
