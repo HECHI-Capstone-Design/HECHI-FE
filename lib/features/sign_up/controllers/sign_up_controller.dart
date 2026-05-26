@@ -21,7 +21,7 @@ class SignUpController extends GetxController {
   RxString loginIdStatusMessage = ''.obs;
   RxBool isLoading = false.obs;
 
-  final String baseUrl = "https://api.43-202-101-63.sslip.io";
+  final String baseUrl="https://api.43-202-101-63.sslip.io";
 
   @override
   void onInit() {

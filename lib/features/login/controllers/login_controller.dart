@@ -19,7 +19,7 @@ class LoginController extends GetxController {
   RxString loginIdError = ''.obs;
   RxString passwordError = ''.obs;
 
-  final String baseUrl = "https://api.43-202-101-63.sslip.io";
+  final String baseUrl="https://api.43-202-101-63.sslip.io";
   final box = GetStorage();
 
   @override
