@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+
 import '../controllers/notification_controller.dart';
 import '../widgets/notification_tab_bar.dart';
 import '../widgets/general_notification_tile.dart';
 import '../widgets/group_notification_tile.dart';
 import '../widgets/notification_empty_state.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -72,31 +73,32 @@ Widget _buildSwipeableTile({
     padding: const EdgeInsets.symmetric(vertical: 4),
     child: Slidable(
       key: Key(item.notificationId.toString()),
-      // 우측에서 좌측으로 밀었을 때(end) 액션 메뉴가 나타납니다.
       endActionPane: ActionPane(
-        motion: const ScrollMotion(), // 자연스럽게 밀려오는 애니메이션
-        extentRatio: 0.25, // 휴지통이 차지하는 너비 비율 (화면의 25%)
+        motion: const ScrollMotion(),
+        extentRatio: 0.22,
         children: [
           CustomSlidableAction(
             onPressed: (context) => onDelete(item.notificationId),
-            backgroundColor: Colors.transparent, // 기본 배경 투명하게
-            padding: const EdgeInsets.only(left: 8, right: 16),
+            backgroundColor: Colors.transparent,
+            padding: const EdgeInsets.only(left: 8),
             child: Container(
-              width: 80,
-              height: 80,
+              height: double.infinity,
+              width: double.infinity,
               decoration: BoxDecoration(
-                color: const Color(0xFFFDEAEA), // 연한 핑크/레드 배경
+                color: const Color(0xFFFDEAEA),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.delete_outline,
-                color: Color(0xFFE57373), // 차분한 레드 아이콘
+                color: Color(0xFFE57373),
                 size: 28,
               ),
             ),
           ),
         ],
       ),
+      // ✅ 겉포장지의 GestureDetector를 깔끔하게 제거하고 tileWidget만 남겼습니다!
+      // (터치 로직은 이제 General/Group 타일 내부의 InkWell이 완벽하게 처리합니다)
       child: tileWidget,
     ),
   );

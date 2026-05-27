@@ -15,27 +15,29 @@ class UserStatsResponse {
 
   factory UserStatsResponse.fromJson(Map<String, dynamic> json) {
     return UserStatsResponse(
-      ratingDistribution: (json['rating_distribution'] as List? ?? [])
+      ratingDistribution: ((json['ratingDistribution'] ?? json['rating_distribution']) as List? ?? [])
           .map((e) => RatingDist.fromJson(e)).toList(),
-      ratingSummary: RatingSummary.fromJson(json['rating_summary'] ?? {}),
-      readingTime: ReadingTime.fromJson(json['reading_time'] ?? {}),
-      topLevelGenres: (json['top_level_genres'] as List? ?? [])
+      ratingSummary: RatingSummary.fromJson(json['ratingSummary'] ?? json['rating_summary'] ?? {}),
+      readingTime: ReadingTime.fromJson(json['readingTime'] ?? json['reading_time'] ?? {}),
+
+      // ✅ [핵심 수정] 백엔드가 새로 바꾼 이름인 'genres'를 먼저 찾도록 추가했습니다!
+      topLevelGenres: ((json['genres'] ?? json['topLevelGenres'] ?? json['top_level_genres']) as List? ?? [])
           .map((e) => GenreStat.fromJson(e)).toList(),
-      subGenres: (json['sub_genres'] as List? ?? [])
+
+      subGenres: ((json['subGenres'] ?? json['sub_genres']) as List? ?? [])
           .map((e) => GenreStat.fromJson(e)).toList(),
     );
   }
 }
 
 class RatingDist {
-  final double rating; // ✅ [수정 완료] int -> double (0.5 단위 처리를 위해 필수)
+  final double rating;
   final int count;
 
   RatingDist({required this.rating, required this.count});
 
   factory RatingDist.fromJson(Map<String, dynamic> json) {
     return RatingDist(
-      // ✅ [수정 완료] num으로 받아서 double로 변환
       rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
       count: (json['count'] as num?)?.toInt() ?? 0,
     );
@@ -47,7 +49,7 @@ class RatingSummary {
   final int totalReviews;
   final double mostFrequentRating;
   final int average100;
-  final int totalComments; // ✅ [추가 완료] 코멘트 개수 필드
+  final int totalComments;
 
   RatingSummary({
     required this.average5,
@@ -59,12 +61,12 @@ class RatingSummary {
 
   factory RatingSummary.fromJson(Map<String, dynamic> json) {
     return RatingSummary(
-      average5: (json['average_5'] as num?)?.toDouble() ?? 0.0,
-      totalReviews: (json['total_reviews'] as num?)?.toInt() ?? 0,
-      mostFrequentRating: (json['most_frequent_rating'] as num?)?.toDouble() ?? 0.0,
-      average100: (json['average_100'] as num?)?.toInt() ?? 0,
-      // ✅ [핵심] JSON의 'total_comments'를 매핑
-      totalComments: (json['total_comments'] as num?)?.toInt() ?? 0,
+      // ✅ camelCase와 snake_case 모두 대응
+      average5: ((json['average5'] ?? json['average_5']) as num?)?.toDouble() ?? 0.0,
+      totalReviews: ((json['totalReviews'] ?? json['total_reviews']) as num?)?.toInt() ?? 0,
+      mostFrequentRating: ((json['mostFrequentRating'] ?? json['most_frequent_rating']) as num?)?.toDouble() ?? 0.0,
+      average100: ((json['average100'] ?? json['average_100']) as num?)?.toInt() ?? 0,
+      totalComments: ((json['totalComments'] ?? json['total_comments']) as num?)?.toInt() ?? 0,
     );
   }
 }
@@ -77,7 +79,8 @@ class ReadingTime {
 
   factory ReadingTime.fromJson(Map<String, dynamic> json) {
     return ReadingTime(
-      totalSeconds: (json['total_seconds'] as num?)?.toInt() ?? 0,
+      // ✅ camelCase와 snake_case 모두 대응
+      totalSeconds: ((json['totalSeconds'] ?? json['total_seconds']) as num?)?.toInt() ?? 0,
       human: json['human'] ?? "0시간",
     );
   }
@@ -97,8 +100,9 @@ class GenreStat {
   factory GenreStat.fromJson(Map<String, dynamic> json) {
     return GenreStat(
       name: json['name'] ?? '',
-      reviewCount: (json['review_count'] as num?)?.toInt() ?? 0,
-      average5: (json['average_5'] as num?)?.toDouble() ?? 0.0,
+      // ✅ camelCase와 snake_case 모두 대응
+      reviewCount: ((json['reviewCount'] ?? json['review_count']) as num?)?.toInt() ?? 0,
+      average5: ((json['average5'] ?? json['average_5']) as num?)?.toDouble() ?? 0.0,
     );
   }
 }

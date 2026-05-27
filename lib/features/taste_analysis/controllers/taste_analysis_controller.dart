@@ -7,7 +7,7 @@ import '../../../data/models/user_stats_model.dart';
 import '../../../app/controllers/app_controller.dart';
 
 class TasteAnalysisController extends GetxController {
-  final String baseUrl="https://api.43-202-101-63.sslip.io";
+  final String baseUrl = "https://api.43-202-101-63.sslip.io";
   final box = GetStorage();
   RxBool isLoading = true.obs;
 
@@ -44,6 +44,7 @@ class TasteAnalysisController extends GetxController {
   Future<void> fetchData() async {
     isLoading.value = true;
     String? token = box.read('access_token');
+    print("📢 [fetchData 실행됨] 토큰 유무: ${token != null}");
 
     if (token != null) {
       try {
@@ -52,7 +53,7 @@ class TasteAnalysisController extends GetxController {
           _fetchInsightTags(token),
         ]);
       } catch (e) {
-        print("데이터 로딩 오류: $e");
+        print("🚨 데이터 로딩 오류: $e");
       }
     }
     isLoading.value = false;
@@ -62,81 +63,88 @@ class TasteAnalysisController extends GetxController {
     final url = Uri.parse('$baseUrl/analytics/my-stats');
     final response = await http.get(url, headers: {"Authorization": "Bearer $token"});
 
+    print("📢 [장르 API 응답 상태코드]: ${response.statusCode}");
+    print("📢 [장르 API 실제 데이터]: ${utf8.decode(response.bodyBytes)}");
+
     if (response.statusCode == 200) {
-      final json = jsonDecode(utf8.decode(response.bodyBytes));
-      final stats = UserStatsResponse.fromJson(json);
+      try {
+        final json = jsonDecode(utf8.decode(response.bodyBytes));
+        final stats = UserStatsResponse.fromJson(json);
 
-      averageRating.value = stats.ratingSummary.average5.toStringAsFixed(1);
-      totalReviews.value = stats.ratingSummary.totalReviews.toString();
-      readingRate.value = "${stats.ratingSummary.average100}%";
-      mostGivenRating.value = stats.ratingSummary.mostFrequentRating.toStringAsFixed(1);
+        averageRating.value = stats.ratingSummary.average5.toStringAsFixed(1);
+        totalReviews.value = stats.ratingSummary.totalReviews.toString();
+        readingRate.value = "${stats.ratingSummary.average100}%";
+        mostGivenRating.value = stats.ratingSummary.mostFrequentRating.toStringAsFixed(1);
 
-      // 시간 텍스트 포맷팅
-      String rawTime = stats.readingTime.human;
-      String cleaned = rawTime
-          .replaceAll("총", "")
-          .replaceAll("감상하였습니다", "")
-          .replaceAll("감상하셨습니다", "")
-          .replaceAll("동안", "")
-          .replaceAll(".", "")
-          .trim();
+        String rawTime = stats.readingTime.human;
+        String cleaned = rawTime
+            .replaceAll("총", "")
+            .replaceAll("감상하였습니다", "")
+            .replaceAll("감상하셨습니다", "")
+            .replaceAll("동안", "")
+            .replaceAll(".", "")
+            .trim();
 
-      if (cleaned.contains("분") && !cleaned.contains("시간")) {
-        String numStr = cleaned.replaceAll("분", "").trim();
-        int? mins = int.tryParse(numStr);
-        if (mins != null) {
-          if (mins < 60) {
-            totalReadingTime.value = "${mins}분";
-          } else {
-            int h = mins ~/ 60;
-            int m = mins % 60;
-            if (m == 0) {
-              totalReadingTime.value = "${h}시간";
+        if (cleaned.contains("분") && !cleaned.contains("시간")) {
+          String numStr = cleaned.replaceAll("분", "").trim();
+          int? mins = int.tryParse(numStr);
+          if (mins != null) {
+            if (mins < 60) {
+              totalReadingTime.value = "${mins}분";
             } else {
-              totalReadingTime.value = "${h}시간 ${m}분";
+              int h = mins ~/ 60;
+              int m = mins % 60;
+              if (m == 0) {
+                totalReadingTime.value = "${h}시간";
+              } else {
+                totalReadingTime.value = "${h}시간 ${m}분";
+              }
             }
+          } else {
+            totalReadingTime.value = cleaned;
           }
-        } else {
+        }
+        else if (cleaned == "0시간") {
+          totalReadingTime.value = "0분";
+        }
+        else {
           totalReadingTime.value = cleaned;
         }
-      }
-      else if (cleaned == "0시간") {
-        totalReadingTime.value = "0분";
-      }
-      else {
-        totalReadingTime.value = cleaned;
-      }
 
-      _updateDistribution(stats.ratingDistribution);
+        _updateDistribution(stats.ratingDistribution);
 
-      List<GenreStat> sourceList = stats.subGenres.isNotEmpty
-          ? stats.subGenres
-          : stats.topLevelGenres;
-      List<GenreStat> mergedList = [];
-      int bizEcoCount = 0;
-      double bizEcoTotalScore = 0.0;
-      bool hasBizEco = false;
+        List<GenreStat> sourceList = stats.subGenres.isNotEmpty
+            ? stats.subGenres
+            : stats.topLevelGenres;
+        List<GenreStat> mergedList = [];
+        int bizEcoCount = 0;
+        double bizEcoTotalScore = 0.0;
+        bool hasBizEco = false;
 
-      for (var genre in sourceList) {
-        if (genre.name.contains('경제') || genre.name.contains('경영')) {
-          hasBizEco = true;
-          bizEcoCount += genre.reviewCount;
-          bizEcoTotalScore += (genre.average5 * genre.reviewCount);
-        } else {
-          mergedList.add(genre);
+        for (var genre in sourceList) {
+          if (genre.name.contains('경제') || genre.name.contains('경영')) {
+            hasBizEco = true;
+            bizEcoCount += genre.reviewCount;
+            bizEcoTotalScore += (genre.average5 * genre.reviewCount);
+          } else {
+            mergedList.add(genre);
+          }
         }
-      }
 
-      if (hasBizEco && bizEcoCount > 0) {
-        mergedList.add(GenreStat(
-          name: '경제/경영',
-          reviewCount: bizEcoCount,
-          average5: bizEcoTotalScore / bizEcoCount,
-        ));
-      }
+        if (hasBizEco && bizEcoCount > 0) {
+          mergedList.add(GenreStat(
+            name: '경제/경영',
+            reviewCount: bizEcoCount,
+            average5: bizEcoTotalScore / bizEcoCount,
+          ));
+        }
 
-      genreRankings.value = mergedList;
-      genreRankings.sort((a, b) => b.average5.compareTo(a.average5));
+        genreRankings.value = mergedList;
+        genreRankings.sort((a, b) => b.average5.compareTo(a.average5));
+
+      } catch (e) {
+        print("🚨 [장르 모델 파싱 에러 발생!!]: $e");
+      }
     }
   }
 
@@ -151,6 +159,9 @@ class TasteAnalysisController extends GetxController {
 
     try {
       final response = await http.get(url, headers: {"Authorization": "Bearer $token"});
+
+      print("📢 [태그 API 응답 상태코드]: ${response.statusCode}");
+      print("📢 [태그 API 실제 데이터]: ${utf8.decode(response.bodyBytes)}");
 
       if (response.statusCode == 200) {
         final json = jsonDecode(utf8.decode(response.bodyBytes));
@@ -204,16 +215,13 @@ class TasteAnalysisController extends GetxController {
         tags.value = newTags;
       }
     } catch (e) {
-      print("태그 로딩 오류: $e");
+      print("🚨 [태그 모델 파싱 에러 발생!!]: $e");
     }
   }
 
-  // ✅ [최종 수정] 순서 매핑 로직 삭제 -> 값 비교 로직으로 통일
-  // 이제 5점은 무조건 5점 자리에 꽂힙니다.
   void _updateDistribution(List<RatingDist> distData) {
     int maxCount = 0;
 
-    // 1. 최대 개수(maxCount) 찾기
     for (var d in distData) {
       if (d.count > maxCount) maxCount = d.count;
     }
@@ -229,11 +237,8 @@ class TasteAnalysisController extends GetxController {
       double score = (item['score'] as num).toDouble();
       int count = 0;
 
-      // 🚨 [수정됨] 순서대로 끼워맞추는 'useIndexMapping' 로직을 삭제했습니다.
-      // 대신 무조건 값을 비교하여 정확한 자리를 찾습니다.
       try {
         var apiData = distData.firstWhere(
-          // API의 rating 값(예: 5)과 그래프의 score(예: 5.0)를 직접 비교
               (d) => (d.rating.toDouble() - score).abs() < 0.001,
           orElse: () => RatingDist(rating: 0, count: 0),
         );
@@ -253,7 +258,6 @@ class TasteAnalysisController extends GetxController {
       }
 
       int color = lightGreenColor;
-      // 가장 높은 막대는 진한 색
       if (count == maxCount && maxCount > 0) {
         color = darkGreenColor;
       }

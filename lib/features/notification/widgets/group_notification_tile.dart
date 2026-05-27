@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/notification_item.dart';
@@ -14,7 +15,34 @@ class GroupNotificationTile extends StatelessWidget {
 
     return InkWell(
       onTap: () {
+        // 1. 기존 기능: 알림 읽음 처리
         Get.find<NotificationController>().markAsRead(item.notificationId);
+
+        print("📢 [그룹 알림 터치!] targetInfo: ${item.targetInfo}");
+
+        try {
+          dynamic info = item.targetInfo;
+
+          if (info is String && info.startsWith('{')) {
+            info = jsonDecode(info);
+          }
+
+          if (info is Map && info.containsKey('groupId')) {
+            final groupIdValue = info['groupId'];
+            final parsedGroupId = int.tryParse(groupIdValue.toString());
+
+            // ✅ 여기를 실제 그룹 라우트 주소로 변경했습니다!
+            if (parsedGroupId != null) {
+              Get.toNamed('/group/main', arguments: {'groupId': parsedGroupId});
+            } else {
+              Get.toNamed('/group/main', arguments: {'groupId': groupIdValue.toString()});
+            }
+          } else {
+            print("🚨 그룹 ID를 찾을 수 없습니다. info: $info");
+          }
+        } catch (e) {
+          print("🚨 라우팅 파싱 에러: $e");
+        }
       },
       child: Container(
         width: double.infinity,
