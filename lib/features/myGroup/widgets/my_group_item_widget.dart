@@ -5,9 +5,9 @@ import 'package:get/get.dart';
 import '../models/group_model.dart';
 import '../../../app/routes.dart'; 
 
-// 💡 [추가] GroupJoinPage 클래스를 정상적으로 인식할 수 있도록 파일 경로 임포트!
-import '../../group_join/pages/group_join_page.dart'; 
-import '../../group_join/bindings/group_join_binding.dart';
+import '../../groupcommunity/controllers/group_controller.dart';
+import '../../groupcommunity/bindings/group_binding.dart';
+import '../../groupcommunity/pages/group_main_view.dart';
 
 class MyGroupItemWidget extends StatelessWidget {
   final GroupModel group;
@@ -19,12 +19,17 @@ class MyGroupItemWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 16.0),
       child: GestureDetector(
-        onTap: () {
-          print('📦 내 그룹 클릭됨: ${group.title} (ID: ${group.id})');
+        onTap: () async {
+          print('🚀 [내 그룹 탭] 커뮤니티 이동 시동: ${group.title} (ID: ${group.id})');
+
+          if (Get.isRegistered<GroupController>()) {
+            await Get.delete<GroupController>(force: true);
+          }
+
           Get.to(
-            () => const GroupJoinPage(),
-            arguments: group,
-            binding: GroupJoinBinding(),
+                () => const GroupMainView(),
+            arguments: group.id,
+            binding: GroupBinding(),
             transition: Transition.rightToLeft,
           );
         },

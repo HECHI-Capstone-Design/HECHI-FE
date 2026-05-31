@@ -5,13 +5,14 @@ import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:hechi/features/search/data/search_repository.dart';
 import 'package:hechi/features/search/data/book_model.dart'; 
+import '../../myGroup/models/group_model.dart';
 
 class GroupController extends GetxController {
   // 🌐 백엔드 API 호스트 Base URL
   final String baseUrl = "https://api.43-202-101-63.sslip.io";
 
   // 🔔 테스트 데이터 고정 연동: 그룹 ID '111' 지정 완비
-  final currentGroupId = "111".obs; 
+  final currentGroupId = "".obs;
   final isLeader = true.obs; 
   final isLoading = false.obs;
 
@@ -68,6 +69,20 @@ class GroupController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    if (Get.arguments != null) {
+      if (Get.arguments is String) {
+        currentGroupId.value = Get.arguments as String;
+      } else if (Get.arguments is GroupModel) {
+        currentGroupId.value = (Get.arguments as GroupModel).id;
+      }
+      print("🚀 [컨트롤러 기동] 아규먼트로 수신한 진짜 방 ID: ${currentGroupId.value}");
+    }
+
+    // 🛑 2단계: 주입된 진짜 ID가 없거나 유령 호출더미("")라면 API 요청을 원천 차단합니다.
+    if (currentGroupId.value.isEmpty) {
+      print("🛡️ [안전 가드] 진입한 방 ID가 비어있어 API 요청을 차단합니다.");
+      return;
+    }
     fetchAllDataFromAPI();
   }
 

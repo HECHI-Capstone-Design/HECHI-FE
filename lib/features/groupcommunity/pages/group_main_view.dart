@@ -14,13 +14,7 @@ class GroupMainView extends GetView<GroupController> {
 
   @override
   Widget build(BuildContext context) {
-    const unifiedGreen = Color(0xFF8DC695); 
-
-    // 🌐 [111번 테스트 그룹 ID 주입 및 서버 패치 엔진 기동]
-    controller.currentGroupId.value = "111";
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.fetchAllDataFromAPI();
-    });
+    const unifiedGreen = Color(0xFF8DC695);
 
     return Scaffold(
       backgroundColor: Colors.white,
