@@ -23,10 +23,38 @@ class PreferredGenreList extends GetView<TasteAnalysisController> {
           const SizedBox(height: 20),
           Obx(() {
             if (controller.genreRankings.isEmpty) {
-              return const Center(
-                child: Text(
-                  "아직 평가된 장르가 없습니다.",
-                  style: TextStyle(color: Colors.grey, fontSize: 13),
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 30),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                          Icons.menu_book_rounded,
+                          size: 50,
+                          color: Color(0xFFAAD2B6) // 연한 초록색 테마
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        "아직 분석할 독서 데이터가 없어요! 🥲",
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF3F3F3F)
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        "다 읽은 책에 별점을 남기고\n나만의 독서 취향을 정확하게 알아보세요!",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey,
+                            height: 1.4
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             }

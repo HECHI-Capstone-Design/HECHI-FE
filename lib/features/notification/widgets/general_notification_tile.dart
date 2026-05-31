@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/notification_item.dart';
@@ -5,14 +6,39 @@ import '../controllers/notification_controller.dart';
 
 class GeneralNotificationTile extends StatelessWidget {
   final NotificationItem item;
-
-  const GeneralNotificationTile({Key? key, required this.item}) : super(key: key);
+  const GeneralNotificationTile({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
+        // 1. 기존 기능: 알림 읽음 처리
         Get.find<NotificationController>().markAsRead(item.notificationId);
+
+        print("📢 [일반 알림 터치!] targetInfo: ${item.targetInfo}");
+
+        try {
+          dynamic info = item.targetInfo;
+
+          if (info is String && info.startsWith('{')) {
+            info = jsonDecode(info);
+          }
+
+          if (info is Map) {
+            if (info.containsKey('bookId')) {
+              final parsedBookId = int.tryParse(info['bookId'].toString());
+              if (parsedBookId != null) {
+                // ✅ [핵심 수정] 딕셔너리(Map) 형태가 아니라 순수하게 '숫자(int)'만 넘겨줍니다!
+                Get.toNamed('/book_detail_page', arguments: parsedBookId);
+              }
+            }
+            else if (info.containsKey('badgeCode')) {
+              print("📢 배지 획득 알림입니다! (이동할 경로가 있다면 여기에 추가하세요)");
+            }
+          }
+        } catch (e) {
+          print("🚨 라우팅 파싱 에러: $e");
+        }
       },
       child: Container(
         width: double.infinity,
