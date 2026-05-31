@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
+import 'package:hechi/features/groupcommunity/widgets/group_comment_bottom_sheet.dart';
 
 class GroupPostCard extends StatelessWidget {
   final Map<String, dynamic> post;
@@ -134,9 +135,32 @@ class GroupPostCard extends StatelessWidget {
                 ),
               )),
               const SizedBox(width: 16),
-              const Icon(Icons.chat_bubble_outline, color: Colors.grey, size: 20),
-              const SizedBox(width: 4),
-              Obx(() => Text("${post["comments"]?.length ?? 0}", style: const TextStyle(fontSize: 13, color: Colors.grey))),
+              GestureDetector(
+                onTap: () {
+                  print("💬 [댓글 바텀시트 오픈] 게시글 정보: ${post["id"]}");
+
+                  Get.bottomSheet(
+                    // 🚀 우리가 찾던 정품 댓글 바텀시트 위젯을 장착하고 post 데이터를 찔러줍니다!
+                    GroupCommentBottomSheet(post: post),
+
+                    // 배경이나 디자인 레이아웃이 깨지지 않도록 가드 설정
+                    isScrollControlled: true, // 키보드가 올라올 때 바텀시트가 가려지지 않게 밀어 올려주는 꿀옵션
+                    backgroundColor: Colors.transparent, // 모서리 둥글기를 살리기 위해 투명 처리
+                    barrierColor: Colors.black.withOpacity(0.4), // 뒷배경 어두워지는 강도
+                  );
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.chat_bubble_outline, color: Colors.grey, size: 20),
+                    const SizedBox(width: 4),
+                    Obx(() => Text(
+                      "${post["comments"]?.length ?? 0}",
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
+                    )),
+                  ],
+                ),
+              ),
             ],
           ),
         ],
