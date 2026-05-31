@@ -39,18 +39,69 @@ class BookInfoHeader extends GetView<BookNoteController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   GestureDetector(
-                    onTap: () {
-                      final hasContent = controller.hasAiSummaryContent();
-                      if (hasContent) {
+                    onTap: () async {
+                      // 이미 요약 있으면 바로 이동
+                      if (controller.hasSummary.value) {
                         Get.to(
-                          () => const AiSummaryPage(),
+                              () => const AiSummaryPage(),
+                          arguments: {'bookId': controller.bookId},
                           binding: BindingsBuilder(() {
                             Get.lazyPut(() => AiSummaryController());
                           }),
                         );
-                      } else {
-                        _showNoContentDialog();
+                        return;
                       }
+
+                      // 기록 자체가 없으면 불가 다이얼로그
+                      if (!controller.hasAiSummaryContent()) {
+                        _showNoContentDialog();
+                        return;
+                      }
+
+                      // 생성 요건 체크 (GET 호출)
+                      try {
+                        final data = await controller.api.get("/books/${controller.bookId}/reading-summary");
+
+                        // 응답값 확인용 추가
+                        print("📊 autoEligible: ${data['autoEligible']}");
+                        print("📊 stats: ${data['stats']}");
+
+                        final autoEligible = data['autoEligible'] ?? false;
+                        final stats = data['stats'] ?? {};
+
+                        final noteCount = stats['noteCount'] ?? 0;
+                        final noteCharacterCount = stats['noteCharacterCount'] ?? 0;
+                        final highlightCount = stats['highlightCount'] ?? 0;
+                        final bookmarkCount = stats['bookmarkCount'] ?? 0;
+
+                        print("📊 noteCount: $noteCount, noteCharacterCount: $noteCharacterCount");
+                        print("📊 highlightCount: $highlightCount, bookmarkCount: $bookmarkCount");
+
+                        final isEligible = autoEligible ||
+                            noteCount >= 3 ||
+                            highlightCount >= 3 ||
+                            bookmarkCount >= 3 ||
+                            noteCharacterCount >= 500;
+
+                        print("📊 isEligible: $isEligible");
+
+                        if (!isEligible) {
+                          _showIneligibleDialog();
+                          return;
+                        }
+                      } catch (e) {
+                        print("❌ Eligibility Check Error: $e");
+                      }
+
+                      // 요건 충족 시 페이지 이동
+                      Get.to(
+                            () => const AiSummaryPage(),
+                        arguments: {'bookId': controller.bookId},
+                        binding: BindingsBuilder(() {
+                          Get.delete<AiSummaryController>(force: true);
+                          Get.lazyPut(() => AiSummaryController());
+                        }),
+                      );
                     },
                     child: Obx(() {
                       final active = controller.hasSummary.value;
@@ -139,6 +190,66 @@ void _showNoContentDialog() {
               child: Center(
                 child: Text(
                   'AI 요약이 불가합니다.\n독서기록을 남겨주세요.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xFF3F3F3F),
+                    fontSize: 14,
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.w400,
+                    height: 1.75,
+                  ),
+                ),
+              ),
+            ),
+            Container(height: 1, color: const Color(0xFFF3F3F3)),
+            SizedBox(
+              height: 36,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    bottomRight: Radius.circular(10),
+                  ),
+                  onTap: () => Get.back(),
+                  child: const Center(
+                    child: Text(
+                      '닫기',
+                      style: TextStyle(
+                        color: Color(0xFF4DB56C),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+void _showIneligibleDialog() {
+  Get.dialog(
+    Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        width: 200,
+        height: 107,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          children: [
+            const Expanded(
+              child: Center(
+                child: Text(
+                  '메모 3개 이상 또는\n500자 이상 작성해주세요.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Color(0xFF3F3F3F),

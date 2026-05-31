@@ -54,15 +54,6 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
     super.onClose();
   }
 
-  bool hasAiSummaryContent() {
-    final isStillLoading = isLoadingBookmarks.value ||
-        isLoadingHighlights.value ||
-        isLoadingNotes.value;
-    if (isStillLoading) return true;
-
-    return bookmarks.isNotEmpty || highlights.isNotEmpty || notes.isNotEmpty;
-  }
-
   /// ===================== FETCH ALL =====================
   void fetchAll() {
     fetchBookmarks();
@@ -73,9 +64,9 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
   /// ===================== FETCH AI SUMMARY =====================
   Future<void> fetchAiSummary() async {
     try {
-      // TODO: AI 요약 API 호출
-      // 요약 데이터가 있으면 true
-      hasSummary.value = true;
+      final data = await api.get("/books/$bookId/reading-summary");
+      final currentStatus = data['status'] ?? '';
+      hasSummary.value = currentStatus == 'READY';
     } catch (e) {
       hasSummary.value = false;
       print("❌ Fetch AI Summary Error: $e");
@@ -306,5 +297,17 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
         DateTime.parse(b["created_date"])
             .compareTo(DateTime.parse(a["created_date"])));
     notes.refresh();
+  }
+
+  /// =====================================================
+  /// 📌 AI SUMMARY API
+  /// =====================================================
+  bool hasAiSummaryContent() {
+    final isStillLoading = isLoadingBookmarks.value ||
+        isLoadingHighlights.value ||
+        isLoadingNotes.value;
+    if (isStillLoading) return true;
+
+    return bookmarks.isNotEmpty || highlights.isNotEmpty || notes.isNotEmpty;
   }
 }
