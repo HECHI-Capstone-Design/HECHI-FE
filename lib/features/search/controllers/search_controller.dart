@@ -17,7 +17,7 @@ class BookSearchController extends GetxController {
   // HTTP 통신을 위한 GetConnect 인스턴스 및 Base URL 정의
   final GetConnect _connect = GetConnect();
   static const String baseUrl = 'https://api.43-202-101-63.sslip.io';
-  
+
   // 로컬 스토리지에 저장된 access_token을 읽기 위한 스토리지 선언
   final box = GetStorage();
 
@@ -34,7 +34,7 @@ class BookSearchController extends GetxController {
   final RxList<SearchHistoryItem> recentSearches = <SearchHistoryItem>[].obs;
   final RxString currentKeyword = ''.obs;
   final SearchRepository _repository = SearchRepository();
-  
+
   // 📚 책 관련 상태 변수
   final RxList<Book> searchResults = <Book>[].obs;
   final RxBool isLoading = false.obs;
@@ -113,14 +113,14 @@ class BookSearchController extends GetxController {
   void changeTab(int index) {
     selectedTabIndex.value = index;
     print("🎯 현재 검색 카테고리 변경됨: 탭 인덱스 $index");
-    
+
     if (currentView.value == SearchState.result && currentKeyword.value.isNotEmpty) {
       if (index == 0) {
-        refreshSearch(); 
+        refreshSearch();
       } else if (index == 1) {
         searchCollectionsWithFilter();
       } else if (index == 2) {
-        searchGroups(currentKeyword.value); 
+        searchGroups(currentKeyword.value);
       }
     }
   }
@@ -200,11 +200,11 @@ class BookSearchController extends GetxController {
       searchResults.assignAll(books);
       await _syncReadingStatus(books);
       await loadServerHistory();
-      
+
       // 2. 그룹 검색 API도 백그라운드에서 한 번에 같이 호출
       await searchGroups(trimmed);
       await searchCollectionsWithFilter();
-      
+
     } catch (e) {
       print("에러 발생: $e");
     } finally {
@@ -212,7 +212,7 @@ class BookSearchController extends GetxController {
     }
   }
 
-  /// 🌐 👥 실제 API 연동: 그룹 검색 (GET /groups/search) -> 💡 403 인증 토큰 및 모델 바인딩 정밀 조율
+  /// 🌐 👥 실제 API 연동: 그룹 검색 (GET /groups/search) -> 💡 방장 닉네임 상세 API 병렬 바인딩 이식 완료!
   Future<void> searchGroups(String query) async {
     if (query.trim().isEmpty) return;
 
@@ -223,7 +223,7 @@ class BookSearchController extends GetxController {
       // 스토리지에서 내 로그인 토큰을 동적으로 꺼내옵니다.
       final storage = GetStorage();
       final String? token = storage.read('access_token');
-      
+
       final headers = {
         'accept': 'application/json',
         // 토큰이 유효하다면 Authorization 헤더를 명시적으로 장착!
@@ -239,22 +239,33 @@ class BookSearchController extends GetxController {
       if (response.statusCode == 200 && response.body != null) {
         final List<dynamic>? groupList = response.body['groups'];
         if (groupList != null) {
+
+          // 1) 검색된 기본 그룹 리스트 모델 매핑 (하드코딩 기각)
           final parsedGroups = groupList.map((json) {
-            // 💡 [수정] UI 카드 디자인에 방장 닉네임이 출력되어야 하므로 가상 매핑 가드를 세워줍니다.
-            // 만약 백엔드 응답 데이터 구조에 특정 필드가 부족하더라도 UI가 깨지거나 터지지 않도록 방어합니다.
             return GroupModel(
               id: json['groupId']?.toString() ?? '',
               title: json['name'] ?? '이름 없는 그룹',
               description: json['description'] ?? '설명이 없습니다.',
-              // 카드 내부 상단에 '달해', 'summer' 등의 닉네임을 유연하게 표현할 수 있도록authorName 바인딩 최적화
-              authorName: (json['ownerNickname'] != null && json['ownerNickname'].toString().isNotEmpty)
-                  ? json['ownerNickname'].toString()
-                  : 'summer', 
+              authorName: '',
             );
           }).toList();
 
+          // 🔥 [병렬 튜닝]: 검색된 방들을 기반으로 각각 상세 API를 백그라운드에서 초고속 병렬 호출
+          await Future.wait(parsedGroups.map((group) async {
+            try {
+              final detailRes = await _connect.get('$baseUrl/groups/${group.id}', headers: headers);
+              if (detailRes.statusCode == 200 && detailRes.body != null) {
+                // 상세 API 응답 바디에서 정품 방장 닉네임을 캐치해 새로 개설한 leaderName에 물려줍니다.
+                final String realLeaderName = detailRes.body['leaderName'] ?? detailRes.body['leaderNickname'] ?? "방장 미상";
+                group.leaderName = realLeaderName;
+              }
+            } catch (_) {
+              group.leaderName = "방장 미상"; // 통신 예외 시 안전장치
+            }
+          }));
+
           groupSearchResults.assignAll(parsedGroups);
-          print('✅ 그룹 검색 연동 성공: 총 ${groupSearchResults.length}개 발견 및 동적 매핑 완료');
+          print('✅ 그룹 검색 필터링 및 방장 닉네임 병렬 바인딩 완수! (총 ${groupSearchResults.length}개)');
         }
       } else {
         print('❌ 그룹 검색 API 에러: ${response.statusText} (${response.statusCode})');
@@ -273,7 +284,7 @@ class BookSearchController extends GetxController {
       final books = await _repository.searchBooks(currentKeyword.value);
       searchResults.assignAll(books);
       await _syncReadingStatus(books);
-      
+
       await searchGroups(currentKeyword.value);
       await searchCollections(currentKeyword.value);
     }
@@ -501,7 +512,7 @@ class BookSearchController extends GetxController {
           selectedSearchTags.add(targetTag);
           searchTextController.text = '';
           isTextEmpty.value = true;
-          currentKeyword.value = selectedSearchTags.map((t) => '#${t['name']}').join(' '); // ★ 추가
+          currentKeyword.value = selectedSearchTags.map((t) => '#${t['name']}').join(' ');
           await searchCollectionsWithFilter();
           return;
         }
@@ -594,7 +605,6 @@ class BookSearchController extends GetxController {
     }
   }
 
-// ── 컬렉션 좋아요 토글
   void toggleCollectionLike(String collectionId) async {
     final index = collectionSearchResults.indexWhere((c) => c.id == collectionId);
     if (index == -1) return;
