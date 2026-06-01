@@ -45,7 +45,6 @@ class GroupMemberListView extends GetView<GroupController> {
             ),
           ),
           
-          // 🔔 스크린샷 1번 정교한 패널 컴포넌트 동기화 작업 완료 (레드 스크린 원천 방어 완료)
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -68,7 +67,7 @@ class GroupMemberListView extends GetView<GroupController> {
                         children: [
                           const CircleAvatar(
                             radius: 18,
-                            backgroundColor: Color(0xFF4EB56D),
+                            backgroundColor: Color(0xFF8DC695),
                             child: Icon(Icons.person, color: Colors.white, size: 20),
                           ),
                           const SizedBox(height: 4),

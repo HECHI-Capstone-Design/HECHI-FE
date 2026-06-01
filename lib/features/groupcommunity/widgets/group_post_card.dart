@@ -1,47 +1,94 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
 import 'package:hechi/features/groupcommunity/widgets/group_comment_bottom_sheet.dart';
 
-class GroupPostCard extends StatelessWidget {
+class GroupPostCard extends StatefulWidget {
   final Map<String, dynamic> post;
 
   const GroupPostCard({Key? key, required this.post}) : super(key: key);
 
   @override
+  State<GroupPostCard> createState() => _GroupPostCardState();
+}
+
+class _GroupPostCardState extends State<GroupPostCard> {
+  final GroupController controller = Get.find<GroupController>();
+  final Rxn<Map<String, dynamic>> rxDiscussion = Rxn<Map<String, dynamic>>();
+  final RxBool hasPoll = false.obs;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDiscussionDetailsFromServer();
+  }
+
+  Future<void> _fetchDiscussionDetailsFromServer() async {
+    final String pId = (widget.post["id"] ?? "0").toString();
+    final String token = GetStorage().read('access_token') ?? "";
+    try {
+      final response = await http.get(
+        Uri.parse('${controller.baseUrl}/groups/posts/$pId'),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer $token",
+        },
+      ).timeout(const Duration(seconds: 4));
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> detailData = jsonDecode(utf8.decode(response.bodyBytes));
+        final dynamic discussionObj = detailData["discussion"];
+        
+        if (discussionObj is Map && discussionObj.isNotEmpty) {
+          rxDiscussion.value = Map<String, dynamic>.from(discussionObj);
+          hasPoll.value = true;
+          
+          // 🚨 [긴급 수리]: 상세 조회 응답 객체에 comments가 누락되어 기존 댓글 데이터를 초기화하는 현상 원천 차단
+          final dynamic existingComments = widget.post["comments"];
+          
+          widget.post["discussion"] = discussionObj;
+          widget.post["hasPoll"] = true;
+          widget.post["isDiscussion"] = true;
+          
+          // 기존 댓글 자원이 이미 들어와 있는 상태라면 오버라이딩되지 않도록 안전하게 락인(Lock) 마감
+          if (existingComments != null) {
+            widget.post["comments"] = existingComments;
+          }
+        }
+      }
+    } catch (_) {}
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final controller = Get.find<GroupController>();
-
-    // 🚨 [수정 핵심]: 게시글의 고유 bookId를 안전하게 격리 추출하여 엉뚱한 책 이동 버퍼 차단
-    final int targetBookId = int.tryParse(post["bookId"]?.toString() ?? "0") ?? 0;
-
-    final bool hasPollData = post["hasPoll"] == true || 
-                             post["isDiscussion"] == true || 
-                             (post["pollQuestion"] != null && post["pollQuestion"].toString().trim().isNotEmpty);
+    final String currentPostId = (widget.post["id"] ?? "0").toString();
+    final int targetBookId = int.tryParse(widget.post["bookId"]?.toString() ?? "0") ?? 0;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
       color: Colors.white,
       child: Column(
-        // 🚨 [완치 구역]: 문법적 중복 결함이었던 Cross 단어를 삭제하여 정품 규격으로 복구했습니다.
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. 헤더 (작성자 정보 및 더보기 메뉴)
           Row(
             children: [
               const CircleAvatar(
                 radius: 18,
-                backgroundColor: Color(0xFFF5F5F5),
-                child: Icon(Icons.person, color: Colors.grey, size: 20),
+                backgroundColor: Color(0xFF8DC695),
+                child: Icon(Icons.person, color: Colors.white, size: 20),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(post["author"] ?? "여름", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                    Text(post["date"] ?? "방금 전", style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                    Text(widget.post["author"] ?? "여름", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    Text(widget.post["date"] ?? "방금 전", style: const TextStyle(color: Colors.grey, fontSize: 11)),
                   ],
                 ),
               ),
@@ -53,21 +100,20 @@ class GroupPostCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          // 2. 게시글 본문 내용
           Text(
-            post["content"] ?? "",
+            widget.post["content"] ?? "",
             style: const TextStyle(fontSize: 14, height: 1.5, color: Colors.black87),
           ),
-          const SizedBox(height: 16),
+          
+          Obx(() {
+            if (!hasPoll.value || rxDiscussion.value == null) return const SizedBox.shrink();
+            return _buildPollSection(rxDiscussion.value!);
+          }),
 
-          // 3. 투표/토론 섹션
-          if (hasPollData) _buildPollSection(controller),
-
-          // 4. 연동된 도서 미니 카드 (내부 고유 식별 타깃 바인딩)
-          if (targetBookId != 0)
+          if (targetBookId != 0) ...[
+            const SizedBox(height: 16),
             GestureDetector(
               onTap: () {
-                print("🎯 [도서 상세 이동] 게시글에서 선택한 고유 책 ID로 라우팅 시도: $targetBookId");
                 Get.toNamed('/book/detail', arguments: targetBookId);
               },
               child: Container(
@@ -80,9 +126,9 @@ class GroupPostCard extends StatelessWidget {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(4),
-                      child: (post["bookCover"] != null && post["bookCover"].toString().startsWith('http'))
+                      child: (widget.post["bookCover"] != null && widget.post["bookCover"].toString().startsWith('http'))
                           ? Image.network(
-                              post["bookCover"],
+                              widget.post["bookCover"],
                               width: 46,
                               height: 64,
                               fit: BoxFit.cover,
@@ -96,14 +142,14 @@ class GroupPostCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            post["bookTitle"] ?? "첨부된 도서",
+                            widget.post["bookTitle"] ?? "첨부된 도서",
                             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            post["bookAuthor"] ?? "저자 미상",
+                            widget.post["bookAuthor"] ?? "저자 미상",
                             style: const TextStyle(color: Colors.white70, fontSize: 12),
                           ),
                         ],
@@ -114,53 +160,63 @@ class GroupPostCard extends StatelessWidget {
                 ),
               ),
             ),
+          ],
 
           const SizedBox(height: 16),
 
-          // 5. 푸터 (좋아요 / 댓글 개수 영역)
           Row(
             children: [
               Obx(() => GestureDetector(
-                onTap: () => controller.togglePostLike(post),
+                onTap: () => controller.togglePostLike(widget.post),
                 child: Row(
                   children: [
                     Icon(
-                      post["isLiked"]?.value == true ? Icons.favorite : Icons.favorite_border,
-                      color: post["isLiked"]?.value == true ? Colors.red : Colors.grey,
+                      widget.post["isLiked"]?.value == true ? Icons.favorite : Icons.favorite_border,
+                      color: widget.post["isLiked"]?.value == true ? Colors.red : Colors.grey,
                       size: 20,
                     ),
                     const SizedBox(width: 4),
-                    Text("${post["likes"]?.value ?? 0}", style: const TextStyle(fontSize: 13, color: Colors.grey)),
+                    Text("${widget.post["likes"]?.value ?? 0}", style: const TextStyle(fontSize: 13, color: Colors.grey)),
                   ],
                 ),
               )),
               const SizedBox(width: 16),
-              GestureDetector(
-                onTap: () {
-                  print("💬 [댓글 바텀시트 오픈] 게시글 정보: ${post["id"]}");
+              
+              Obx(() {
+                final livePost = controller.missionPosts.firstWhere(
+                  (p) => p["id"].toString() == currentPostId,
+                  orElse: () => controller.freePosts.firstWhere(
+                    (p) => p["id"].toString() == currentPostId,
+                    orElse: () => widget.post,
+                  ),
+                );
+                
+                final List<dynamic> currentCommentsList = livePost["comments"] is RxList 
+                    ? livePost["comments"] 
+                    : (livePost["comments"] ?? []);
 
-                  Get.bottomSheet(
-                    // 🚀 우리가 찾던 정품 댓글 바텀시트 위젯을 장착하고 post 데이터를 찔러줍니다!
-                    GroupCommentBottomSheet(post: post),
-
-                    // 배경이나 디자인 레이아웃이 깨지지 않도록 가드 설정
-                    isScrollControlled: true, // 키보드가 올라올 때 바텀시트가 가려지지 않게 밀어 올려주는 꿀옵션
-                    backgroundColor: Colors.transparent, // 모서리 둥글기를 살리기 위해 투명 처리
-                    barrierColor: Colors.black.withOpacity(0.4), // 뒷배경 어두워지는 강도
-                  );
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.chat_bubble_outline, color: Colors.grey, size: 20),
-                    const SizedBox(width: 4),
-                    Obx(() => Text(
-                      "${post["comments"]?.length ?? 0}",
-                      style: const TextStyle(fontSize: 13, color: Colors.grey),
-                    )),
-                  ],
-                ),
-              ),
+                return GestureDetector(
+                  onTap: () {
+                    Get.bottomSheet(
+                      GroupCommentBottomSheet(post: livePost),
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      barrierColor: Colors.black.withOpacity(0.4),
+                    );
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.chat_bubble_outline, color: Colors.grey, size: 20),
+                      const SizedBox(width: 4),
+                      Text(
+                        "${currentCommentsList.length}",
+                        style: const TextStyle(fontSize: 13, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                );
+              }),
             ],
           ),
         ],
@@ -168,70 +224,55 @@ class GroupPostCard extends StatelessWidget {
     );
   }
 
-  // 투표 컴포넌트 뷰 빌더
-  Widget _buildPollSection(GroupController controller) {
-    return Obx(() {
-      List<String> options = [];
-      if (post["pollOptions"] is List) {
-        options = List<String>.from(post["pollOptions"]);
-      } else if (post["options"] is List) {
-        options = List<String>.from(post["options"]);
-      }
+  Widget _buildPollSection(Map<String, dynamic> discussion) {
+    final String pollQuestion = discussion["question"] ?? "투표에 참여해주세요";
+    final List<dynamic> options = discussion["options"] ?? [];
+    final int totalVotes = discussion["totalVotes"] ?? 0;
+    final int? myVoteOptionId = discussion["myVoteOptionId"]; 
+    final bool isVoted = myVoteOptionId != null;
 
-      if (options.isEmpty) return const SizedBox.shrink();
-
-      List<int> votes = [];
-      if (post["pollVotes"] is List) {
-        votes = List<int>.from(post["pollVotes"]);
-      } else if (post["votes"] is List) {
-        votes = List<int>.from(post["votes"]);
-      }
-      
-      if (votes.length < options.length) {
-        votes = List<int>.filled(options.length, 0);
-      }
-
-      int selectedIdx = -1;
-      if (post["selectedOption"] is RxInt) {
-        selectedIdx = (post["selectedOption"] as RxInt).value;
-      } else if (post["selectedOption"] is int) {
-        selectedIdx = post["selectedOption"];
-      }
-
-      final int totalVotes = votes.fold(0, (sum, item) => sum + item);
-
-      return Container(
-        margin: const EdgeInsets.only(bottom: 16, top: 4),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF8F9FA),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE9ECEF)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.how_to_vote, size: 18, color: Color(0xFF8DC695)),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    post["pollQuestion"] ?? post["title"] ?? "투표에 참여해주세요",
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black87),
-                  ),
+    return Container(
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8F9FA),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE9ECEF)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.how_to_vote, size: 18, color: Color(0xFF4EB56D)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  pollQuestion,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black87),
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            ...List.generate(options.length, (idx) {
-              final double percent = totalVotes == 0 ? 0 : (votes[idx] / totalVotes);
-              final bool isVoted = selectedIdx != -1;
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...List.generate(options.length, (idx) {
+            final Map<String, dynamic> option = options[idx];
+            final int optionId = option["optionId"] ?? (idx + 1);
+            final String label = option["label"] ?? "";
+            final int voteCount = option["voteCount"] ?? 0;
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: InkWell(
-                  onTap: isVoted ? null : () => controller.castVote(post, idx),
+            final double percent = totalVotes == 0 ? 0 : (voteCount / totalVotes);
+            final bool isMyVote = myVoteOptionId == optionId;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: InkWell(
+                onTap: isVoted ? null : () async {
+                  await controller.castVote(widget.post, idx);
+                  await _fetchDiscussionDetailsFromServer();
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
                   child: Stack(
                     children: [
                       Container(
@@ -240,19 +281,26 @@ class GroupPostCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFDEE2E6)),
+                          border: Border.all(
+                            color: isMyVote ? const Color(0xFF4EB56D) : const Color(0xFFDEE2E6),
+                            width: isMyVote ? 1.5 : 1,
+                          ),
                         ),
                       ),
-                      if (isVoted)
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          height: 40,
-                          width: MediaQuery.of(Get.context!).size.width * percent,
-                          decoration: BoxDecoration(
-                            color: selectedIdx == idx 
-                                ? const Color(0xFF8DC695).withOpacity(0.25) 
-                                : const Color(0xFFE9ECEF),
-                            borderRadius: BorderRadius.circular(8),
+                      if (isVoted && percent > 0)
+                        Positioned.fill(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: FractionallySizedBox(
+                              widthFactor: percent,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: isMyVote 
+                                      ? const Color(0xFF4EB56D).withOpacity(0.18) 
+                                      : const Color(0xFFE9ECEF),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       Container(
@@ -262,17 +310,21 @@ class GroupPostCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              options[idx],
+                              label,
                               style: TextStyle(
                                 fontSize: 13,
-                                fontWeight: selectedIdx == idx ? FontWeight.bold : FontWeight.normal,
-                                color: selectedIdx == idx ? const Color(0xFF4EB56D) : Colors.black87,
+                                fontWeight: isMyVote ? FontWeight.bold : FontWeight.normal,
+                                color: isMyVote ? const Color(0xFF4EB56D) : Colors.black87,
                               ),
                             ),
                             if (isVoted)
                               Text(
-                                "${(percent * 100).toInt()}%",
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54),
+                                "${(percent * 100).toInt()}% ($voteCount명)",
+                                style: TextStyle(
+                                  fontSize: 12, 
+                                  fontWeight: FontWeight.bold, 
+                                  color: isMyVote ? const Color(0xFF4EB56D) : Colors.black54
+                                ),
                               ),
                           ],
                         ),
@@ -280,17 +332,17 @@ class GroupPostCard extends StatelessWidget {
                     ],
                   ),
                 ),
-              );
-            }),
-            if (totalVotes > 0)
-              Padding(
-                padding: const EdgeInsets.only(top: 4, left: 2),
-                child: Text("총 $totalVotes명 참여 완료", style: const TextStyle(fontSize: 11, color: Colors.grey)),
               ),
-          ],
-        ),
-      );
-    });
+            );
+          }),
+          if (totalVotes > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 4, left: 2),
+              child: Text("총 $totalVotes명 참여 완료", style: const TextStyle(fontSize: 11, color: Colors.grey)),
+            ),
+        ],
+      ),
+    );
   }
 
   void _showActionSheet(BuildContext context) {
@@ -340,7 +392,7 @@ class GroupPostCard extends StatelessWidget {
             ...List.generate(reasons.length, (idx) => ListTile(
               title: Text(reasons[idx]),
               onTap: () {
-                Get.find<GroupController>().addReport(reasons[idx], post);
+                Get.find<GroupController>().addReport(reasons[idx], widget.post);
                 Get.back();
                 _showReportSuccessDialog();
               },
