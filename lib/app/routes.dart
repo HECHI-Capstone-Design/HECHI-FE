@@ -75,6 +75,9 @@ import 'package:hechi/features/groupcommunity/pages/group_mission_history_view.d
 import 'package:hechi/features/groupcommunity/pages/group_announcement_write_view.dart';
 import 'package:hechi/features/groupcommunity/pages/group_post_list_view.dart';
 
+import 'package:hechi/features/reward/bindings/reward_binding.dart';
+import 'package:hechi/features/reward/pages/reward_page.dart';
+
 abstract class Routes {
   static const splash = '/splash';
   static const initial = '/';
@@ -125,6 +128,8 @@ abstract class Routes {
   static const groupAnnouncementWrite = '/group/announcement/write';
   static const groupBoardMission = '/group/board/mission';
   static const groupBoardFree = '/group/board/free';
+
+  static const reward = '/reward';
 }
 
 class AppPages {
@@ -177,5 +182,7 @@ class AppPages {
     GetPage(name: Routes.groupAnnouncementWrite, page: () => const GroupAnnouncementWriteView()),
     GetPage(name: Routes.groupBoardMission, page: () => const GroupPostListView(isMissionBoard: true)),
     GetPage(name: Routes.groupBoardFree, page: () => const GroupPostListView(isMissionBoard: false)),
+   
+   GetPage(name: Routes.reward, page: () => const RewardPage(), binding: RewardBinding()),
     ];
 }
