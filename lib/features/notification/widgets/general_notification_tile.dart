@@ -16,6 +16,7 @@ const Color kNotifTextGrey = Color(0xFF9E9E9E);
 class GeneralNotificationTile extends StatelessWidget {
   final NotificationItem item;
   const GeneralNotificationTile({super.key, required this.item});
+<<<<<<< Updated upstream
 
   // 🛠️ targetInfo를 안전하게 Map으로 파싱하는 헬퍼 함수
   Map<String, dynamic> _getParsedInfo() {
@@ -31,6 +32,8 @@ class GeneralNotificationTile extends StatelessWidget {
     }
     return {};
   }
+=======
+>>>>>>> Stashed changes
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +41,7 @@ class GeneralNotificationTile extends StatelessWidget {
 
     return InkWell(
       onTap: () {
+<<<<<<< Updated upstream
         // 1. 알림 읽음 처리
         Get.find<NotificationController>().markAsRead(item.notificationId);
 
@@ -55,6 +59,34 @@ class GeneralNotificationTile extends StatelessWidget {
           Get.toNamed(Routes.customer);
         } else {
           debugPrint("🚨 라우팅 조건을 찾을 수 없습니다: $info");
+=======
+        // 1. 기존 기능: 알림 읽음 처리
+        Get.find<NotificationController>().markAsRead(item.notificationId);
+
+        print("📢 [일반 알림 터치!] targetInfo: ${item.targetInfo}");
+
+        try {
+          dynamic info = item.targetInfo;
+
+          if (info is String && info.startsWith('{')) {
+            info = jsonDecode(info);
+          }
+
+          if (info is Map) {
+            if (info.containsKey('bookId')) {
+              final parsedBookId = int.tryParse(info['bookId'].toString());
+              if (parsedBookId != null) {
+                // ✅ [핵심 수정] 딕셔너리(Map) 형태가 아니라 순수하게 '숫자(int)'만 넘겨줍니다!
+                Get.toNamed('/book_detail_page', arguments: parsedBookId);
+              }
+            }
+            else if (info.containsKey('badgeCode')) {
+              print("📢 배지 획득 알림입니다! (이동할 경로가 있다면 여기에 추가하세요)");
+            }
+          }
+        } catch (e) {
+          print("🚨 라우팅 파싱 에러: $e");
+>>>>>>> Stashed changes
         }
       },
       child: Container(
