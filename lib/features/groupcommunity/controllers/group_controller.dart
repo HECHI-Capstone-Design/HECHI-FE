@@ -10,8 +10,14 @@ import '../../myGroup/models/group_model.dart';
 class GroupController extends GetxController {
   final String baseUrl = "https://api.43-202-101-63.sslip.io";
 
+<<<<<<< Updated upstream
   final currentGroupId = "".obs;
   final isLeader = false.obs; 
+=======
+  // 🔔 테스트 데이터 고정 연동: 그룹 ID '111' 지정 완비
+  final currentGroupId = "".obs;
+  final isLeader = true.obs; 
+>>>>>>> Stashed changes
   final isLoading = false.obs;
 
   final SearchRepository _searchRepository = SearchRepository();
@@ -69,9 +75,18 @@ class GroupController extends GetxController {
       } else if (Get.arguments is GroupModel) {
         currentGroupId.value = (Get.arguments as GroupModel).id;
       }
+<<<<<<< Updated upstream
     }
 
     if (currentGroupId.value.isEmpty) {
+=======
+      print("🚀 [컨트롤러 기동] 아규먼트로 수신한 진짜 방 ID: ${currentGroupId.value}");
+    }
+
+    // 🛑 2단계: 주입된 진짜 ID가 없거나 유령 호출더미("")라면 API 요청을 원천 차단합니다.
+    if (currentGroupId.value.isEmpty) {
+      print("🛡️ [안전 가드] 진입한 방 ID가 비어있어 API 요청을 차단합니다.");
+>>>>>>> Stashed changes
       return;
     }
     fetchAllDataFromAPI();
