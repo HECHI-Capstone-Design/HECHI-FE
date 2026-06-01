@@ -360,11 +360,11 @@ class GroupController extends GetxController {
   Future<void> fetchHistoryBookBoard(Map<String, dynamic> historyBook) async { try { isLoading.value = true; historySelectedBookTitle.value = historyBook["title"] ?? ""; historySelectedBookAuthor.value = historyBook["author"] ?? ""; historySelectedBookCover.value = historyBook["cover"] ?? ""; final String bId = historyBook["bookId"]?.toString() ?? "0"; final response = await http.get(Uri.parse('$baseUrl/groups/${currentGroupId.value}/posts?type=MISSION&bookId=$bId'), headers: _headers); if (response.statusCode == 200) { final dynamic rawPosts = jsonDecode(utf8.decode(response.bodyBytes)); List postData = (rawPosts is Map) ? (rawPosts['posts'] ?? []) : (rawPosts is List ? rawPosts : []); historyMissionPosts.value = postData.map((item) => _parsePostItem(item)).toList(); } } catch (_) {} finally { isLoading.value = false; } }
   Future<void> searchBooksFromAPI(String query) async { if (query.trim().isEmpty) { searchedBooksResult.clear(); return; } try { isSearching.value = true; final List<Book> books = await _searchRepository.searchBooks(query); searchedBooksResult.value = List.from(books); } catch (_) {} finally { isSearching.value = false; } }
   Future<bool> changeMissionBook(String isbn) async { try { final response = await http.patch(Uri.parse('$baseUrl/groups/${currentGroupId.value}/mission-book'), headers: _headers, body: jsonEncode({"isbn": isbn})); if (response.statusCode == 200 || response.statusCode == 204) { await fetchAllDataFromAPI(); return true; } return false; } catch (_) { return false; } }
-  
+
   Future<void> createNewPost(String title, String content, bool isMission) async {
     try {
       final url = Uri.parse('$baseUrl/groups/${currentGroupId.value}/posts');
-      final int? finalBookId = isMission 
+      final int? finalBookId = isMission
           ? (currentMissionBookId.value != 0 ? currentMissionBookId.value : null)
           : (attachedBookId.value != 0 ? attachedBookId.value : null);
 
@@ -387,11 +387,12 @@ class GroupController extends GetxController {
       } else {
         bodyData.remove("discussion");
       }
-      
+
       final response = await http.post(url, headers: _headers, body: jsonEncode(bodyData));
       if (response.statusCode == 200 || response.statusCode == 201) await fetchAllDataFromAPI();
-    } catch (_) {
-    } finally { 
+    } catch (e) {
+      print("❌ createNewPost Error: $e");
+    } finally {
       removeAttachedBook();
       removeAttachedDiscussion();
       removeAttachedNote();

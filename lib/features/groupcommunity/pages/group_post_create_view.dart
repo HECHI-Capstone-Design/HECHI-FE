@@ -26,11 +26,26 @@ class GroupPostCreateView extends GetView<GroupController> {
         title: Text(isMission ? "[미션게시판] 글쓰기" : "[자유게시판] 글쓰기", style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
         actions: [
           TextButton(
-            onPressed: () { 
-              if (contentController.text.isNotEmpty) { 
-                controller.createNewPost(titleController.text, contentController.text, isMission); 
-                Get.back(); 
-              } 
+            onPressed: () {
+              final bool hasContent = contentController.text.isNotEmpty;
+              final bool hasTitle = titleController.text.isNotEmpty;
+              final bool hasNotes = controller.attachedNotes.isNotEmpty;
+
+              if (hasTitle && !hasContent) {
+                Get.snackbar(
+                  "내용을 입력해주세요",
+                  "",
+                  snackPosition: SnackPosition.BOTTOM,
+                  margin: const EdgeInsets.all(16),
+                  borderRadius: 8,
+                );
+                return;
+              }
+
+              if (hasContent || hasNotes) {
+                controller.createNewPost(titleController.text, contentController.text, isMission);
+                Get.back();
+              }
             },
             child: const Text("확인", style: TextStyle(color: brandColor, fontWeight: FontWeight.bold, fontSize: 16)),
           )
