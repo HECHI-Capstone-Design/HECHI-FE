@@ -11,11 +11,22 @@ class ReadingRegistrationView extends GetView<ReadingRegistrationController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("독서 등록", style: TextStyle(fontWeight: FontWeight.bold)),
-        centerTitle: false,
+        title: const Text("독서", style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add, color: Colors.black, size: 28),
+            onPressed: () {
+              print("➕ [독서 등록] 우측 상단 책 추가 버튼 클릭됨");
+              // 라우팅
+            },
+          ),
+          const SizedBox(width: 12), // 끝부분 우측 여백 튜닝
+        ],
       ),
       backgroundColor: Colors.grey[50],
       body: Obx(() {
