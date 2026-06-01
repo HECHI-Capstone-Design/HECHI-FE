@@ -47,10 +47,12 @@ class OptionBottomSheet extends StatelessWidget with GroupShareMixin {
           final bookNoteCtrl = Get.find<BookNoteController>();
           if (bookNoteCtrl.preselectedGroupId != null) {
             bookNoteCtrl.onItemSelected?.call(type, data);
+            Get.back();
           } else {
             openGroupShareFlow(
               itemType: type,
               itemData: data,
+              bookId: Get.find<BookNoteController>().bookId,
             );
           }
         }
