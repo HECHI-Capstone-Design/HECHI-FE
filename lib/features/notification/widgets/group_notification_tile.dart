@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/notification_item.dart';
 import '../controllers/notification_controller.dart';
-import 'package:hechi/app/routes.dart'; // ✅ 라우트 임포트 추가
+import 'package:hechi/app/routes.dart'; // ✅ 라우트 임포트 유지
 
-// UI 상단 공통 색상 상수 (General과 통일)
+// UI 상단 공통 색상 상수
 const Color kNotifGreen = Color(0xFF5C8C5A);
 const Color kNotifGreenLight = Color(0xFFEAF3EA);
 const Color kNotifBorder = Color(0xFFD4D4D4);
@@ -39,44 +39,16 @@ class GroupNotificationTile extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        // 1. 기존 기능: 알림 읽음 처리
+        // 1. 알림 읽음 처리
         Get.find<NotificationController>().markAsRead(item.notificationId);
-<<<<<<< Updated upstream
-        print("📢 [그룹 알림 터치!] type: ${item.type}, targetInfo: $info");
+        debugPrint("📢 [그룹 알림 터치!] type: ${item.type}, targetInfo: $info");
 
+        // 2. 🚀 팀장님의 최신 라우팅 로직 적용 (String 하나만 깔끔하게 넘김)
         if (info.containsKey('groupId')) {
-          // ✅ GroupController는 무조건 'String' 타입의 ID 하나만 받습니다!
           final String finalGroupIdStr = info['groupId'].toString();
           Get.toNamed(Routes.groupMain, arguments: finalGroupIdStr);
         } else {
-          print("🚨 그룹 ID를 찾을 수 없습니다. info: $info");
-=======
-
-        print("📢 [그룹 알림 터치!] targetInfo: ${item.targetInfo}");
-
-        try {
-          dynamic info = item.targetInfo;
-
-          if (info is String && info.startsWith('{')) {
-            info = jsonDecode(info);
-          }
-
-          if (info is Map && info.containsKey('groupId')) {
-            final groupIdValue = info['groupId'];
-            final parsedGroupId = int.tryParse(groupIdValue.toString());
-
-            // ✅ 여기를 실제 그룹 라우트 주소로 변경했습니다!
-            if (parsedGroupId != null) {
-              Get.toNamed('/group/main', arguments: {'groupId': parsedGroupId});
-            } else {
-              Get.toNamed('/group/main', arguments: {'groupId': groupIdValue.toString()});
-            }
-          } else {
-            print("🚨 그룹 ID를 찾을 수 없습니다. info: $info");
-          }
-        } catch (e) {
-          print("🚨 라우팅 파싱 에러: $e");
->>>>>>> Stashed changes
+          debugPrint("🚨 그룹 ID를 찾을 수 없습니다. info: $info");
         }
       },
       child: Container(
@@ -87,9 +59,9 @@ class GroupNotificationTile extends StatelessWidget {
           border: const Border(bottom: BorderSide(width: 0.5, color: kNotifBorder)),
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center, // 세로 중앙 정렬
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // 🎨 썸네일 UI 분기 처리
+            // 3. 🎨 썸네일 UI 분기 처리 (가입/탈퇴/삭제/미션 모두 반영)
             _buildThumbnail(info),
             const SizedBox(width: 14),
             Expanded(
@@ -99,7 +71,7 @@ class GroupNotificationTile extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded( // 텍스트 오버플로우 방지
+                      Expanded(
                         child: Text(
                           item.title,
                           style: TextStyle(
@@ -130,26 +102,38 @@ class GroupNotificationTile extends StatelessWidget {
 
   // 🖼️ 썸네일 분기 함수
   Widget _buildThumbnail(Map<String, dynamic> info) {
-    // 1. 그룹 기본 이미지 (미션이나 일반 공지용)
     final String? groupImageUrl = item.imageUrl?.isNotEmpty == true
         ? item.imageUrl
         : (info['thumbnailUrl'] ?? info['image_url'] ?? info['imageUrl'])?.toString();
 
     bool isMission = item.type.contains('MISSION');
-    bool isJoinOrLeave = item.type.contains('JOIN') || item.type.contains('LEAVE') || (info['eventKind']?.toString().contains('JOIN') ?? false);
 
-    // ✅ 미션(책)은 네모 썸네일
+    // 🚀 확실한 가입/탈퇴 방어 로직 (텍스트 검사까지 포함하여 완벽하게 캐치)
+    bool isJoinOrLeave = item.type.contains('JOIN') ||
+        item.type.contains('LEAVE') ||
+        item.type.contains('EXIT') ||
+        (info['eventKind']?.toString().contains('JOIN') ?? false) ||
+        (info['eventKind']?.toString().contains('LEAVE') ?? false) ||
+        item.description.endsWith('가입했어요.') ||
+        item.description.endsWith('탈퇴했어요.');
+
+    // 🚨 그룹 삭제 로직 추가
+    bool isDelete = item.type.contains('DELETE') ||
+        item.description.endsWith('삭제되었어요.');
+
     if (isMission) {
       return _BookThumbnail(imageUrl: groupImageUrl);
-    }
-    // 🚀 [수정됨] 가입/탈퇴는 '그룹 이미지'를 무시하고 '가입한 유저'의 프사만 찾습니다!
-    else if (isJoinOrLeave) {
-      // 백엔드가 targetInfo에 유저 프사를 주면 그걸 쓰고, 없으면 무조건 게스트 아이콘 띄움
+    } else if (isJoinOrLeave) {
       final String? userProfileUrl = (info['profileUrl'] ?? info['actorProfileUrl'] ?? info['userImageUrl'])?.toString();
       return _ProfileThumbnail(imageUrl: userProfileUrl);
-    }
-    // ✅ 나머지 일반 그룹 공지는 동그라미 기본
-    else {
+    } else if (isDelete) {
+      // 삭제된 그룹은 회색 그룹 오프 아이콘 띄우기
+      return Container(
+        width: 60, height: 60,
+        decoration: const BoxDecoration(color: Color(0xFFF5F5F5), shape: BoxShape.circle),
+        child: const Icon(Icons.group_off, color: Color(0xFF9E9E9E), size: 28),
+      );
+    } else {
       return _GroupAvatar(imageUrl: groupImageUrl, type: item.type);
     }
   }
@@ -184,14 +168,14 @@ class _ProfileThumbnail extends StatelessWidget {
     return Container(
       width: 60, height: 60,
       decoration: const BoxDecoration(
-        color: Color(0xFFE0E0E0), // 게스트 기본 배경색 (연회색)
+        color: Color(0xFFE0E0E0),
         shape: BoxShape.circle,
       ),
       child: imageUrl != null && imageUrl!.isNotEmpty
           ? ClipOval(
         child: Image.network(imageUrl!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.person, color: Colors.white, size: 40)),
       )
-          : const Icon(Icons.person, color: Colors.white, size: 40), // 꽉 차는 게스트 아이콘
+          : const Icon(Icons.person, color: Colors.white, size: 40),
     );
   }
 }
