@@ -3,41 +3,64 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/notification_item.dart';
 import '../controllers/notification_controller.dart';
+import 'package:hechi/app/routes.dart';
+
+const Color kNotifGreen = Color(0xFF5C8C5A);
+const Color kNotifGreenLight = Color(0xFFEAF3EA);
+const Color kNotifBorder = Color(0xFFD4D4D4);
+const Color kNotifTextDark = Color(0xFF3F3F3F);
+const Color kNotifTextMid = Color(0xFF5F5F5F);
+const Color kNotifTextGrey = Color(0xFF9E9E9E);
 
 class GeneralNotificationTile extends StatelessWidget {
   final NotificationItem item;
   const GeneralNotificationTile({super.key, required this.item});
 
+  // 🛠️ targetInfo를 안전하게 Map으로 파싱하는 헬퍼 함수
+  Map<String, dynamic> _getParsedInfo() {
+    try {
+      dynamic info = item.targetInfo;
+      if (info is String && info.startsWith('{')) {
+        return jsonDecode(info);
+      } else if (info is Map) {
+        return Map<String, dynamic>.from(info);
+      }
+    } catch (e) {
+      print("🚨 targetInfo 파싱 에러: $e");
+    }
+    return {};
+  }
+
   @override
   Widget build(BuildContext context) {
+    final info = _getParsedInfo(); // 파싱된 targetInfo
+
     return InkWell(
       onTap: () {
-        // 1. 기존 기능: 알림 읽음 처리
+        // 1. 알림 읽음 처리
         Get.find<NotificationController>().markAsRead(item.notificationId);
 
-        print("📢 [일반 알림 터치!] targetInfo: ${item.targetInfo}");
+        print("📢 [터치됨!] title: ${item.title}, targetInfo: $info");
 
-        try {
-          dynamic info = item.targetInfo;
-
-          if (info is String && info.startsWith('{')) {
-            info = jsonDecode(info);
+        // 2. 🚀 routes.dart에 정의된 정확한 주소로 라우팅!
+        if (info.containsKey('bookId')) {
+          final parsedBookId = int.tryParse(info['bookId'].toString());
+          if (parsedBookId != null) {
+            // ✅ '/book_detail_page' 로 정확히 이동 (BookDetailController는 int 1개를 원함)
+            Get.toNamed(Routes.bookDetailPage, arguments: parsedBookId);
           }
-
-          if (info is Map) {
-            if (info.containsKey('bookId')) {
-              final parsedBookId = int.tryParse(info['bookId'].toString());
-              if (parsedBookId != null) {
-                // ✅ [핵심 수정] 딕셔너리(Map) 형태가 아니라 순수하게 '숫자(int)'만 넘겨줍니다!
-                Get.toNamed('/book_detail_page', arguments: parsedBookId);
-              }
-            }
-            else if (info.containsKey('badgeCode')) {
-              print("📢 배지 획득 알림입니다! (이동할 경로가 있다면 여기에 추가하세요)");
-            }
-          }
-        } catch (e) {
-          print("🚨 라우팅 파싱 에러: $e");
+        }
+        else if (info.containsKey('rewardId') || item.type == 'REWARD' || item.type == 'BADGE') {
+          // ✅ '/reward' 로 정확히 이동 (RewardController는 파라미터를 받지 않으므로 비워둠)
+          Get.toNamed(Routes.reward);
+        }
+        else if (info.containsKey('noticeId') || item.type == 'NOTICE') {
+          // 🚨 현재 routes.dart에 공지사항 전용 페이지가 없으므로 임시로 고객센터로 연결
+          print("🚨 공지사항 페이지 라우트가 routes.dart에 없습니다. 임시로 고객센터로 이동합니다.");
+          Get.toNamed(Routes.customer);
+        }
+        else {
+          print("🚨 이동할 수 있는 ID(bookId 등)가 targetInfo에 없습니다.");
         }
       },
       child: Container(
@@ -50,7 +73,8 @@ class GeneralNotificationTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _BookThumbnail(imageUrl: item.imageUrl),
+            // 3. 🎨 내용물(Key)을 기준으로 썸네일 UI 분기 처리
+            _buildThumbnail(info),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -88,8 +112,27 @@ class GeneralNotificationTile extends StatelessWidget {
       ),
     );
   }
+
+  // UI 모양 분기 함수
+  Widget _buildThumbnail(Map<String, dynamic> info) {
+    if (info.containsKey('bookId') || item.title.contains('책')) {
+      return _BookThumbnail(imageUrl: item.imageUrl);
+    }
+    else if (info.containsKey('rewardId') || item.type == 'REWARD') {
+      return SizedBox(
+        width: 60, height: 60,
+        child: item.imageUrl != null && item.imageUrl!.isNotEmpty
+            ? Image.network(item.imageUrl!, fit: BoxFit.contain)
+            : const Icon(Icons.star_rounded, color: Colors.amber, size: 40),
+      );
+    }
+    else {
+      return _CircleThumbnail(imageUrl: item.imageUrl, type: item.type);
+    }
+  }
 }
 
+// 📚 책 표지 썸네일
 class _BookThumbnail extends StatelessWidget {
   final String? imageUrl;
   const _BookThumbnail({this.imageUrl});
@@ -104,6 +147,32 @@ class _BookThumbnail extends StatelessWidget {
             ? Image.network(imageUrl!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.book, color: kNotifBorder, size: 28))
             : const Icon(Icons.book, color: kNotifBorder, size: 28),
       ),
+    );
+  }
+}
+
+// 🟢 동그라미 아이콘 위젯 (공지사항, 배지 등)
+class _CircleThumbnail extends StatelessWidget {
+  final String? imageUrl;
+  final String type;
+  const _CircleThumbnail({this.imageUrl, required this.type});
+
+  @override
+  Widget build(BuildContext context) {
+    IconData icon = Icons.notifications;
+    if (type.contains('NOTICE')) icon = Icons.campaign;
+    if (type.contains('BADGE')) icon = Icons.military_tech;
+
+    return Container(
+      width: 50, height: 50,
+      decoration: BoxDecoration(
+          color: kNotifGreenLight,
+          shape: BoxShape.circle,
+          border: Border.all(color: kNotifGreen.withOpacity(0.3), width: 1)
+      ),
+      child: imageUrl != null && imageUrl!.isNotEmpty
+          ? ClipOval(child: Image.network(imageUrl!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Icon(icon, color: kNotifGreen, size: 26)))
+          : Icon(icon, color: kNotifGreen, size: 26),
     );
   }
 }

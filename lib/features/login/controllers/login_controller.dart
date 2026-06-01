@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'; // kIsWeb 사용을 위해 추가
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:firebase_messaging/firebase_messaging.dart'; // FCM 사용을 위해 추가
 import 'package:hechi/app/routes.dart';
 import 'package:hechi/app/controllers/app_controller.dart';
 import '../../my_read/controllers/my_read_controller.dart';
@@ -74,6 +76,42 @@ class LoginController extends GetxController {
         await box.remove('is_taste_analyzed_local');
 
         debugPrint("✅ 로그인 성공");
+
+        // ==============================================================
+        // 🚀 [추가된 로직] 로그인 성공 직후 백엔드로 FCM 토큰 전송
+        // ==============================================================
+        try {
+          String? fcmToken;
+          if (kIsWeb) {
+            fcmToken = await FirebaseMessaging.instance.getToken(
+              vapidKey: 'BOr_TZ5oeMzEm0UWI5Vreqcu_cyNXaTXh_DT-_9QbFfUfHDxwvtlf99dW6VuRTtbiDlRltVJY3AcYvv7rZXc8R0',
+            );
+          } else {
+            fcmToken = await FirebaseMessaging.instance.getToken();
+          }
+
+          if (fcmToken != null) {
+            final pushUrl = Uri.parse('$baseUrl/notifications/register-token');
+            final pushResponse = await http.post(
+              pushUrl,
+              headers: {
+                "Content-Type": "application/json",
+                // 로그인해서 받은 access_token을 넣어주므로 이제 403 에러가 나지 않습니다!
+                "Authorization": "Bearer ${loginData['access_token']}"
+              },
+              body: jsonEncode({"fcm_token": fcmToken}),
+            );
+
+            if (pushResponse.statusCode == 200) {
+              debugPrint("🚀 FCM 토큰 백엔드 등록 성공!");
+            } else {
+              debugPrint("❌ FCM 토큰 백엔드 등록 실패: ${pushResponse.statusCode}");
+            }
+          }
+        } catch (fcmError) {
+          debugPrint("❌ 로그인 후 FCM 전송 에러: $fcmError");
+        }
+        // ==============================================================
 
         final appController = Get.find<AppController>();
         await appController.fetchUserProfile();

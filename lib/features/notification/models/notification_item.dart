@@ -34,6 +34,17 @@ class NotificationItem {
   });
 
   factory NotificationItem.fromJson(Map<String, dynamic> json) {
+    // 🚀 타임존(9시간) 오차 해결을 위한 날짜 파싱 로직
+    DateTime parsedDate = DateTime.now();
+    if (json['createdAt'] != null) {
+      String dateStr = json['createdAt'].toString();
+      // 백엔드에서 Z를 빼먹고 보냈을 경우 강제로 붙여서 UTC로 파싱 후 한국 시간으로 변환
+      if (!dateStr.endsWith('Z')) {
+        dateStr += 'Z';
+      }
+      parsedDate = DateTime.parse(dateStr).toLocal();
+    }
+
     return NotificationItem(
       notificationId: json['notificationId'] is int
           ? json['notificationId']
@@ -44,9 +55,7 @@ class NotificationItem {
       message: json['message'] ?? '',
       thumbnailUrl: json['thumbnailUrl'],
       isRead: json['isRead'] ?? false,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
-          : DateTime.now(),
+      createdAt: parsedDate, // ✅ 수정된 파싱 날짜 적용
       targetInfo: json['targetInfo'] ?? {},
     );
   }
@@ -64,4 +73,4 @@ class NotificationItem {
     if (difference.inDays < 7) return '${difference.inDays}일 전';
     return '${createdAt.year}.${createdAt.month}.${createdAt.day}';
   }
-}
+}g
