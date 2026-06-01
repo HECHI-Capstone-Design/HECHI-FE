@@ -77,25 +77,35 @@ Future<void> setupFirebaseMessaging() async {
 }
 
 Future<void> sendFcmTokenToBackend(String fcmToken) async {
-  const String baseUrl="https://api.43-202-101-63.sslip.io";
+  const String baseUrl = "https://api.43-202-101-63.sslip.io";
   final url = Uri.parse('$baseUrl/notifications/register-token');
   final box = GetStorage();
+
   String? accessToken = box.read('access_token');
+
+  // ✅ 추가
+  if (accessToken == null || accessToken.isEmpty) {
+    print("⚠️ 로그인 전 상태라 FCM 등록 생략");
+    return;
+  }
 
   try {
     final response = await http.post(
       url,
       headers: {
         'Content-Type': 'application/json',
-        if (accessToken != null) 'Authorization': 'Bearer $accessToken',
+        'Authorization': 'Bearer $accessToken',
       },
-      body: jsonEncode({"fcm_token": fcmToken}),
+      body: jsonEncode({
+        "fcm_token": fcmToken,
+      }),
     );
 
     if (response.statusCode == 200) {
       print("✅ 백엔드에 FCM 토큰 등록 성공!");
     } else {
       print("❌ 백엔드 토큰 등록 실패: 상태코드 ${response.statusCode}");
+      print(response.body);
     }
   } catch (e) {
     print("❌ 백엔드 통신 에러: $e");
