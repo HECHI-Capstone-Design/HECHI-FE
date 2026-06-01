@@ -429,11 +429,40 @@ class GroupController extends GetxController {
     } catch (_) {} 
   }
 
-  Future<void> addAnnouncement(String title, String content) async { 
-    try { 
-      final response = await http.post(Uri.parse('$baseUrl/groups/${currentGroupId.value}/announcements'), headers: _headers, body: jsonEncode({"title": title, "content": content})); 
-      if (response.statusCode == 200 || response.statusCode == 201) await fetchAllDataFromAPI(); 
-    } catch (_) {} 
+  Future<bool> addAnnouncement(String title, String content) async {
+    if (title.trim().isEmpty || content.trim().isEmpty) return false;
+
+    try {
+      final url = Uri.parse('$baseUrl/groups/${currentGroupId.value}/announcements');
+
+      // 💡 [명세 대조 핵심]: 백엔드가 요구하는 정품 뼈대 스키마 구조 완벽 바인딩
+      final Map<String, dynamic> bodyData = {
+        "type": "ANNOUNCEMENT", // 👈 공지사항 타입 명시 (백엔드 설계에 따라 일반 글과 구분)
+        "title": title.trim(),
+        "content": content.trim(),
+        "bookId": null,
+        "recordId": null,
+        "discussion": {}
+      };
+
+      final response = await http.post(
+        url,
+        headers: _headers,
+        body: jsonEncode(bodyData),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("📢 [공지사항 등록 성공]: ${response.body}");
+        await fetchAllDataFromAPI(); // 실시간 화면 동기화 새로고침
+        return true;
+      }
+
+      print("🚨 [공지사항 등록 실패] 코드: ${response.statusCode}, 바디: ${response.body}");
+      return false;
+    } catch (e) {
+      print("🚨 공지사항 통신 에러 세션: $e");
+      return false;
+    }
   }
 
   Future<void> togglePostLike(Map<String, dynamic> post) async { 

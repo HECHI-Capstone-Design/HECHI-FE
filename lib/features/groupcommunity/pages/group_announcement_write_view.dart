@@ -1,9 +1,10 @@
+// D:\HECHI\lib\features\groupcommunity\pages\group_announcement_write_view.dart 전체 수정
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
 
 class GroupAnnouncementWriteView extends StatelessWidget {
-  // 🔔 에러 해결: 부모 위젯 super Key 규격 완전 튜닝 수리 완료
   const GroupAnnouncementWriteView({super.key});
 
   @override
@@ -18,6 +19,7 @@ class GroupAnnouncementWriteView extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: TextButton(
           onPressed: () => Get.back(),
           child: const Text("취소", style: TextStyle(color: Colors.grey, fontSize: 16)),
@@ -26,11 +28,28 @@ class GroupAnnouncementWriteView extends StatelessWidget {
         centerTitle: true,
         actions: [
           TextButton(
-            onPressed: () {
-              if (contentController.text.isNotEmpty) {
-                controller.addAnnouncement(titleController.text, contentController.text);
-                Get.back();
-                Get.snackbar("성공", "새 공지사항이 등록되었습니다.");
+            onPressed: () async {
+              final String title = titleController.text;
+              final String content = contentController.text;
+
+              // 🛡️ [안전 예외 가드]: 빈 껍데기 전송 차단
+              if (title.trim().isEmpty) {
+                Get.snackbar("경고", "공지사항 제목을 입력해주세요.", snackPosition: SnackPosition.BOTTOM);
+                return;
+              }
+              if (content.trim().isEmpty) {
+                Get.snackbar("경고", "공지사항 내용을 입력해주세요.", snackPosition: SnackPosition.BOTTOM);
+                return;
+              }
+
+              // 🚀 백엔드로 정품 스펙 API 전송 기동!
+              final bool isSuccess = await controller.addAnnouncement(title, content);
+
+              if (isSuccess) {
+                Get.back(); // 통신 성공 확인 후 안전하게 이전 스크린 백
+                Get.snackbar("성공", "새 공지사항이 등록되었습니다.", snackPosition: SnackPosition.BOTTOM);
+              } else {
+                Get.snackbar("오류", "공지사항 등록에 실패했습니다. 다시 시도해주세요.", snackPosition: SnackPosition.BOTTOM);
               }
             },
             child: const Text("확인", style: TextStyle(color: brandColor, fontSize: 16, fontWeight: FontWeight.bold)),
@@ -43,7 +62,11 @@ class GroupAnnouncementWriteView extends StatelessWidget {
           children: [
             TextField(
               controller: titleController,
-              decoration: const InputDecoration(hintText: "제목", border: UnderlineInputBorder()),
+              decoration: const InputDecoration(
+                hintText: "제목",
+                border: UnderlineInputBorder(),
+                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: brandColor)),
+              ),
             ),
             const SizedBox(height: 16),
             Expanded(
