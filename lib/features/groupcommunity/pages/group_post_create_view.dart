@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
 import 'package:hechi/features/search/data/book_model.dart';
+import 'package:hechi/features/book_note/widgets/bookmark_item.dart';
+import 'package:hechi/features/book_note/widgets/highlight_item.dart';
+import 'package:hechi/features/book_note/widgets/memo_item.dart';
+import 'package:hechi/features/book_note/controllers/book_note_controller.dart';
 
 class GroupPostCreateView extends GetView<GroupController> {
   final bool isMission;
@@ -95,6 +99,38 @@ class GroupPostCreateView extends GetView<GroupController> {
                         ),
                       )
                     : const SizedBox.shrink()),
+
+                Obx(() {
+                  if (controller.attachedNotes.isEmpty) return const SizedBox.shrink();
+                  return Column(
+                    children: controller.attachedNotes.asMap().entries.map((entry) {
+                      final int index = entry.key;
+                      final String type = entry.value["type"];
+                      final Map<String, dynamic> data = Map<String, dynamic>.from(entry.value["data"]);
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Stack(
+                          children: [
+                            switch (type) {
+                              "bookmark"  => BookmarkItem(data: data, isReadOnly: true, isPreview: true),
+                              "highlight" => HighlightItem(data: data, isReadOnly: true, isPreview: true),
+                              "memo"      => MemoItem(data: data, isReadOnly: true, isPreview: true),
+
+                              _           => const SizedBox.shrink(),
+                            },
+                            Positioned(
+                              top: 0, right: 0,
+                              child: GestureDetector(
+                                onTap: () => controller.removeAttachedNote(index: index),
+                                child: const Icon(Icons.close, size: 18, color: Colors.grey),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  );
+                }),
               ]),
             ),
           ),
@@ -110,7 +146,7 @@ class GroupPostCreateView extends GetView<GroupController> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (!isMission) _buildOptionRow(Icons.search, "도서 추가", () => _showBookSearchPage()),
-                  _buildOptionRow(Icons.edit_note, "독서기록", () {}),
+                  _buildOptionRow(Icons.edit_note, "독서기록", () => _showBookNoteSelector()),
                   _buildOptionRow(Icons.poll_outlined, "토론", () => _showDiscussionPage()),
                 ],
               ),
@@ -134,6 +170,49 @@ class GroupPostCreateView extends GetView<GroupController> {
         ]),
       ),
     );
+  }
+
+  void _showBookNoteSelector() {
+    int bookId;
+
+    if (isMission) {
+      bookId = controller.currentMissionBookId.value;
+    } else {
+      bookId = controller.attachedBookId.value;
+    }
+
+    if (bookId == 0) {
+      Get.snackbar(
+        "도서를 먼저 추가해주세요",
+        "독서기록을 공유하려면 도서를 먼저 선택해주세요.",
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+      );
+      return;
+    }
+
+    Get.toNamed(
+      '/book_note',
+      arguments: {
+        'bookId': bookId,
+        'tabIndex': 0,
+        'preselectedGroupId': controller.currentGroupId.value,
+        'preselectedBoardId': null,
+      },
+    )?.then((_) {
+      if (Get.isRegistered<BookNoteController>()) {
+        Get.find<BookNoteController>().onItemSelected = null;
+      }
+    });
+
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (Get.isRegistered<BookNoteController>()) {
+        Get.find<BookNoteController>().onItemSelected = (itemType, itemData) {
+          controller.attachNote(itemType, itemData);
+        };
+      }
+    });
   }
 
   void _showBookSearchPage() {

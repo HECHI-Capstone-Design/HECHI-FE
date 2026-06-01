@@ -73,4 +73,4 @@ class NotificationItem {
     if (difference.inDays < 7) return '${difference.inDays}일 전';
     return '${createdAt.year}.${createdAt.month}.${createdAt.day}';
   }
-}g
+}

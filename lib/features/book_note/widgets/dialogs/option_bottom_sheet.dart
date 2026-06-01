@@ -44,10 +44,15 @@ class OptionBottomSheet extends StatelessWidget with GroupShareMixin {
         } else if (index == 1) {
           _openEditor();
         } else {
-          openGroupShareFlow(
-            itemType: type,
-            itemData: data,
-          );
+          final bookNoteCtrl = Get.find<BookNoteController>();
+          if (bookNoteCtrl.preselectedGroupId != null) {
+            bookNoteCtrl.onItemSelected?.call(type, data);
+          } else {
+            openGroupShareFlow(
+              itemType: type,
+              itemData: data,
+            );
+          }
         }
       },
     );
