@@ -413,42 +413,44 @@ class GroupAnnouncementListView extends GetView<GroupController> {
           separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFEAEAEA)),
           itemBuilder: (context, index) {
             final ann = controller.announcements[index];
-            final bool isPinned = ann["isPinned"].value;
+            return Obx(() {
+              final bool isPinned = ann["isPinned"]?.value ?? false;
 
-            return ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              tileColor: isPinned ? const Color(0xFFF4FBF6) : Colors.white,
-              leading: Icon(
-                Icons.campaign, 
-                color: isPinned ? brandColor : Colors.grey,
-                size: 24
-              ),
-              title: Row(
-                children: [
-                  if (isPinned)
-                    Container(
-                      margin: const EdgeInsets.only(right: 6),
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(color: brandColor, borderRadius: BorderRadius.circular(4)),
-                      child: const Text("고정", style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+              return ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                tileColor: isPinned ? const Color(0xFFF4FBF6) : Colors.white,
+                leading: Icon(
+                    Icons.campaign,
+                    color: isPinned ? brandColor : Colors.grey,
+                    size: 24
+                ),
+                title: Row(
+                  children: [
+                    if (isPinned)
+                      Container(
+                        margin: const EdgeInsets.only(right: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(color: brandColor, borderRadius: BorderRadius.circular(4)),
+                        child: const Text("고정", style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                      ),
+                    Expanded(
+                      child: Text(
+                          ann["title"] ?? "공지사항",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: isPinned ? brandColor : Colors.black87)
+                      ),
                     ),
-                  Expanded(
-                    child: Text(
-                      ann["title"] ?? "공지사항", 
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: isPinned ? brandColor : Colors.black87)
-                    ),
-                  ),
-                ],
-              ),
-              subtitle: Padding(
-                padding: const EdgeInsets.only(top: 4.0),
-                child: Text(ann["content"] ?? "", style: const TextStyle(fontSize: 13, color: Colors.black54)),
-              ),
-              trailing: IconButton(
-                icon: const Icon(Icons.more_vert, color: Colors.grey),
-                onPressed: () => _showAnnouncementOptions(context, ann),
-              ),
-            );
+                  ],
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: Text(ann["content"] ?? "", style: const TextStyle(fontSize: 13, color: Colors.black54)),
+                ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.more_vert, color: Colors.grey),
+                  onPressed: () => _showAnnouncementOptions(context, ann),
+                ),
+              );
+            });
           },
         );
       }),
@@ -456,7 +458,8 @@ class GroupAnnouncementListView extends GetView<GroupController> {
   }
 
   void _showAnnouncementOptions(BuildContext context, Map<String, dynamic> ann) {
-    final bool isPinned = ann["isPinned"].value;
+    // 🎯 [완치 3]: 안전 가드 널 처리 및 RxBool 값 추출 안전망 세우기
+    final bool isPinned = ann["isPinned"]?.value ?? false;
 
     Get.bottomSheet(
       Container(
@@ -471,9 +474,11 @@ class GroupAnnouncementListView extends GetView<GroupController> {
               ListTile(
                 leading: Icon(isPinned ? Icons.push_pin_outlined : Icons.push_pin, color: Colors.blue),
                 title: Text(isPinned ? "상단 고정 해제 (글 밑으로 내리기)" : "가장 상단에 올리기 (핀 고정)"),
-                onTap: () {
-                  controller.togglePinAnnouncement(ann);
-                  Get.back();
+                onTap: () async {
+                  Get.back(); // 바텀시트 먼저 닫기
+
+                  // 🎯 [완치 4]: 백엔드 API 연동 누락 메서드 동기화 슛
+                  await controller.togglePinAnnouncement(ann);
                   Get.snackbar("알림", isPinned ? "공지 고정이 해제되었습니다." : "공지가 최상단에 고정되었습니다.");
                 },
               ),
@@ -481,8 +486,9 @@ class GroupAnnouncementListView extends GetView<GroupController> {
                 leading: const Icon(Icons.delete_outline, color: Colors.red),
                 title: const Text("공지 삭제", style: TextStyle(color: Colors.red)),
                 onTap: () {
-                  controller.deleteAnnouncement(ann);
                   Get.back();
+                  controller.deleteAnnouncement(ann);
+                  Get.snackbar("알림", "공지사항이 삭제되었습니다.");
                 },
               )
             ] else ...[
