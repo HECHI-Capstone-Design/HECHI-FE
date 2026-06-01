@@ -6,9 +6,6 @@ import 'package:hechi/features/groupcommunity/controllers/group_controller.dart'
 import 'package:hechi/features/groupcommunity/widgets/member_profile_dialog.dart';
 import 'package:hechi/features/groupcommunity/pages/group_post_list_view.dart';
 
-// ==========================================
-// 1. 메인 그룹 뷰 (GroupMainView)
-// ==========================================
 class GroupMainView extends GetView<GroupController> {
   const GroupMainView({Key? key}) : super(key: key);
 
@@ -42,7 +39,6 @@ class GroupMainView extends GetView<GroupController> {
               ),
               onPressed: () {
                 if (hasBook) {
-                  // 🚨 [완치]: 강제 임포트와 const 제약을 깨부수고 네임드 라우트 규격으로 인티저 bookId 패킷 바인딩 전송
                   Get.toNamed('/book/detail', arguments: controller.currentMissionBookId.value);
                 } else {
                   Get.snackbar("알림", "현재 선정된 미션책이 없습니다. 메뉴에서 미션책을 변경해보세요!");
@@ -69,7 +65,6 @@ class GroupMainView extends GetView<GroupController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 🔔 [가장 최근 선정된 미션책 실시간 배너 아카이브 구역]
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Obx(() {
@@ -77,7 +72,6 @@ class GroupMainView extends GetView<GroupController> {
                     final bool hasBook = title.isNotEmpty && title != "미설정";
 
                     return GestureDetector(
-                      // 🚨 [완치]: 메인 상단 미션 대형 배너 클릭 시에도 컴파일 에러 없는 Get.toNamed 룰 구조 매핑
                       onTap: () {
                         if (hasBook) {
                           Get.toNamed('/book/detail', arguments: controller.currentMissionBookId.value);
@@ -229,17 +223,10 @@ class GroupMainView extends GetView<GroupController> {
                             onTap: () => Get.dialog(MemberProfileDialog(member: member)),
                             child: Column(
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.all(1.5), 
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white, 
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const CircleAvatar(
-                                    radius: 18,
-                                    backgroundColor: unifiedGreen, 
-                                    child: Icon(Icons.person, color: Colors.white, size: 20),
-                                  ),
+                                const CircleAvatar(
+                                  radius: 18,
+                                  backgroundColor: unifiedGreen, 
+                                  child: Icon(Icons.person, color: Colors.white, size: 20),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
@@ -382,15 +369,12 @@ class GroupMainView extends GetView<GroupController> {
   }
 }
 
-// ==========================================
-// 2. 공지사항 리스트 뷰 (GroupAnnouncementListView)
-// ==========================================
 class GroupAnnouncementListView extends GetView<GroupController> {
   const GroupAnnouncementListView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    const brandColor = Color(0xFF4EB56D);
+    const brandColor = Color(0xFF8DC695);
 
     return Scaffold(
       backgroundColor: Colors.white,
