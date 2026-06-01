@@ -6,9 +6,6 @@ import 'package:hechi/features/groupcommunity/controllers/group_controller.dart'
 import 'package:hechi/features/groupcommunity/widgets/member_profile_dialog.dart';
 import 'package:hechi/features/groupcommunity/pages/group_post_list_view.dart';
 
-// ==========================================
-// 1. 메인 그룹 뷰 (GroupMainView)
-// ==========================================
 class GroupMainView extends GetView<GroupController> {
   const GroupMainView({Key? key}) : super(key: key);
 
@@ -42,7 +39,6 @@ class GroupMainView extends GetView<GroupController> {
               ),
               onPressed: () {
                 if (hasBook) {
-                  // 🚨 [완치]: 강제 임포트와 const 제약을 깨부수고 네임드 라우트 규격으로 인티저 bookId 패킷 바인딩 전송
                   Get.toNamed('/book/detail', arguments: controller.currentMissionBookId.value);
                 } else {
                   Get.snackbar("알림", "현재 선정된 미션책이 없습니다. 메뉴에서 미션책을 변경해보세요!");
@@ -69,7 +65,6 @@ class GroupMainView extends GetView<GroupController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 🔔 [가장 최근 선정된 미션책 실시간 배너 아카이브 구역]
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Obx(() {
@@ -77,7 +72,6 @@ class GroupMainView extends GetView<GroupController> {
                     final bool hasBook = title.isNotEmpty && title != "미설정";
 
                     return GestureDetector(
-                      // 🚨 [완치]: 메인 상단 미션 대형 배너 클릭 시에도 컴파일 에러 없는 Get.toNamed 룰 구조 매핑
                       onTap: () {
                         if (hasBook) {
                           Get.toNamed('/book/detail', arguments: controller.currentMissionBookId.value);
@@ -229,17 +223,10 @@ class GroupMainView extends GetView<GroupController> {
                             onTap: () => Get.dialog(MemberProfileDialog(member: member)),
                             child: Column(
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.all(1.5), 
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white, 
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const CircleAvatar(
-                                    radius: 18,
-                                    backgroundColor: unifiedGreen, 
-                                    child: Icon(Icons.person, color: Colors.white, size: 20),
-                                  ),
+                                const CircleAvatar(
+                                  radius: 18,
+                                  backgroundColor: unifiedGreen, 
+                                  child: Icon(Icons.person, color: Colors.white, size: 20),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
@@ -382,15 +369,12 @@ class GroupMainView extends GetView<GroupController> {
   }
 }
 
-// ==========================================
-// 2. 공지사항 리스트 뷰 (GroupAnnouncementListView)
-// ==========================================
 class GroupAnnouncementListView extends GetView<GroupController> {
   const GroupAnnouncementListView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    const brandColor = Color(0xFF4EB56D);
+    const brandColor = Color(0xFF8DC695);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -413,42 +397,44 @@ class GroupAnnouncementListView extends GetView<GroupController> {
           separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFEAEAEA)),
           itemBuilder: (context, index) {
             final ann = controller.announcements[index];
-            final bool isPinned = ann["isPinned"].value;
+            return Obx(() {
+              final bool isPinned = ann["isPinned"]?.value ?? false;
 
-            return ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              tileColor: isPinned ? const Color(0xFFF4FBF6) : Colors.white,
-              leading: Icon(
-                Icons.campaign, 
-                color: isPinned ? brandColor : Colors.grey,
-                size: 24
-              ),
-              title: Row(
-                children: [
-                  if (isPinned)
-                    Container(
-                      margin: const EdgeInsets.only(right: 6),
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(color: brandColor, borderRadius: BorderRadius.circular(4)),
-                      child: const Text("고정", style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+              return ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                tileColor: isPinned ? const Color(0xFFF4FBF6) : Colors.white,
+                leading: Icon(
+                    Icons.campaign,
+                    color: isPinned ? brandColor : Colors.grey,
+                    size: 24
+                ),
+                title: Row(
+                  children: [
+                    if (isPinned)
+                      Container(
+                        margin: const EdgeInsets.only(right: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(color: brandColor, borderRadius: BorderRadius.circular(4)),
+                        child: const Text("고정", style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                      ),
+                    Expanded(
+                      child: Text(
+                          ann["title"] ?? "공지사항",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: isPinned ? brandColor : Colors.black87)
+                      ),
                     ),
-                  Expanded(
-                    child: Text(
-                      ann["title"] ?? "공지사항", 
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: isPinned ? brandColor : Colors.black87)
-                    ),
-                  ),
-                ],
-              ),
-              subtitle: Padding(
-                padding: const EdgeInsets.only(top: 4.0),
-                child: Text(ann["content"] ?? "", style: const TextStyle(fontSize: 13, color: Colors.black54)),
-              ),
-              trailing: IconButton(
-                icon: const Icon(Icons.more_vert, color: Colors.grey),
-                onPressed: () => _showAnnouncementOptions(context, ann),
-              ),
-            );
+                  ],
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: Text(ann["content"] ?? "", style: const TextStyle(fontSize: 13, color: Colors.black54)),
+                ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.more_vert, color: Colors.grey),
+                  onPressed: () => _showAnnouncementOptions(context, ann),
+                ),
+              );
+            });
           },
         );
       }),
@@ -456,7 +442,8 @@ class GroupAnnouncementListView extends GetView<GroupController> {
   }
 
   void _showAnnouncementOptions(BuildContext context, Map<String, dynamic> ann) {
-    final bool isPinned = ann["isPinned"].value;
+    // 🎯 [완치 3]: 안전 가드 널 처리 및 RxBool 값 추출 안전망 세우기
+    final bool isPinned = ann["isPinned"]?.value ?? false;
 
     Get.bottomSheet(
       Container(
@@ -471,9 +458,11 @@ class GroupAnnouncementListView extends GetView<GroupController> {
               ListTile(
                 leading: Icon(isPinned ? Icons.push_pin_outlined : Icons.push_pin, color: Colors.blue),
                 title: Text(isPinned ? "상단 고정 해제 (글 밑으로 내리기)" : "가장 상단에 올리기 (핀 고정)"),
-                onTap: () {
-                  controller.togglePinAnnouncement(ann);
-                  Get.back();
+                onTap: () async {
+                  Get.back(); // 바텀시트 먼저 닫기
+
+                  // 🎯 [완치 4]: 백엔드 API 연동 누락 메서드 동기화 슛
+                  await controller.togglePinAnnouncement(ann);
                   Get.snackbar("알림", isPinned ? "공지 고정이 해제되었습니다." : "공지가 최상단에 고정되었습니다.");
                 },
               ),
@@ -481,8 +470,9 @@ class GroupAnnouncementListView extends GetView<GroupController> {
                 leading: const Icon(Icons.delete_outline, color: Colors.red),
                 title: const Text("공지 삭제", style: TextStyle(color: Colors.red)),
                 onTap: () {
-                  controller.deleteAnnouncement(ann);
                   Get.back();
+                  controller.deleteAnnouncement(ann);
+                  Get.snackbar("알림", "공지사항이 삭제되었습니다.");
                 },
               )
             ] else ...[
