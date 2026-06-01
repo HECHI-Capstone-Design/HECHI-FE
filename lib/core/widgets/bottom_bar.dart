@@ -28,7 +28,7 @@ class BottomBar extends GetView<AppController> {
           children: [
             _buildNavItem(0, '홈', 'assets/icons/icon_home.png', 60.0),
             _buildNavItem(1, '검색', 'assets/icons/icon_search.png', 60.0),
-            _buildNavItem(2, '독서 등록', 'assets/icons/icon_register.png', 82.0),
+            _buildNavItem(2, '독서', 'assets/icons/icon_register.png', 82.0),
             _buildNavItem(3, '그룹', 'assets/icons/icon_group.png', 56.0),
             _buildNavItem(4, '나의 독서', 'assets/icons/icon_user.png', 62.0),
           ],
