@@ -4,20 +4,15 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:hechi/features/search/data/search_repository.dart';
-import 'package:hechi/features/search/data/book_model.dart'; 
+import 'package:hechi/features/search/data/book_model.dart';
 import '../../myGroup/models/group_model.dart';
 
 class GroupController extends GetxController {
   final String baseUrl = "https://api.43-202-101-63.sslip.io";
 
-<<<<<<< Updated upstream
+  // 🚀 변수 중복 선언 및 충돌 찌꺼기 완벽 제거
   final currentGroupId = "".obs;
-  final isLeader = false.obs; 
-=======
-  // 🔔 테스트 데이터 고정 연동: 그룹 ID '111' 지정 완비
-  final currentGroupId = "".obs;
-  final isLeader = true.obs; 
->>>>>>> Stashed changes
+  final isLeader = false.obs;
   final isLoading = false.obs;
 
   final SearchRepository _searchRepository = SearchRepository();
@@ -30,22 +25,22 @@ class GroupController extends GetxController {
   };
 
   final groupName = "".obs;
-  final currentMissionBookId = 0.obs; 
+  final currentMissionBookId = 0.obs;
   final currentMissionBookTitle = "".obs;
   final currentMissionBookAuthor = "".obs;
   final currentMissionBookCover = "".obs;
-  
+
   final groupAverageProgress = 0.0.obs;
   final myProgress = 0.0.obs;
 
   final Map<int, Map<String, String>> groupBookCacheMaster = <int, Map<String, String>>{};
 
   final memberList = <Map<String, dynamic>>[].obs;
-  final missionPosts = <Map<String, dynamic>>[].obs; 
-  final freePosts = <Map<String, dynamic>>[].obs;     
+  final missionPosts = <Map<String, dynamic>>[].obs;
+  final freePosts = <Map<String, dynamic>>[].obs;
   final announcements = <Map<String, dynamic>>[].obs;
   final reportList = <Map<String, dynamic>>[].obs;
-  final missionHistory = <Map<String, dynamic>>[].obs; 
+  final missionHistory = <Map<String, dynamic>>[].obs;
 
   final historyMissionPosts = <Map<String, dynamic>>[].obs;
   final historySelectedBookTitle = "".obs;
@@ -56,7 +51,7 @@ class GroupController extends GetxController {
   final isSearching = false.obs;
 
   final isBookAttached = false.obs;
-  final attachedBookId = 0.obs; 
+  final attachedBookId = 0.obs;
   final attachedBookTitle = "".obs;
   final attachedBookAuthor = "".obs;
   final attachedBookCover = "".obs;
@@ -75,18 +70,11 @@ class GroupController extends GetxController {
       } else if (Get.arguments is GroupModel) {
         currentGroupId.value = (Get.arguments as GroupModel).id;
       }
-<<<<<<< Updated upstream
-    }
-
-    if (currentGroupId.value.isEmpty) {
-=======
       print("🚀 [컨트롤러 기동] 아규먼트로 수신한 진짜 방 ID: ${currentGroupId.value}");
     }
 
-    // 🛑 2단계: 주입된 진짜 ID가 없거나 유령 호출더미("")라면 API 요청을 원천 차단합니다.
     if (currentGroupId.value.isEmpty) {
       print("🛡️ [안전 가드] 진입한 방 ID가 비어있어 API 요청을 차단합니다.");
->>>>>>> Stashed changes
       return;
     }
     fetchAllDataFromAPI();
@@ -98,11 +86,11 @@ class GroupController extends GetxController {
       final gId = currentGroupId.value;
 
       final groupRes = await http.get(Uri.parse('$baseUrl/groups/$gId'), headers: _headers);
-      
+
       if (groupRes.statusCode == 200) {
         final Map<String, dynamic> groupData = jsonDecode(utf8.decode(groupRes.bodyBytes));
         groupName.value = groupData["name"] ?? "hechi1";
-        
+
         isLeader.value = groupData["isLeader"] ?? false;
 
         final currentBookObj = groupData["currentMissionBook"];
@@ -110,12 +98,12 @@ class GroupController extends GetxController {
           currentMissionBookId.value = int.tryParse(currentBookObj["bookId"]?.toString() ?? "0") ?? 0;
           currentMissionBookTitle.value = currentBookObj["title"]?.toString() ?? "미설정";
           currentMissionBookCover.value = currentBookObj["thumbnail"] ?? "";
-          
+
           final List? authorsList = currentBookObj["authors"];
-          currentMissionBookAuthor.value = (authorsList != null && authorsList.isNotEmpty) 
-              ? authorsList.first.toString() 
+          currentMissionBookAuthor.value = (authorsList != null && authorsList.isNotEmpty)
+              ? authorsList.first.toString()
               : "저자 정보 없음";
-          
+
           groupBookCacheMaster[currentMissionBookId.value] = {
             "title": currentMissionBookTitle.value,
             "author": currentMissionBookAuthor.value,
@@ -155,7 +143,7 @@ class GroupController extends GetxController {
       if (historyRes.statusCode == 200) {
         final dynamic rawData = jsonDecode(utf8.decode(historyRes.bodyBytes));
         List listData = (rawData is List) ? rawData : (rawData['items'] ?? []);
-        
+
         final Set<String> seenBookIds = <String>{};
         final List<Map<String, dynamic>> distinctHistory = [];
 
@@ -163,15 +151,15 @@ class GroupController extends GetxController {
           final String bId = item["bookId"]?.toString() ?? item["id"]?.toString() ?? "";
           if (bId.isNotEmpty && !seenBookIds.contains(bId)) {
             seenBookIds.add(bId);
-            
+
             final List? authList = item["authors"];
             final String itemAuthor = (authList != null && authList.isNotEmpty) ? authList.first.toString() : "저자 미상";
-            
+
             distinctHistory.add({
               "bookId": bId,
               "title": item["title"] ?? "제목 없음",
               "author": itemAuthor,
-              "cover": item["thumbnail"] ?? item["cover"] ?? "", 
+              "cover": item["thumbnail"] ?? item["cover"] ?? "",
               "changedAt": item["month"] ?? item["createdAt"] ?? "이전 기록",
             });
 
@@ -202,7 +190,7 @@ class GroupController extends GetxController {
           annData = rawAnn['posts'] ?? rawAnn['items'] ?? rawAnn['announcements'] ?? [];
         }
         announcements.value = annData.map((item) => {
-          "id": item["postId"]?.toString() ?? item["id"]?.toString() ?? "0", 
+          "id": item["postId"]?.toString() ?? item["id"]?.toString() ?? "0",
           "title": item["title"] ?? "공지사항",
           "content": item["content"] ?? "",
           "isPinned": (item["isPinned"] ?? false).toString().toLowerCase() == 'true' ? true.obs : false.obs,
@@ -210,16 +198,16 @@ class GroupController extends GetxController {
         announcements.sort((a, b) {
           final bool aPinned = a["isPinned"].value;
           final bool bPinned = b["isPinned"].value;
-          if (aPinned && !bPinned) return -1; // a가 고정이면 위로 (-1)
-          if (!aPinned && bPinned) return 1;  // b가 고정이면 밑으로 (1)
-          return 0; // 둘 다 같으면 순서 유지
+          if (aPinned && !bPinned) return -1;
+          if (!aPinned && bPinned) return 1;
+          return 0;
         });
         announcements.refresh();
 
         print("📢 [공지사항 파싱 및 상단 고정 정렬 완료]");
       }
     } catch (_) {
-    } finally { 
+    } finally {
       isLoading.value = false;
     }
   }
@@ -234,7 +222,7 @@ class GroupController extends GetxController {
         final List rawReplies = c["replies"] ?? [];
         final List<Map<String, dynamic>> parsedReplies = rawReplies.map((r) {
           return {
-            "id": (r["commentId"] ?? "0").toString(),  
+            "id": (r["commentId"] ?? "0").toString(),
             "author": r["userName"] ?? "익명",
             "content": r["content"] ?? "",
             "likes": (int.tryParse((r["likeCount"] ?? 0).toString()) ?? 0).obs,
@@ -243,7 +231,7 @@ class GroupController extends GetxController {
         }).toList();
 
         return {
-          "id": (c["commentId"] ?? "0").toString(),  
+          "id": (c["commentId"] ?? "0").toString(),
           "author": c["userName"] ?? "익명",
           "content": c["content"] ?? "",
           "likes": (int.tryParse((c["likeCount"] ?? 0).toString()) ?? 0).obs,
@@ -263,17 +251,17 @@ class GroupController extends GetxController {
         if (detailRes.statusCode == 200) {
           final Map<String, dynamic> detailData = jsonDecode(utf8.decode(detailRes.bodyBytes));
           final dynamic discussionObj = detailData["discussion"];
-          
+
           if (discussionObj is Map) {
             parsedPost["discussion"] = discussionObj;
             parsedPost["hasPoll"] = true;
             parsedPost["isDiscussion"] = true;
             parsedPost["pollQuestion"] = discussionObj["question"]?.toString() ?? "";
-            
+
             final List optionsRaw = discussionObj["options"] is List ? discussionObj["options"] : [];
             parsedPost["pollOptions"] = optionsRaw.map((e) => e["label"]?.toString() ?? "").toList();
             parsedPost["pollVotes"] = optionsRaw.map((e) => int.tryParse(e["voteCount"]?.toString() ?? "0") ?? 0).toList().obs;
-            
+
             if (discussionObj["myVoteOptionId"] != null) {
               parsedPost["selectedOption"].value = (int.tryParse(discussionObj["myVoteOptionId"].toString()) ?? 0) - 1;
             }
@@ -315,7 +303,7 @@ class GroupController extends GetxController {
     if (missionPostRes.statusCode == 200) {
       final dynamic rawM = jsonDecode(utf8.decode(missionPostRes.bodyBytes));
       List mData = (rawM is Map) ? (rawM['posts'] ?? []) : (rawM is List ? rawM : []);
-      
+
       List<Map<String, dynamic>> parsedMission = [];
       for (var item in mData) {
         var postItem = _parsePostItem(item);
@@ -334,7 +322,7 @@ class GroupController extends GetxController {
     if (freePostRes.statusCode == 200) {
       final dynamic rawF = jsonDecode(utf8.decode(freePostRes.bodyBytes));
       List fData = (rawF is Map) ? (rawF['posts'] ?? []) : (rawF is List ? rawF : []);
-      
+
       List<Map<String, dynamic>> parsedFree = [];
       for (var item in fData) {
         var postItem = _parsePostItem(item);
@@ -351,12 +339,12 @@ class GroupController extends GetxController {
       isLoading.value = true;
       final String typeParam = isMission ? "MISSION" : "FREE";
       final url = Uri.parse('$baseUrl/groups/${currentGroupId.value}/posts?type=$typeParam&bookId=$bookId');
-      
+
       final response = await http.get(url, headers: _headers);
       if (response.statusCode == 200) {
         final dynamic rawData = jsonDecode(utf8.decode(response.bodyBytes));
         List postData = (rawData is Map) ? (rawData['posts'] ?? []) : (rawData is List ? rawData : []);
-        
+
         if (isMission) {
           missionPosts.value = postData.map((item) => _parsePostItem(item)).toList();
         } else {
@@ -369,9 +357,40 @@ class GroupController extends GetxController {
     }
   }
 
-  Future<void> fetchHistoryBookBoard(Map<String, dynamic> historyBook) async { try { isLoading.value = true; historySelectedBookTitle.value = historyBook["title"] ?? ""; historySelectedBookAuthor.value = historyBook["author"] ?? ""; historySelectedBookCover.value = historyBook["cover"] ?? ""; final String bId = historyBook["bookId"]?.toString() ?? "0"; final response = await http.get(Uri.parse('$baseUrl/groups/${currentGroupId.value}/posts?type=MISSION&bookId=$bId'), headers: _headers); if (response.statusCode == 200) { final dynamic rawPosts = jsonDecode(utf8.decode(response.bodyBytes)); List postData = (rawPosts is Map) ? (rawPosts['posts'] ?? []) : (rawPosts is List ? rawPosts : []); historyMissionPosts.value = postData.map((item) => _parsePostItem(item)).toList(); } } catch (_) {} finally { isLoading.value = false; } }
-  Future<void> searchBooksFromAPI(String query) async { if (query.trim().isEmpty) { searchedBooksResult.clear(); return; } try { isSearching.value = true; final List<Book> books = await _searchRepository.searchBooks(query); searchedBooksResult.value = List.from(books); } catch (_) {} finally { isSearching.value = false; } }
-  Future<bool> changeMissionBook(String isbn) async { try { final response = await http.patch(Uri.parse('$baseUrl/groups/${currentGroupId.value}/mission-book'), headers: _headers, body: jsonEncode({"isbn": isbn})); if (response.statusCode == 200 || response.statusCode == 204) { await fetchAllDataFromAPI(); return true; } return false; } catch (_) { return false; } }
+  Future<void> fetchHistoryBookBoard(Map<String, dynamic> historyBook) async {
+    try {
+      isLoading.value = true;
+      historySelectedBookTitle.value = historyBook["title"] ?? "";
+      historySelectedBookAuthor.value = historyBook["author"] ?? "";
+      historySelectedBookCover.value = historyBook["cover"] ?? "";
+      final String bId = historyBook["bookId"]?.toString() ?? "0";
+      final response = await http.get(Uri.parse('$baseUrl/groups/${currentGroupId.value}/posts?type=MISSION&bookId=$bId'), headers: _headers);
+      if (response.statusCode == 200) {
+        final dynamic rawPosts = jsonDecode(utf8.decode(response.bodyBytes));
+        List postData = (rawPosts is Map) ? (rawPosts['posts'] ?? []) : (rawPosts is List ? rawPosts : []);
+        historyMissionPosts.value = postData.map((item) => _parsePostItem(item)).toList();
+      }
+    } catch (_) {}
+    finally { isLoading.value = false; }
+  }
+
+  Future<void> searchBooksFromAPI(String query) async {
+    if (query.trim().isEmpty) { searchedBooksResult.clear(); return; }
+    try {
+      isSearching.value = true;
+      final List<Book> books = await _searchRepository.searchBooks(query);
+      searchedBooksResult.value = List.from(books);
+    } catch (_) {}
+    finally { isSearching.value = false; }
+  }
+
+  Future<bool> changeMissionBook(String isbn) async {
+    try {
+      final response = await http.patch(Uri.parse('$baseUrl/groups/${currentGroupId.value}/mission-book'), headers: _headers, body: jsonEncode({"isbn": isbn}));
+      if (response.statusCode == 200 || response.statusCode == 204) { await fetchAllDataFromAPI(); return true; }
+      return false;
+    } catch (_) { return false; }
+  }
 
   Future<bool> leaveGroup() async {
     try {
@@ -404,11 +423,11 @@ class GroupController extends GetxController {
       isLoading.value = false;
     }
   }
-  
+
   Future<void> createNewPost(String title, String content, bool isMission) async {
     try {
       final url = Uri.parse('$baseUrl/groups/${currentGroupId.value}/posts');
-      final int? finalBookId = isMission 
+      final int? finalBookId = isMission
           ? (currentMissionBookId.value != 0 ? currentMissionBookId.value : null)
           : (attachedBookId.value != 0 ? attachedBookId.value : null);
 
@@ -428,11 +447,11 @@ class GroupController extends GetxController {
       } else {
         bodyData.remove("discussion");
       }
-      
+
       final response = await http.post(url, headers: _headers, body: jsonEncode(bodyData));
       if (response.statusCode == 200 || response.statusCode == 201) await fetchAllDataFromAPI();
     } catch (_) {
-    } finally { 
+    } finally {
       removeAttachedBook();
       removeAttachedDiscussion();
     }
@@ -452,12 +471,12 @@ class GroupController extends GetxController {
         body: jsonEncode(commentPayload),
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
-        await refreshPostsOnly(); 
-        return true; 
+        await refreshPostsOnly();
+        return true;
       }
       return false;
-    } catch (e) { 
-      return false; 
+    } catch (e) {
+      return false;
     }
   }
 
@@ -468,24 +487,24 @@ class GroupController extends GetxController {
       final url = Uri.parse('$baseUrl/groups/comments/$commentId/replies');
       final response = await http.post(url, headers: _headers, body: jsonEncode({"content": content}));
       if (response.statusCode == 200 || response.statusCode == 201) {
-        await refreshPostsOnly(); 
-        return true; 
+        await refreshPostsOnly();
+        return true;
       }
       return false;
-    } catch (_) { 
-      return false; 
+    } catch (_) {
+      return false;
     }
   }
-  
-  Future<void> castVote(Map<String, dynamic> post, int optionIndex) async { 
+
+  Future<void> castVote(Map<String, dynamic> post, int optionIndex) async {
     try {
       await http.post(
-        Uri.parse('$baseUrl/groups/posts/${post["id"]}/discussion/vote'), 
-        headers: _headers, 
-        body: jsonEncode({"optionId": optionIndex + 1})
-      ); 
-      await refreshPostsOnly(); 
-    } catch (_) {} 
+          Uri.parse('$baseUrl/groups/posts/${post["id"]}/discussion/vote'),
+          headers: _headers,
+          body: jsonEncode({"optionId": optionIndex + 1})
+      );
+      await refreshPostsOnly();
+    } catch (_) {}
   }
 
   Future<bool> addAnnouncement(String title, String content) async {
@@ -493,15 +512,11 @@ class GroupController extends GetxController {
     try {
       final url = Uri.parse('$baseUrl/groups/${currentGroupId.value}/announcements');
       final Map<String, dynamic> bodyData = {
-        "type": "ANNOUNCEMENT", 
+        "type": "ANNOUNCEMENT",
         "title": title.trim(),
         "content": content.trim(),
         "bookId": null,
         "recordId": null,
-        //"discussion": {
-        //  "question": " ",
-        //  "options": [" "]
-        //}
       };
       final response = await http.post(
         url,
@@ -509,7 +524,7 @@ class GroupController extends GetxController {
         body: jsonEncode(bodyData),
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
-        await fetchAllDataFromAPI(); 
+        await fetchAllDataFromAPI();
         return true;
       }
       return false;
@@ -518,47 +533,46 @@ class GroupController extends GetxController {
     }
   }
 
-  Future<void> togglePostLike(Map<String, dynamic> post) async { 
-    final bool current = post["isLiked"].value; 
-    post["isLiked"].value = !current; 
-    if (post["isLiked"].value) { post["likes"].value++; } else { post["likes"].value--; } 
-    try { 
-      final url = Uri.parse('$baseUrl/groups/posts/${post["id"]}/like'); 
-      if (current) { await http.delete(url, headers: _headers); } else { await http.post(url, headers: _headers); } 
-    } catch (_) {} 
+  Future<void> togglePostLike(Map<String, dynamic> post) async {
+    final bool current = post["isLiked"].value;
+    post["isLiked"].value = !current;
+    if (post["isLiked"].value) { post["likes"].value++; } else { post["likes"].value--; }
+    try {
+      final url = Uri.parse('$baseUrl/groups/posts/${post["id"]}/like');
+      if (current) { await http.delete(url, headers: _headers); } else { await http.post(url, headers: _headers); }
+    } catch (_) {}
   }
 
-  Future<void> addReport(String reason, Map<String, dynamic> targetPost) async { 
-    try { 
-      await http.post(Uri.parse('$baseUrl/groups/posts/${targetPost["id"]}/report'), headers: _headers, body: jsonEncode({"reason": reason})); 
-    } catch (_) {} 
+  Future<void> addReport(String reason, Map<String, dynamic> targetPost) async {
+    try {
+      await http.post(Uri.parse('$baseUrl/groups/posts/${targetPost["id"]}/report'), headers: _headers, body: jsonEncode({"reason": reason}));
+    } catch (_) {}
   }
 
-  Future<void> toggleCommentLike(Map<String, dynamic> comment) async { 
+  Future<void> toggleCommentLike(Map<String, dynamic> comment) async {
     if (comment["isCommentLiked"] is! RxBool || comment["likes"] is! RxInt) return;
     final RxBool rxIsLiked = comment["isCommentLiked"];
     final RxInt rxLikes = comment["likes"];
-    final bool current = rxIsLiked.value; 
-    rxIsLiked.value = !current; 
-    if (rxIsLiked.value) { rxLikes.value++; } else { rxLikes.value--; } 
-    try { 
-      final url = Uri.parse('$baseUrl/groups/comments/${comment["id"]}/like'); 
-      if (current) { 
-        await http.delete(url, headers: _headers); 
-      } else { 
-        await http.post(url, headers: _headers); 
-      } 
-    } catch (_) {} 
+    final bool current = rxIsLiked.value;
+    rxIsLiked.value = !current;
+    if (rxIsLiked.value) { rxLikes.value++; } else { rxLikes.value--; }
+    try {
+      final url = Uri.parse('$baseUrl/groups/comments/${comment["id"]}/like');
+      if (current) {
+        await http.delete(url, headers: _headers);
+      } else {
+        await http.post(url, headers: _headers);
+      }
+    } catch (_) {}
   }
 
-  Future<void> togglePinAnnouncement(Map<String, dynamic> announcement) async { 
+  Future<void> togglePinAnnouncement(Map<String, dynamic> announcement) async {
     if (announcement["id"] == null) return;
     final bool currentStatus = announcement["isPinned"].value;
 
     try {
       announcement["isPinned"].value = !currentStatus;
 
-      // 🎯 [완치 2]: 상태를 바꾸자마자 내 로컬 리스트부터 즉시 재정렬 때리고 화면 리프레시!
       announcements.sort((a, b) {
         final bool aPinned = a["isPinned"].value;
         final bool bPinned = b["isPinned"].value;
@@ -566,17 +580,12 @@ class GroupController extends GetxController {
         if (!aPinned && bPinned) return 1;
         return 0;
       });
-      announcements.refresh(); // 👈 즉시 화면 위로 점프 유도
+      announcements.refresh();
 
-      // 🎯 [완치 3]: 화면은 이미 올라갔으니, 백엔드에는 이제 비동기로 조용히 찔러서 영구 저장시킵니다.
       final url = Uri.parse('$baseUrl/groups/posts/${announcement["id"]}/pin');
       final response = await http.patch(url, headers: _headers);
 
-      if (response.statusCode == 200 || response.statusCode == 204) {
-        print("📌 [공지 고정 서버 반영 완료]");
-        // 미세한 서버 렉 때문에 꼬이는 걸 막기 위해, 서버 반영 완전히 끝난 후 최종 확인 패치 한 번 더!
-      } else {
-        print("🚨 [핀 서버 반영 실패] 코드: ${response.statusCode}");
+      if (response.statusCode != 200 && response.statusCode != 204) {
         announcement["isPinned"].value = currentStatus;
         announcements.sort((a, b) {
           final bool aPinned = a["isPinned"].value;
@@ -588,28 +597,26 @@ class GroupController extends GetxController {
         announcements.refresh();
       }
     } catch (e) {
-      print("🚨 핀 토글 통신 에러 발생: $e");
-      // 예외 터지면 원상복구(롤백) 조치
       announcement["isPinned"].value = currentStatus;
       announcements.refresh();
     }
   }
 
-  void deleteAnnouncement(Map<String, dynamic> announcement) async { 
-    try { 
-      await http.delete(Uri.parse('$baseUrl/groups/${currentGroupId.value}/announcements/${announcement["id"]}'), headers: _headers); 
-      await fetchAllDataFromAPI(); 
-    } catch (_) {} 
+  void deleteAnnouncement(Map<String, dynamic> announcement) async {
+    try {
+      await http.delete(Uri.parse('$baseUrl/groups/${currentGroupId.value}/announcements/${announcement["id"]}'), headers: _headers);
+      await fetchAllDataFromAPI();
+    } catch (_) {}
   }
 
-  Future<void> kickMember(String nickname) async { 
-    final target = memberList.firstWhere((m) => m["nickname"] == nickname, orElse: () => {}); 
-    if (target.isNotEmpty) { 
-      try { 
-        await http.delete(Uri.parse('$baseUrl/groups/${currentGroupId.value}/members/${target["id"]}'), headers: _headers); 
-        await fetchAllDataFromAPI(); 
-      } catch (_) {} 
-    } 
+  Future<void> kickMember(String nickname) async {
+    final target = memberList.firstWhere((m) => m["nickname"] == nickname, orElse: () => {});
+    if (target.isNotEmpty) {
+      try {
+        await http.delete(Uri.parse('$baseUrl/groups/${currentGroupId.value}/members/${target["id"]}'), headers: _headers);
+        await fetchAllDataFromAPI();
+      } catch (_) {}
+    }
   }
 
   void attachBook(dynamic bookObj, String title, String author, String cover) {
@@ -621,7 +628,7 @@ class GroupController extends GetxController {
       groupBookCacheMaster[attachedBookId.value] = {"title": title, "author": author, "cover": cover};
     }
   }
-  
+
   void removeAttachedBook() { attachedBookId.value = 0; attachedBookTitle.value = ""; attachedBookAuthor.value = ""; attachedBookCover.value = ""; isBookAttached.value = false; }
   void attachDiscussion(String topic, List<String> options, String endTime) { discussionTopic.value = topic; discussionOptions.assignAll(options); discussionEndTimeString.value = endTime; isDiscussionAttached.value = true; }
   void removeAttachedDiscussion() { discussionTopic.value = ""; discussionOptions.clear(); discussionEndTimeString.value = "종료시간 미설정"; isDiscussionAttached.value = false; }
@@ -667,7 +674,7 @@ class GroupController extends GetxController {
       "pollVotes": <int>[].obs,
       "discussion": null,
       "selectedOption": (-1).obs,
-      "comments": <Map<String, dynamic>>[].obs, 
+      "comments": <Map<String, dynamic>>[].obs,
     };
   }
 }
