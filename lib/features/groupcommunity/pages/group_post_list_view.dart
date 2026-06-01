@@ -11,15 +11,13 @@ class GroupPostListView extends GetView<GroupController> {
 
   @override
   Widget build(BuildContext context) {
-    const unifiedGreen = Color(0xFF8DC695); 
-    final posts = isMissionBoard ? controller.missionPosts : controller.freePosts;
+    const unifiedGreen = Color(0xFF4EB56D); 
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         backgroundColor: Colors.white, 
         elevation: 0,
-        // 🚨 [빨간 에러 원천 봉쇄]: 미션과 자유 분기를 완벽히 격리하여 자유게시판 진입 시 Obx를 타지 않고 즉시 텍스트가 꽂힙니다.
         title: isMissionBoard
             ? Obx(() {
                 final String bookTitle = controller.currentMissionBookTitle.value;
@@ -41,11 +39,8 @@ class GroupPostListView extends GetView<GroupController> {
       ),
       body: Stack(
         children: [
-          // 🚨 [아키텍처 레이아웃 대수리]: 구조적 스택 중첩 결함을 해결하기 위해 Column 내부 바인딩 최적화 마감
           Column(
             children: [
-              // 🔔 오직 미션 게시판일 때만 140px 크기의 책 상단 헤더 카드가 생성됩니다. 
-              // 자유게시판일 때는 조건문 레이어에서 아예 누락되어 빈 공간 크래시를 원천 차단합니다.
               if (isMissionBoard)
                 Container(
                   width: double.infinity, 
@@ -114,7 +109,7 @@ class GroupPostListView extends GetView<GroupController> {
                                         )), 
                                   ],
                                 ),
-                              )
+                              ),
                             ],
                           ),
                         ),
@@ -122,15 +117,15 @@ class GroupPostListView extends GetView<GroupController> {
                     ),
                   ),
                 ),
-              
-              // 🔔 피드 게시글 리스트 스크롤 스페이스 영역
               Expanded(
                 child: Obx(() {
-                  if (controller.isLoading.value && posts.isEmpty) {
+                  final currentPosts = isMissionBoard ? controller.missionPosts : controller.freePosts;
+
+                  if (controller.isLoading.value && currentPosts.isEmpty) {
                     return const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(unifiedGreen)));
                   }
                   
-                  if (posts.isEmpty) {
+                  if (currentPosts.isEmpty) {
                     return Center(
                       child: Text(
                         isMissionBoard ? "아직 등록된 미션 인증 글이 없습니다." : "자유게시판에 첫 글을 작성해보세요!",
@@ -140,16 +135,14 @@ class GroupPostListView extends GetView<GroupController> {
                   }
 
                   return ListView.builder(
-                    padding: const EdgeInsets.only(top: 8, bottom: 90), // 버튼 패딩 확보 완비
-                    itemCount: posts.length, 
-                    itemBuilder: (context, index) => GroupPostCard(post: posts[index]),
+                    padding: const EdgeInsets.only(top: 8, bottom: 90), 
+                    itemCount: currentPosts.length, 
+                    itemBuilder: (context, index) => GroupPostCard(post: currentPosts[index]),
                   );
                 }),
               ),
             ],
           ),
-
-          // 하단 중앙 글쓰기 커스텀 엘리베이티드 알약 캡슐 버튼
           Positioned(
             bottom: 25, left: 0, right: 0,
             child: Center(
