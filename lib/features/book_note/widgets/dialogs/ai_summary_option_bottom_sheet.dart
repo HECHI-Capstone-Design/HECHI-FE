@@ -66,10 +66,12 @@ class AiSummaryOptionBottomSheet extends StatelessWidget with GroupShareMixin {
               onTap: () {
                 Get.back();
                 // TODO: 그룹 연결
+                /*
                 openGroupShareFlow(
                   itemType: 'ai_summary',
                   itemData: {'summary': Get.find<AiSummaryController>().summaryText.value},
                 );
+                 */
               },
             ),
             const SizedBox(height: 30),

@@ -9,6 +9,11 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
   late int bookId;
   late int tabIndex;
 
+  String? preselectedGroupId;
+  String? preselectedBoardId;
+
+  Function(String itemType, Map<String, dynamic> itemData)? onItemSelected;
+
   /// ===================== Loading States =====================
   RxBool isLoadingBookInfo = true.obs;
   RxBool isLoadingBookmarks = true.obs;
@@ -40,6 +45,9 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
     final args = Get.arguments ?? {};
     bookId = args['bookId'] ?? 0;
     tabIndex = args['tabIndex'] ?? 0;
+
+    preselectedGroupId = args['preselectedGroupId'];
+    preselectedBoardId = args['preselectedBoardId'];
 
     tabController = TabController(length: 3, vsync: this, initialIndex: tabIndex);
 

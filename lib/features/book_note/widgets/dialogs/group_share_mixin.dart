@@ -1,76 +1,219 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
+import '../../controllers/book_note_controller.dart';
+import '../../../groupcommunity/controllers/group_controller.dart';
+import '../../../groupcommunity/pages/group_post_create_view.dart';
 
 mixin GroupShareMixin {
+  static const String _baseUrl = "https://api.43-202-101-63.sslip.io";
+
+  String get _token => GetStorage().read('access_token') ?? "";
+  Map<String, String> get _headers => {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    "Authorization": "Bearer $_token",
+  };
+
   void openGroupShareFlow({
     required String itemType,
     required Map<String, dynamic> itemData,
+    required int bookId,
   }) {
-    // TODO: GET /groups/my
-    final dummyGroups = [
-      {"id": "1", "name": "그룹 1"},
-      {"id": "2", "name": "그룹 2"},
-    ];
+    _openGroupSelectSheet(itemType: itemType, itemData: itemData, bookId: bookId);
+  }
+
+  Future<void> _openGroupSelectSheet({
+    required String itemType,
+    required Map<String, dynamic> itemData,
+    required int bookId,
+  }) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/users/me/groups'),
+        headers: _headers,
+      );
+
+      if (response.statusCode != 200) {
+        _showErrorSnackbar();
+        return;
+      }
+
+      final dynamic raw = jsonDecode(utf8.decode(response.bodyBytes));
+      final List groups = raw['groups'] ?? [];
+
+      if (groups.isEmpty) {
+        Get.snackbar(
+          "그룹 없음",
+          "가입된 그룹이 없습니다.",
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(16),
+          borderRadius: 8,
+        );
+        return;
+      }
+
+      Get.bottomSheet(
+        _SelectBottomSheet(
+          title: "그룹 선택",
+          items: groups.map((g) => g["name"]?.toString() ?? "").toList(),
+          onSelect: (index) {
+            final selectedGroup = groups[index];
+            final String groupId = selectedGroup["groupId"]?.toString() ?? "";
+            Get.back();
+            _fetchAndOpenBoardSelectSheet(
+              groupId: groupId,
+              itemType: itemType,
+              itemData: itemData,
+              bookId: bookId,
+            );
+          },
+        ),
+      );
+    } catch (e) {
+      print("❌ Fetch Groups Error: $e");
+      _showErrorSnackbar();
+    }
+  }
+
+  Future<void> _fetchAndOpenBoardSelectSheet({
+    required String groupId,
+    required String itemType,
+    required Map<String, dynamic> itemData,
+    required int bookId,
+  }) async {
+    try {
+      final boardsRes = await http.get(
+        Uri.parse('$_baseUrl/groups/$groupId/boards'),
+        headers: _headers,
+      );
+      final groupRes = await http.get(
+        Uri.parse('$_baseUrl/groups/$groupId'),
+        headers: _headers,
+      );
+
+      if (boardsRes.statusCode != 200) {
+        _showErrorSnackbar();
+        return;
+      }
+
+      final List boards = jsonDecode(utf8.decode(boardsRes.bodyBytes))['boards'] ?? [];
+
+      int? missionBookId;
+      if (groupRes.statusCode == 200) {
+        final groupData = jsonDecode(utf8.decode(groupRes.bodyBytes));
+        missionBookId = int.tryParse(
+            groupData["currentMissionBook"]?["bookId"]?.toString() ?? ""
+        );
+      }
+
+      _openBoardSelectSheet(
+        groupId: groupId,
+        boards: boards,
+        itemType: itemType,
+        itemData: itemData,
+        bookId: bookId,
+        missionBookId: missionBookId,
+      );
+    } catch (e) {
+      print("❌ Fetch Boards Error: $e");
+      _showErrorSnackbar();
+    }
+  }
+
+  void _openBoardSelectSheet({
+    required String groupId,
+    required List boards,
+    required String itemType,
+    required Map<String, dynamic> itemData,
+    required int bookId,
+    required int? missionBookId,
+  }) {
+    if (boards.isEmpty) {
+      Get.snackbar(
+        "게시판 없음",
+        "게시판이 없습니다.",
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+      );
+      return;
+    }
 
     Get.bottomSheet(
       _SelectBottomSheet(
-        title: "그룹 선택",
-        items: dummyGroups.map((g) => g["name"]!).toList(),
+        title: "게시판 선택",
+        items: boards.map((b) => b["label"]?.toString() ?? "").toList(),
         onSelect: (index) {
-          final selectedGroup = dummyGroups[index];
+          final selectedBoard = boards[index];
+          final String boardType = selectedBoard["boardType"]?.toString() ?? "";
           Get.back();
-          _openBoardSelectSheet(
-            groupId: selectedGroup["id"]!,
-            groupName: selectedGroup["name"]!,
+          _shareToBoard(
+            groupId: groupId,
+            boardType: boardType,
+            boardData: Map<String, dynamic>.from(selectedBoard),
             itemType: itemType,
             itemData: itemData,
+            bookId: bookId,
+            missionBookId: missionBookId,
           );
         },
       ),
     );
   }
 
-  void _openBoardSelectSheet({
+  void _shareToBoard({
     required String groupId,
-    required String groupName,
+    required String boardType,
+    required Map<String, dynamic> boardData,
     required String itemType,
     required Map<String, dynamic> itemData,
+    required int bookId,
+    required int? missionBookId,
   }) {
-    // TODO: GET /groups/{groupId}/boards
-    final dummyBoards = {
-      "1": [
-        {"id": "1", "name": "게시판 1"},
-        {"id": "2", "name": "게시판 2"},
-      ],
-      "2": [
-        {"id": "3", "name": "게시판 1"},
-        {"id": "4", "name": "게시판 2"},
-      ],
-    };
+    final bool isMission = boardType == "MISSION";
 
-    final boards = dummyBoards[groupId] ?? [];
+    if (isMission && missionBookId != null && missionBookId != bookId) {
+      Get.snackbar(
+        "미션책이 아닙니다",
+        "현재 그룹의 미션책의 독서기록만 미션게시판에 공유할 수 있습니다.",
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+      );
+      return;
+    }
 
-    Get.bottomSheet(
-      _SelectBottomSheet(
-        title: "게시판 선택",
-        items: boards.map((b) => b["name"]!).toList(),
-        onSelect: (index) {
-          final selectedBoard = boards[index];
-          Get.back();
-          // TODO: POST /groups/{groupId}/boards/{boardId}/posts
-          print("공유 완료 - groupId: $groupId, boardId: ${selectedBoard["id"]}");
-          /*
-          Get.toNamed('/group-board', arguments: {
-            'groupId': groupId,
-            'groupName': groupName,
-            'boardId': selectedBoard["id"],
-            'boardName': selectedBoard["name"],
-            'sharedItemType': itemType,
-            'sharedItemData': itemData,
-          });
-          */
-        },
-      ),
+    Get.delete<GroupController>();
+    final groupCtrl = Get.put(GroupController());
+    groupCtrl.currentGroupId.value = groupId;
+    groupCtrl.attachNote(itemType, itemData);
+
+    if (!isMission && bookId != 0) {
+      final bookNoteCtrl = Get.find<BookNoteController>();
+      final bookInfo = bookNoteCtrl.bookInfo;
+      groupCtrl.attachedBookId.value = bookId;
+      groupCtrl.attachedBookTitle.value = bookInfo["title"]?.toString() ?? "";
+      groupCtrl.attachedBookAuthor.value = (bookInfo["authors"] as List?)?.first?.toString() ?? "";
+      groupCtrl.attachedBookCover.value = bookInfo["thumbnail"]?.toString() ?? "";
+      groupCtrl.isBookAttached.value = true;
+    }
+
+    groupCtrl.fetchAllDataFromAPI();
+    Get.to(() => GroupPostCreateView(isMission: isMission));
+  }
+
+  void _showErrorSnackbar() {
+    Get.snackbar(
+      "오류",
+      "잠시 후 다시 시도해주세요.",
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red.shade400,
+      colorText: Colors.white,
+      margin: const EdgeInsets.all(16),
+      borderRadius: 8,
     );
   }
 }

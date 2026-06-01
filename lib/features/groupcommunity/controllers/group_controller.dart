@@ -61,6 +61,9 @@ class GroupController extends GetxController {
   final discussionOptions = <String>[].obs;
   final discussionEndTimeString = "종료시간 미설정".obs;
 
+  final attachedNotes = <Map<String, dynamic>>[].obs;
+  bool get isNoteAttached => attachedNotes.isNotEmpty;
+
   @override
   void onInit() {
     super.onInit();
@@ -436,7 +439,10 @@ class GroupController extends GetxController {
         "title": title,
         "content": content,
         "bookId": finalBookId,
-        "records": [],
+        "records": attachedNotes.map((n) => {
+          "recordType": _toRecordType(n["type"]),
+          "recordId": n["data"]["id"],
+        }).toList(),
       };
 
       if (isDiscussionAttached.value && discussionTopic.value.trim().isNotEmpty) {
@@ -450,10 +456,12 @@ class GroupController extends GetxController {
 
       final response = await http.post(url, headers: _headers, body: jsonEncode(bodyData));
       if (response.statusCode == 200 || response.statusCode == 201) await fetchAllDataFromAPI();
-    } catch (_) {
+    } catch (e) {
+      print("❌ createNewPost Error: $e");
     } finally {
       removeAttachedBook();
       removeAttachedDiscussion();
+      removeAttachedNote();
     }
   }
 
@@ -665,6 +673,7 @@ class GroupController extends GetxController {
       "bookTitle": parsedBookId == 0 ? "" : finalTitle,
       "bookAuthor": parsedBookId == 0 ? "" : finalAuthor,
       "bookCover": parsedBookId == 0 ? "" : finalCover,
+
       "likes": baseLikes.obs,
       "isLiked": baseIsLiked.obs,
       "hasPoll": false,
@@ -675,6 +684,35 @@ class GroupController extends GetxController {
       "discussion": null,
       "selectedOption": (-1).obs,
       "comments": <Map<String, dynamic>>[].obs,
+
+      "recordType": item["recordType"]?.toString(),
+      "recordData": item["recordData"] is Map
+      ? Map<String, dynamic>.from(item["recordData"])
+          : null,
     };
+  }
+
+  void attachNote(String itemType, Map<String, dynamic> itemData) {
+    attachedNotes.add({
+      "type": itemType,
+      "data": itemData,
+    });
+  }
+
+  void removeAttachedNote({int? index}) {
+    if (index != null) {
+      attachedNotes.removeAt(index);
+    } else {
+      attachedNotes.clear();
+    }
+  }
+
+  String _toRecordType(String itemType) {
+    switch (itemType) {
+      case "bookmark":  return "BOOKMARK";
+      case "highlight": return "HIGHLIGHT";
+      case "memo":      return "NOTE";
+      default:          return "NOTE";
+    }
   }
 }
