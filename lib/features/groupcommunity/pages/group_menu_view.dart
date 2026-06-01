@@ -4,12 +4,13 @@ import 'package:hechi/features/groupcommunity/controllers/group_controller.dart'
 import 'package:hechi/features/groupcommunity/pages/group_report_views.dart';
 import 'package:hechi/features/search/data/book_model.dart';
 
-class GroupMenuView extends GetView<GroupController> {
+class GroupMenuView extends StatelessWidget {
   const GroupMenuView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    const unifiedGreen = Color(0xFF8DC695);
+    final GroupController controller = Get.find<GroupController>();
+    const brandMainGreen = Color(0xFF4EB56D); 
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -37,6 +38,7 @@ class GroupMenuView extends GetView<GroupController> {
             trailing: const Icon(Icons.arrow_forward_ios, size: 14),
             onTap: () => Get.toNamed('/group/members'),
           ),
+
           Obx(() {
             if (!controller.isLeader.value) return const SizedBox.shrink();
             return Column(
@@ -51,7 +53,7 @@ class GroupMenuView extends GetView<GroupController> {
                   leading: const Icon(Icons.menu_book, color: Colors.black87),
                   title: const Text("미션책 변경"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 14),
-                  onTap: () => _showChangeMissionBookSheet(),
+                  onTap: () => _showChangeMissionBookSheet(brandMainGreen, controller),
                 ),
                 ListTile(
                   leading: const Icon(Icons.report, color: Colors.black87),
@@ -62,19 +64,24 @@ class GroupMenuView extends GetView<GroupController> {
               ],
             );
           }),
+          
           const Spacer(),
+          
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: InkWell(
-              onTap: () => _showLeaveOrDeleteConfirm(),
+              onTap: () => _showCustomConfirmDialog(context, controller),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                color: Colors.grey.shade100,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: Center(
                   child: Obx(() => Text(
                         controller.isLeader.value ? "그룹 삭제" : "그룹 탈퇴",
-                        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 15),
                       )),
                 ),
               ),
@@ -85,10 +92,136 @@ class GroupMenuView extends GetView<GroupController> {
     );
   }
 
-  void _showChangeMissionBookSheet() {
+  void _showCustomConfirmDialog(BuildContext context, GroupController controller) {
+    final bool isLeader = controller.isLeader.value;
+    final String titleText = isLeader ? "그룹 삭제" : "그룹 탈퇴";
+    final String bodyText = isLeader ? "정말 그룹을 삭제하시겠습니까?" : "정말 그룹을 탈퇴하시겠습니까?";
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return Dialog(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: Container(
+            width: 280,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 24.0, bottom: 20.0, left: 16.0, right: 16.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        titleText,
+                        style: const TextStyle(
+                          color: Color(0xFF222222),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        bodyText,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Color(0xFF777777),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 0.5,
+                  color: const Color(0xFFE5E5E5),
+                ),
+                IntrinsicHeight(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(14)),
+                            ),
+                          ),
+                          onPressed: () async {
+                            Navigator.of(context).pop();
+                            
+                            if (isLeader) {
+                              bool success = await controller.deleteGroup();
+                              if (success) {
+                                Get.back(); 
+                                Get.offAllNamed('/home');
+                                Get.snackbar("삭제 완료", "그룹이 성공적으로 삭제되었습니다.");
+                              } else {
+                                Get.snackbar("오류", "그룹 삭제 요청 처리에 실패했습니다.");
+                              }
+                            } else {
+                              bool success = await controller.leaveGroup();
+                              if (success) {
+                                Get.back(); 
+                                Get.offAllNamed('/home');
+                                Get.snackbar("탈퇴 완료", "그룹에서 성공적으로 탈퇴되었습니다.");
+                              } else {
+                                Get.snackbar("오류", "그룹 탈퇴 요청 처리에 실패했습니다.");
+                              }
+                            }
+                          },
+                          child: const Text(
+                            "예",
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: 0.5,
+                        color: const Color(0xFFE5E5E5),
+                      ),
+                      Expanded(
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(bottomRight: Radius.circular(14)),
+                            ),
+                          ),
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text(
+                            "아니오",
+                            style: TextStyle(
+                              color: Color(0xFF999999),
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showChangeMissionBookSheet(Color brandColor, GroupController controller) {
     final searchInputController = TextEditingController();
     controller.searchedBooksResult.clear();
-    const brandColor = Color(0xFF8DC695);
 
     Get.to(
       Scaffold(
@@ -126,7 +259,7 @@ class GroupMenuView extends GetView<GroupController> {
             const Divider(),
             Expanded(
               child: Obx(() {
-                if (controller.isSearching.value) return const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(brandColor)));
+                if (controller.isSearching.value) return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(brandColor)));
                 if (controller.searchedBooksResult.isEmpty) {
                   return const Center(child: Text("변경할 새 도서를 검색해 주세요.", style: TextStyle(color: Colors.grey)));
                 }
@@ -160,9 +293,9 @@ class GroupMenuView extends GetView<GroupController> {
                         bool isSuccess = await controller.changeMissionBook(targetIsbn);
                         Get.back(); 
                         if (isSuccess) {
-                          Get.snackbar("성공", "미션 책이 '$title'로 변경 및 보관함에 적치되었습니다.");
+                          Get.snackbar("성공", "미션책이 변경 되었습니다.");
                         } else {
-                          Get.snackbar("오류", "서버 미션책 변경 처리에 실패했습니다. (422/500 에러)");
+                          Get.snackbar("오류", "서버 미션책 변경 처리에 실패했습니다.");
                         }
                       },
                     );
@@ -173,21 +306,6 @@ class GroupMenuView extends GetView<GroupController> {
           ],
         ),
       )
-    );
-  }
-
-  void _showLeaveOrDeleteConfirm() {
-    Get.defaultDialog(
-      title: controller.isLeader.value ? "그룹 삭제" : "그룹 탈퇴",
-      content: Text(controller.isLeader.value ? "그룹을 삭제 하시겠습니까?\n그룹 정보가 모두 사라집니다." : "그룹을 탈퇴 하시겠습니까?"),
-      textConfirm: "예",
-      textCancel: "아니오",
-      confirmTextColor: Colors.red,
-      cancelTextColor: Colors.black,
-      onConfirm: () {
-        Get.back();
-        Get.back();
-      }
     );
   }
 }

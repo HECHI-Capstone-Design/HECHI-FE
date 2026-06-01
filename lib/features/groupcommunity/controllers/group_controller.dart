@@ -11,7 +11,7 @@ class GroupController extends GetxController {
   final String baseUrl = "https://api.43-202-101-63.sslip.io";
 
   final currentGroupId = "".obs;
-  final isLeader = true.obs; 
+  final isLeader = false.obs; 
   final isLoading = false.obs;
 
   final SearchRepository _searchRepository = SearchRepository();
@@ -71,8 +71,6 @@ class GroupController extends GetxController {
       }
     }
 
-    print("📍 [GroupController 초기화완료] 진입 타깃 방 ID: ${currentGroupId.value}");
-
     if (currentGroupId.value.isEmpty) {
       return;
     }
@@ -90,6 +88,8 @@ class GroupController extends GetxController {
         final Map<String, dynamic> groupData = jsonDecode(utf8.decode(groupRes.bodyBytes));
         groupName.value = groupData["name"] ?? "hechi1";
         
+        isLeader.value = groupData["isLeader"] ?? false;
+
         final currentBookObj = groupData["currentMissionBook"];
         if (currentBookObj != null) {
           currentMissionBookId.value = int.tryParse(currentBookObj["bookId"]?.toString() ?? "0") ?? 0;
@@ -357,6 +357,38 @@ class GroupController extends GetxController {
   Future<void> fetchHistoryBookBoard(Map<String, dynamic> historyBook) async { try { isLoading.value = true; historySelectedBookTitle.value = historyBook["title"] ?? ""; historySelectedBookAuthor.value = historyBook["author"] ?? ""; historySelectedBookCover.value = historyBook["cover"] ?? ""; final String bId = historyBook["bookId"]?.toString() ?? "0"; final response = await http.get(Uri.parse('$baseUrl/groups/${currentGroupId.value}/posts?type=MISSION&bookId=$bId'), headers: _headers); if (response.statusCode == 200) { final dynamic rawPosts = jsonDecode(utf8.decode(response.bodyBytes)); List postData = (rawPosts is Map) ? (rawPosts['posts'] ?? []) : (rawPosts is List ? rawPosts : []); historyMissionPosts.value = postData.map((item) => _parsePostItem(item)).toList(); } } catch (_) {} finally { isLoading.value = false; } }
   Future<void> searchBooksFromAPI(String query) async { if (query.trim().isEmpty) { searchedBooksResult.clear(); return; } try { isSearching.value = true; final List<Book> books = await _searchRepository.searchBooks(query); searchedBooksResult.value = List.from(books); } catch (_) {} finally { isSearching.value = false; } }
   Future<bool> changeMissionBook(String isbn) async { try { final response = await http.patch(Uri.parse('$baseUrl/groups/${currentGroupId.value}/mission-book'), headers: _headers, body: jsonEncode({"isbn": isbn})); if (response.statusCode == 200 || response.statusCode == 204) { await fetchAllDataFromAPI(); return true; } return false; } catch (_) { return false; } }
+
+  Future<bool> leaveGroup() async {
+    try {
+      isLoading.value = true;
+      final url = Uri.parse('$baseUrl/groups/${currentGroupId.value}/leave');
+      final response = await http.delete(url, headers: _headers);
+      if (response.statusCode == 200) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<bool> deleteGroup() async {
+    try {
+      isLoading.value = true;
+      final url = Uri.parse('$baseUrl/groups/${currentGroupId.value}');
+      final response = await http.delete(url, headers: _headers);
+      if (response.statusCode == 200) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
   
   Future<void> createNewPost(String title, String content, bool isMission) async {
     try {
@@ -396,17 +428,14 @@ class GroupController extends GetxController {
     try {
       String postId = postArg is Map ? (postArg["id"]?.toString() ?? "0") : postArg.toString();
       final url = Uri.parse('$baseUrl/groups/posts/$postId/comments');
-      
       final Map<String, dynamic> commentPayload = {
         "content": content
       };
-
       final response = await http.post(
         url,
         headers: _headers,
         body: jsonEncode(commentPayload),
       );
-      
       if (response.statusCode == 200 || response.statusCode == 201) {
         await refreshPostsOnly(); 
         return true; 
@@ -422,9 +451,7 @@ class GroupController extends GetxController {
     try {
       String commentId = commentArg is Map ? (commentArg["id"]?.toString() ?? "0") : commentArg.toString();
       final url = Uri.parse('$baseUrl/groups/comments/$commentId/replies');
-      
       final response = await http.post(url, headers: _headers, body: jsonEncode({"content": content}));
-      
       if (response.statusCode == 200 || response.statusCode == 201) {
         await refreshPostsOnly(); 
         return true; 
@@ -448,13 +475,10 @@ class GroupController extends GetxController {
 
   Future<bool> addAnnouncement(String title, String content) async {
     if (title.trim().isEmpty || content.trim().isEmpty) return false;
-
     try {
       final url = Uri.parse('$baseUrl/groups/${currentGroupId.value}/announcements');
-
-      // 💡 [명세 대조 핵심]: 백엔드가 요구하는 정품 뼈대 스키마 구조 완벽 바인딩
       final Map<String, dynamic> bodyData = {
-        "type": "ANNOUNCEMENT", // 👈 공지사항 타입 명시 (백엔드 설계에 따라 일반 글과 구분)
+        "type": "ANNOUNCEMENT", 
         "title": title.trim(),
         "content": content.trim(),
         "bookId": null,
@@ -464,23 +488,17 @@ class GroupController extends GetxController {
         //  "options": [" "]
         //}
       };
-
       final response = await http.post(
         url,
         headers: _headers,
         body: jsonEncode(bodyData),
       );
-
       if (response.statusCode == 200 || response.statusCode == 201) {
-        print("📢 [공지사항 등록 성공]: ${response.body}");
-        await fetchAllDataFromAPI(); // 실시간 화면 동기화 새로고침
+        await fetchAllDataFromAPI(); 
         return true;
       }
-
-      print("🚨 [공지사항 등록 실패] 코드: ${response.statusCode}, 바디: ${response.body}");
       return false;
     } catch (e) {
-      print("🚨 공지사항 통신 에러 세션: $e");
       return false;
     }
   }
@@ -503,14 +521,11 @@ class GroupController extends GetxController {
 
   Future<void> toggleCommentLike(Map<String, dynamic> comment) async { 
     if (comment["isCommentLiked"] is! RxBool || comment["likes"] is! RxInt) return;
-
     final RxBool rxIsLiked = comment["isCommentLiked"];
     final RxInt rxLikes = comment["likes"];
-
     final bool current = rxIsLiked.value; 
     rxIsLiked.value = !current; 
     if (rxIsLiked.value) { rxLikes.value++; } else { rxLikes.value--; } 
-    
     try { 
       final url = Uri.parse('$baseUrl/groups/comments/${comment["id"]}/like'); 
       if (current) { 
@@ -598,7 +613,6 @@ class GroupController extends GetxController {
 
   Map<String, dynamic> _parsePostItem(dynamic item) {
     if (item == null) return {};
-
     final String postType = item["type"]?.toString() ?? "";
     final bool isMissionPost = (postType == "MISSION" || postType == "mission");
     final int baseLikes = int.tryParse((item["likeCount"] ?? item["likesCount"] ?? 0).toString()) ?? 0;
@@ -631,14 +645,12 @@ class GroupController extends GetxController {
       "bookCover": parsedBookId == 0 ? "" : finalCover,
       "likes": baseLikes.obs,
       "isLiked": baseIsLiked.obs,
-      
       "hasPoll": false,
       "isDiscussion": false,
       "pollQuestion": "",
       "pollOptions": <String>[],
       "pollVotes": <int>[].obs,
       "discussion": null,
-      
       "selectedOption": (-1).obs,
       "comments": <Map<String, dynamic>>[].obs, 
     };
