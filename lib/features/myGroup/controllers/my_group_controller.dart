@@ -1,21 +1,15 @@
-// lib/features/myGroup/controllers/my_group_controller.dart
-
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart'; 
+import 'package:get_storage/get_storage.dart';
 import '../models/group_model.dart';
 
 class MyGroupController extends GetxController {
   final GetConnect _connect = GetConnect();
-  final GetStorage _storage = GetStorage(); 
+  final GetStorage _storage = GetStorage();
 
   var myGroups = <GroupModel>[].obs;
   var recommendedGroupsMain = <GroupModel>[].obs;
   var recommendedGroupsDetail = <GroupModel>[].obs;
 
-<<<<<<< Updated upstream
-=======
-  // 💡 실시간 서버 연동을 위해 초기값 true로 변경
->>>>>>> Stashed changes
   var isLoading = false.obs;
 
   static const String baseUrl = 'https://api.43-202-101-63.sslip.io';
@@ -49,17 +43,14 @@ class MyGroupController extends GetxController {
       if (response.status.isOk && response.body != null) {
         final List<dynamic> groupList = response.body['groups'] ?? [];
 
-<<<<<<< Updated upstream
-=======
         // Swagger 응답 스펙(groupId, name)을 우리 GroupModel에 매핑
->>>>>>> Stashed changes
         myGroups.assignAll(
           groupList.map((json) => _mapJsonToGroupModel(json)).toList(),
         );
         print('✅ 내 그룹 API 연동 성공: 총 ${myGroups.length}개 로드됨');
       } else {
         print('❌ 내 그룹 API 에러: ${response.statusText} (${response.statusCode})');
-        _loadMyGroupsDummy(); 
+        _loadMyGroupsDummy();
       }
     } catch (e) {
       print('❌ 내 그룹 통신 중 예외 발생: $e');
@@ -80,10 +71,7 @@ class MyGroupController extends GetxController {
         if (token != null) 'Authorization': 'Bearer $token',
       };
 
-<<<<<<< Updated upstream
-=======
       // 🌐 1단계: 메인 스크린용(10개)과 상세 리스트용(20개) 추천 API 기본 호출
->>>>>>> Stashed changes
       final mainResponse = await _connect.get('$baseUrl/groups/recommendations?limit=10', headers: headers);
       final detailResponse = await _connect.get('$baseUrl/groups/recommendations?limit=20', headers: headers);
 
@@ -94,13 +82,6 @@ class MyGroupController extends GetxController {
         return;
       }
 
-<<<<<<< Updated upstream
-      final Set<String> joinedGroupIds = myGroups.map((g) => g.id.toString()).toSet();
-
-      if (mainResponse.status.isOk && mainResponse.body != null) {
-        final List<dynamic> groupList = mainResponse.body['groups'] ?? [];
-
-=======
       // 🛑 2단계: 내가 이미 가입 완료한 그룹들의 고유 ID 풀셋 확보 (소거 필터용)
       final Set<String> joinedGroupIds = myGroups.map((g) => g.id.toString()).toSet();
 
@@ -109,34 +90,22 @@ class MyGroupController extends GetxController {
         final List<dynamic> groupList = mainResponse.body['groups'] ?? [];
 
         // 1) 가입 완료된 방 먼저 1차 스크리닝 거르기
->>>>>>> Stashed changes
         final List<GroupModel> filteredMain = groupList
             .map((json) => _mapJsonToGroupModel(json))
             .where((group) => !joinedGroupIds.contains(group.id.toString()))
             .toList();
 
-<<<<<<< Updated upstream
-=======
-        // 🔥 [핵심 이식]: 거러진 추천 방들을 기반으로 각각 상세 API를 백그라운드에서 병렬 팩으로 호출
->>>>>>> Stashed changes
+        // 🔥 [핵심 이식]: 걸러진 추천 방들을 기반으로 각각 상세 API를 백그라운드에서 병렬 팩으로 호출
         await Future.wait(filteredMain.map((group) async {
           try {
             final detailRes = await _connect.get('$baseUrl/groups/${group.id}', headers: headers);
             if (detailRes.statusCode == 200 && detailRes.body != null) {
-<<<<<<< Updated upstream
-              final String realLeaderName = detailRes.body['leaderName'] ?? detailRes.body['leaderNickname'] ?? "방장 미상";
-              group.leaderName = realLeaderName; 
-            }
-          } catch (_) {
-            group.leaderName = "방장 미상"; 
-=======
               // 상세 API 응답 바디에서 실제 정품 방장 닉네임 필드를 낚아챕니다.
               final String realLeaderName = detailRes.body['leaderName'] ?? detailRes.body['leaderNickname'] ?? "방장 미상";
-              group.leaderName = realLeaderName; // 모델 객체에 동적 세팅 (모델에 leaderName 필드가 있어야 합니다!)
+              group.leaderName = realLeaderName; // 모델 객체에 동적 세팅
             }
           } catch (_) {
             group.leaderName = "방장 미상"; // 에러 발생 시 세이프 가드 플레이스홀더 세우기
->>>>>>> Stashed changes
           }
         }));
 
@@ -147,19 +116,13 @@ class MyGroupController extends GetxController {
       if (detailResponse.status.isOk && detailResponse.body != null) {
         final List<dynamic> groupList = detailResponse.body['groups'] ?? [];
 
-<<<<<<< Updated upstream
-=======
         // 1) 가입 완료된 방 1차 스크리닝 소거
->>>>>>> Stashed changes
         final List<GroupModel> filteredDetail = groupList
             .map((json) => _mapJsonToGroupModel(json))
             .where((group) => !joinedGroupIds.contains(group.id.toString()))
             .toList();
 
-<<<<<<< Updated upstream
-=======
         // 🔥 마찬가지로 상세 API 병렬 동기화 팩 이식
->>>>>>> Stashed changes
         await Future.wait(filteredDetail.map((group) async {
           try {
             final detailRes = await _connect.get('$baseUrl/groups/${group.id}', headers: headers);
@@ -179,9 +142,9 @@ class MyGroupController extends GetxController {
     } catch (e) {
       print('❌ 추천 그룹 API 통신 오류: $e');
     } finally {
-    if (!isRetry) isLoading.value = false;
+      if (!isRetry) isLoading.value = false;
+    }
   }
-  } // 🛠️ 오타 수리: 엉뚱하게 닫혀있던 중괄호 한 개를 도려내어 정상 배치 완료!
 
   /// 🔄 3. [보안 관리] 리프레시 토큰을 이용한 액세스 토큰 자동 재발급
   Future<bool> _refreshAccessToken() async {

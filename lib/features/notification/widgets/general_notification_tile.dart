@@ -16,9 +16,8 @@ const Color kNotifTextGrey = Color(0xFF9E9E9E);
 class GeneralNotificationTile extends StatelessWidget {
   final NotificationItem item;
   const GeneralNotificationTile({super.key, required this.item});
-<<<<<<< Updated upstream
 
-  // 🛠️ targetInfo를 안전하게 Map으로 파싱하는 헬퍼 함수
+  // 🛠️ targetInfo를 안전하게 Map으로 파싱하는 헬퍼 함수 (팀원 최신 코드 유지)
   Map<String, dynamic> _getParsedInfo() {
     try {
       dynamic info = item.targetInfo;
@@ -32,8 +31,6 @@ class GeneralNotificationTile extends StatelessWidget {
     }
     return {};
   }
-=======
->>>>>>> Stashed changes
 
   @override
   Widget build(BuildContext context) {
@@ -41,11 +38,10 @@ class GeneralNotificationTile extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-<<<<<<< Updated upstream
         // 1. 알림 읽음 처리
         Get.find<NotificationController>().markAsRead(item.notificationId);
 
-        // 2. 🚀 고도화된 라우팅 로직 (Null Safety 반영)
+        // 2. 🚀 고도화된 라우팅 로직 (팀원의 Null Safety 적용 버전 채택)
         if (info['bookId'] != null) {
           final parsedBookId = int.tryParse(info['bookId'].toString());
           if (parsedBookId != null) {
@@ -59,34 +55,6 @@ class GeneralNotificationTile extends StatelessWidget {
           Get.toNamed(Routes.customer);
         } else {
           debugPrint("🚨 라우팅 조건을 찾을 수 없습니다: $info");
-=======
-        // 1. 기존 기능: 알림 읽음 처리
-        Get.find<NotificationController>().markAsRead(item.notificationId);
-
-        print("📢 [일반 알림 터치!] targetInfo: ${item.targetInfo}");
-
-        try {
-          dynamic info = item.targetInfo;
-
-          if (info is String && info.startsWith('{')) {
-            info = jsonDecode(info);
-          }
-
-          if (info is Map) {
-            if (info.containsKey('bookId')) {
-              final parsedBookId = int.tryParse(info['bookId'].toString());
-              if (parsedBookId != null) {
-                // ✅ [핵심 수정] 딕셔너리(Map) 형태가 아니라 순수하게 '숫자(int)'만 넘겨줍니다!
-                Get.toNamed('/book_detail_page', arguments: parsedBookId);
-              }
-            }
-            else if (info.containsKey('badgeCode')) {
-              print("📢 배지 획득 알림입니다! (이동할 경로가 있다면 여기에 추가하세요)");
-            }
-          }
-        } catch (e) {
-          print("🚨 라우팅 파싱 에러: $e");
->>>>>>> Stashed changes
         }
       },
       child: Container(
@@ -144,34 +112,32 @@ class GeneralNotificationTile extends StatelessWidget {
         ? item.imageUrl
         : (info['thumbnailUrl'] ?? info['image_url'] ?? info['imageUrl'] ?? info['profileUrl'] ?? info['actorProfileUrl'] ?? info['userImageUrl'])?.toString();
 
-    // 우선순위 판단용 플래그
+    // 🚀 [수정됨] 텍스트에 의존하는 겉핥기식 플래그(hasBookText) 완전 제거. 오직 '데이터'만 검증.
     final bool isSlump = item.type == 'READING_SLUMP' || info['reminderType'] == 'READING_SLUMP';
     final bool isReward = info['rewardId'] != null || item.type == 'REWARD' || item.type.contains('BADGE');
     final bool hasBookId = info['bookId'] != null;
-    final bool hasBookText = item.title.contains('책') || item.title.contains('추천');
 
-    // 1순위 : 슬럼프
+    // 🥇 1순위 : 슬럼프 알림 (type 데이터 기반)
     if (isSlump) {
       return const _CheerThumbnail();
     }
 
-    // 2순위 : 리워드 / 뱃지
+    // 🥈 2순위 : 리워드 / 뱃지 (type, rewardId 데이터 기반)
     if (isReward) {
       return _RewardThumbnail(imageUrl: resolvedUrl);
     }
 
-    // 3순위 : 특정 도서 알림
+    // 🥉 3순위 : 특정 도서 알림 (반드시 bookId 데이터가 존재해야만 책 표지 렌더링)
     if (hasBookId) {
       return _BookThumbnail(imageUrl: resolvedUrl);
     }
 
-    // 4순위 : 책 관련 일반 알림
-    if (hasBookText) {
-      return _BookThumbnail(imageUrl: resolvedUrl);
-    }
-
-    // 5순위 : 일반 공지
-    return _CircleThumbnail(imageUrl: resolvedUrl, type: item.type);
+    // 4순위 : 일반 공지 및 기타 리마인더 (펼쳐진 책 아이콘 처리를 위해 reminderType 전달)
+    return _CircleThumbnail(
+      imageUrl: resolvedUrl,
+      type: item.type,
+      reminderType: info['reminderType']?.toString(), // 🚀 깔끔하게 텍스트 하나만 전달
+    );
   }
 }
 
@@ -224,21 +190,28 @@ class _RewardThumbnail extends StatelessWidget {
   }
 }
 
-// 🟢 동그라미 아이콘 위젯 (공지사항 등 - 고도화 반영)
+// 🟢 동그라미 아이콘 위젯 (종 모양 -> 펼쳐진 책 모양 완벽 분기)
 class _CircleThumbnail extends StatelessWidget {
   final String? imageUrl;
   final String type;
+  final String? reminderType;
 
-  const _CircleThumbnail({this.imageUrl, required this.type});
+  const _CircleThumbnail({super.key, this.imageUrl, required this.type, this.reminderType});
 
   @override
   Widget build(BuildContext context) {
     IconData icon;
+
+    // 🚀 완벽한 데이터 기반 분기
     if (type.contains('BADGE')) {
       icon = Icons.military_tech;
     } else if (type.contains('NOTICE')) {
       icon = Icons.campaign;
+    } else if (reminderType == 'READING_REMINDER') {
+      // ✅ targetInfo 안의 reminderType이 READING_REMINDER일 경우 펼쳐진 책
+      icon = Icons.menu_book;
     } else {
+      // 그 외 일반 알림은 기본 종 모양
       icon = Icons.notifications;
     }
 
@@ -257,7 +230,7 @@ class _CircleThumbnail extends StatelessWidget {
           errorBuilder: (_, __, ___) => Icon(icon, color: kNotifGreen, size: 26),
         ),
       )
-          : Icon(icon, color: kNotifGreen, size: 30),
+          : Icon(icon, color: kNotifGreen, size: 26),
     );
   }
 }
