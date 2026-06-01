@@ -178,13 +178,30 @@ class GroupController extends GetxController {
       final annRes = await http.get(Uri.parse('$baseUrl/groups/${currentGroupId.value}/announcements'), headers: _headers).catchError((_)=>http.Response('[]',404));
       if (annRes.statusCode == 200) {
         final dynamic rawAnn = jsonDecode(utf8.decode(annRes.bodyBytes));
-        List annData = (rawAnn is List) ? rawAnn : (rawAnn['items'] ?? []);
+        print("🔍 [공지사항 RAW 바디 디버깅]: $rawAnn");
+
+        List annData = [];
+        if (rawAnn is List) {
+          annData = rawAnn;
+        } else if (rawAnn is Map) {
+          annData = rawAnn['posts'] ?? rawAnn['items'] ?? rawAnn['announcements'] ?? [];
+        }
         announcements.value = annData.map((item) => {
           "id": item["postId"]?.toString() ?? item["id"]?.toString() ?? "0", 
           "title": item["title"] ?? "공지사항",
           "content": item["content"] ?? "",
-          "isPinned": (item["isPinned"] ?? false as bool).obs,
+          "isPinned": (item["isPinned"] ?? false).toString().toLowerCase() == 'true' ? true.obs : false.obs,
         }).toList();
+        announcements.sort((a, b) {
+          final bool aPinned = a["isPinned"].value;
+          final bool bPinned = b["isPinned"].value;
+          if (aPinned && !bPinned) return -1; // a가 고정이면 위로 (-1)
+          if (!aPinned && bPinned) return 1;  // b가 고정이면 밑으로 (1)
+          return 0; // 둘 다 같으면 순서 유지
+        });
+        announcements.refresh();
+
+        print("📢 [공지사항 파싱 및 상단 고정 정렬 완료]");
       }
     } catch (_) {
     } finally { 
@@ -442,7 +459,10 @@ class GroupController extends GetxController {
         "content": content.trim(),
         "bookId": null,
         "recordId": null,
-        "discussion": {}
+        //"discussion": {
+        //  "question": " ",
+        //  "options": [" "]
+        //}
       };
 
       final response = await http.post(
@@ -502,11 +522,47 @@ class GroupController extends GetxController {
   }
 
   Future<void> togglePinAnnouncement(Map<String, dynamic> announcement) async { 
-    if (announcement["id"] == null) return; 
-    try { 
-      await http.patch(Uri.parse('$baseUrl/groups/${announcement["id"]}/pin'), headers: _headers); 
-      await fetchAllDataFromAPI(); 
-    } catch (_) {} 
+    if (announcement["id"] == null) return;
+    final bool currentStatus = announcement["isPinned"].value;
+
+    try {
+      announcement["isPinned"].value = !currentStatus;
+
+      // 🎯 [완치 2]: 상태를 바꾸자마자 내 로컬 리스트부터 즉시 재정렬 때리고 화면 리프레시!
+      announcements.sort((a, b) {
+        final bool aPinned = a["isPinned"].value;
+        final bool bPinned = b["isPinned"].value;
+        if (aPinned && !bPinned) return -1;
+        if (!aPinned && bPinned) return 1;
+        return 0;
+      });
+      announcements.refresh(); // 👈 즉시 화면 위로 점프 유도
+
+      // 🎯 [완치 3]: 화면은 이미 올라갔으니, 백엔드에는 이제 비동기로 조용히 찔러서 영구 저장시킵니다.
+      final url = Uri.parse('$baseUrl/groups/posts/${announcement["id"]}/pin');
+      final response = await http.patch(url, headers: _headers);
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        print("📌 [공지 고정 서버 반영 완료]");
+        // 미세한 서버 렉 때문에 꼬이는 걸 막기 위해, 서버 반영 완전히 끝난 후 최종 확인 패치 한 번 더!
+      } else {
+        print("🚨 [핀 서버 반영 실패] 코드: ${response.statusCode}");
+        announcement["isPinned"].value = currentStatus;
+        announcements.sort((a, b) {
+          final bool aPinned = a["isPinned"].value;
+          final bool bPinned = b["isPinned"].value;
+          if (aPinned && !bPinned) return -1;
+          if (!aPinned && bPinned) return 1;
+          return 0;
+        });
+        announcements.refresh();
+      }
+    } catch (e) {
+      print("🚨 핀 토글 통신 에러 발생: $e");
+      // 예외 터지면 원상복구(롤백) 조치
+      announcement["isPinned"].value = currentStatus;
+      announcements.refresh();
+    }
   }
 
   void deleteAnnouncement(Map<String, dynamic> announcement) async { 
