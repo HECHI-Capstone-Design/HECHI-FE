@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:mobile_ocr_flutter/mobile_ocr_flutter.dart';
 import '../../controllers/book_note_controller.dart';
 import '../styles/overlay_common.dart';
+import 'ocr_line_selection_overlay.dart';
 
 class CreationOverlay extends StatefulWidget {
   final String type; // bookmark | highlight | memo
@@ -19,6 +21,8 @@ class CreationOverlay extends StatefulWidget {
   // highlight
   final String? sentence;
   final bool? isPublic;
+  final bool autoStartOcr;
+  final bool closeParentPageOnCreate;
 
   // memo
   final String? content;
@@ -33,6 +37,8 @@ class CreationOverlay extends StatefulWidget {
     this.memo,
     this.sentence,
     this.isPublic,
+    this.autoStartOcr = false,
+    this.closeParentPageOnCreate = false,
     this.content,
   });
 
@@ -47,6 +53,8 @@ class _CreationOverlayState extends State<CreationOverlay> {
   late TextEditingController contentController;
   late bool isPublic;
   late bool _isReadOnly;
+  bool _isExtractingOcr = false;
+  bool _hasTriggeredAutoOcr = false;
 
   @override
   void initState() {
@@ -58,6 +66,26 @@ class _CreationOverlayState extends State<CreationOverlay> {
     contentController = TextEditingController(text: widget.content ?? "");
     isPublic = widget.isPublic ?? false;
     _isReadOnly = widget.isReadOnly;
+
+    if (widget.type == "highlight" &&
+        widget.autoStartOcr &&
+        !widget.isEdit &&
+        !_isReadOnly) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _hasTriggeredAutoOcr) return;
+        _hasTriggeredAutoOcr = true;
+        _handleHighlightOcrCapture();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    memoController.dispose();
+    sentenceController.dispose();
+    contentController.dispose();
+    super.dispose();
   }
 
   @override
@@ -273,26 +301,75 @@ class _CreationOverlayState extends State<CreationOverlay> {
                 decoration: const BoxDecoration(
                   color: Color(0x7FD1ECD9),
                 ),
-                child: TextField(
-                  controller: sentenceController,
-                  readOnly: _isReadOnly,
-                  maxLines: null,
-                  keyboardType: TextInputType.multiline,
-                  decoration: const InputDecoration(
-                    isCollapsed: true,
-                    border: InputBorder.none,
-                    hintText: "하이라이트 문장을 입력해주세요.",
-                    hintStyle: TextStyle(
-                      color: Color(0xFFABABAB),
-                      fontSize: 13,
-                      height: 1.9,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (!_isReadOnly)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          onTap: _isExtractingOcr
+                              ? null
+                              : _handleHighlightOcrCapture,
+                          behavior: HitTestBehavior.opaque,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (_isExtractingOcr)
+                                const SizedBox(
+                                  width: 14,
+                                  height: 14,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Color(0xFF4DB56C),
+                                  ),
+                                )
+                              else
+                                const Icon(
+                                  Icons.camera_alt_outlined,
+                                  size: 16,
+                                  color: Color(0xFF4DB56C),
+                                ),
+                              const SizedBox(width: 6),
+                              Text(
+                                _isExtractingOcr
+                                    ? "문장 추출 중..."
+                                    : "카메라로 문장 가져오기",
+                                style: const TextStyle(
+                                  color: Color(0xFF4DB56C),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    if (!_isReadOnly) const SizedBox(height: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: sentenceController,
+                        readOnly: _isReadOnly,
+                        maxLines: null,
+                        keyboardType: TextInputType.multiline,
+                        decoration: const InputDecoration(
+                          isCollapsed: true,
+                          border: InputBorder.none,
+                          hintText: "하이라이트 문장을 입력해주세요.",
+                          hintStyle: TextStyle(
+                            color: Color(0xFFABABAB),
+                            fontSize: 13,
+                            height: 1.9,
+                          ),
+                        ),
+                        style: const TextStyle(
+                          color: Color(0xFF3F3F3F),
+                          fontSize: 15,
+                          height: 1.67,
+                        ),
+                      ),
                     ),
-                  ),
-                  style: const TextStyle(
-                    color: Color(0xFF3F3F3F),
-                    fontSize: 15,
-                    height: 1.67,
-                  ),
+                  ],
                 ),
               ),
 
@@ -457,7 +534,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
   // =========================================================
   // Confirm 버튼 로직
   // =========================================================
-  void _onConfirm(BookNoteController controller) {
+  Future<void> _onConfirm(BookNoteController controller) async {
     switch (widget.type) {
       case "bookmark":
         final page = int.tryParse(pageController.text);
@@ -522,7 +599,15 @@ class _CreationOverlayState extends State<CreationOverlay> {
             isPublic,
           );
         } else {
-          controller.createHighlight(page, sentence, memo, isPublic);
+          final saved = await controller.createHighlight(
+            page,
+            sentence,
+            memo,
+            isPublic,
+          );
+          if (saved && widget.closeParentPageOnCreate) {
+            Get.back();
+          }
         }
         break;
 
@@ -539,6 +624,51 @@ class _CreationOverlayState extends State<CreationOverlay> {
           controller.createMemo(content);
         }
         break;
+    }
+  }
+
+  Future<void> _handleHighlightOcrCapture() async {
+    setState(() {
+      _isExtractingOcr = true;
+    });
+
+    try {
+      final result = await MobileOcr.captureAndRecognize();
+      if (!mounted || result == null) {
+        return;
+      }
+
+      final candidateLines = result.lines
+          .map((line) => line.text.trim())
+          .where((text) => text.isNotEmpty)
+          .toList();
+
+      if (candidateLines.isEmpty) {
+        Get.snackbar("안내", "추출된 문장이 없습니다.");
+        return;
+      }
+
+      final selectedText = await Get.bottomSheet<String>(
+        OcrLineSelectionOverlay(lines: candidateLines),
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+      );
+
+      if (selectedText != null && selectedText.trim().isNotEmpty) {
+        sentenceController.text = selectedText.trim();
+        sentenceController.selection = TextSelection.fromPosition(
+          TextPosition(offset: sentenceController.text.length),
+        );
+        setState(() {});
+      }
+    } catch (_) {
+      Get.snackbar("오류", "문장 추출에 실패했습니다.");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isExtractingOcr = false;
+        });
+      }
     }
   }
 }

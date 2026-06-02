@@ -41,4 +41,5 @@ flutter {
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.mlkit:text-recognition-korean:16.0.1")
 }

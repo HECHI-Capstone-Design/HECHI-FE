@@ -22,7 +22,7 @@ class ReadingRegistrationView extends GetView<ReadingRegistrationController> {
             icon: const Icon(Icons.add, color: Colors.black, size: 28),
             onPressed: () {
               print("➕ [독서 등록] 우측 상단 책 추가 버튼 클릭됨");
-              // 라우팅
+              controller.openHighlightCreationForCurrentBook();
             },
           ),
           const SizedBox(width: 12), // 끝부분 우측 여백 튜닝

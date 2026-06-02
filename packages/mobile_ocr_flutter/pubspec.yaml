@@ -1,0 +1,14 @@
+name: mobile_ocr_flutter
+description: Reusable phone camera OCR package for Flutter apps.
+version: 0.0.1
+publish_to: 'none'
+
+environment:
+  sdk: ^3.9.2
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  google_mlkit_text_recognition: ^0.15.0
+  image_picker: ^1.1.2
