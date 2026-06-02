@@ -283,9 +283,59 @@ class GroupController extends GetxController {
         );
         if (detailRes.statusCode == 200) {
           final Map<String, dynamic> detailData = jsonDecode(utf8.decode(detailRes.bodyBytes));
-          final dynamic discussionObj = detailData["discussion"];
 
-          if (discussionObj is Map) {
+          final List records = detailData["records"] is List ? detailData["records"] : [];
+          if (records.isNotEmpty) {
+            for (final record in records) {
+              final String recordType = record["recordType"]?.toString() ?? "";
+              final int recordId = int.tryParse(record["recordId"]?.toString() ?? "0") ?? 0;
+              final int bookId = int.tryParse(detailData["bookId"]?.toString() ?? "0") ?? 0;
+
+              if (recordType.isNotEmpty && recordId != 0 && bookId != 0) {
+                final String listEndpoint = switch (recordType) {
+                  "BOOKMARK"  => "/bookmarks/books/$bookId",
+                  "HIGHLIGHT" => "/highlights/books/$bookId",
+                  "NOTE"      => "/notes/books/$bookId",
+                  _           => "",
+                };
+
+                if (listEndpoint.isNotEmpty) {
+                  try {
+                    final listRes = await http.get(
+                      Uri.parse('$baseUrl$listEndpoint'),
+                      headers: _headers,
+                    );
+                    if (listRes.statusCode == 200) {
+                      final List rawList = jsonDecode(utf8.decode(listRes.bodyBytes));
+                      final matched = rawList.firstWhere(
+                            (item) => item["id"]?.toString() == recordId.toString(),
+                        orElse: () => null,
+                      );
+                      if (matched != null) {
+                        final List<Map<String, dynamic>> existing =
+                        List<Map<String, dynamic>>.from(parsedPost["recordDataList"] ?? []);
+                        existing.add({
+                          "recordType": recordType,
+                          "recordData": Map<String, dynamic>.from(matched),
+                        });
+                        parsedPost["recordDataList"] = existing;
+                      }
+                    }
+                  } catch (_) {}
+                }
+              }
+            }
+          }
+
+          if (detailData["recordType"] != null) {
+            parsedPost["recordType"] = detailData["recordType"]?.toString();
+            if (detailData["recordData"] is Map) {
+              parsedPost["recordData"] = Map<String, dynamic>.from(detailData["recordData"]);
+            }
+          }
+
+          final dynamic discussionObj = detailData["discussion"];
+          if (discussionObj is Map && discussionObj.isNotEmpty) {
             parsedPost["discussion"] = discussionObj;
             parsedPost["hasPoll"] = true;
             parsedPost["isDiscussion"] = true;
@@ -710,9 +760,8 @@ class GroupController extends GetxController {
       "comments": <Map<String, dynamic>>[].obs,
 
       "recordType": item["recordType"]?.toString(),
-      "recordData": item["recordData"] is Map
-      ? Map<String, dynamic>.from(item["recordData"])
-          : null,
+      "recordData": null,
+      "recordDataList": <Map<String, dynamic>>[],
     };
   }
 
