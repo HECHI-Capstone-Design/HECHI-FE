@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../services/api_service.dart';
+import '../controllers/ai_summary_controller.dart';
+import '../pages/ai_summary_page.dart';
 
 class BookNoteController extends GetxController with GetSingleTickerProviderStateMixin {
   final ApiService api = ApiService();
@@ -8,6 +10,11 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
 
   late int bookId;
   late int tabIndex;
+
+  String? preselectedGroupId;
+  String? preselectedBoardId;
+
+  Function(String itemType, Map<String, dynamic> itemData)? onItemSelected;
 
   /// ===================== Loading States =====================
   RxBool isLoadingBookInfo = true.obs;
@@ -41,6 +48,9 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
     bookId = args['bookId'] ?? 0;
     tabIndex = args['tabIndex'] ?? 0;
 
+    preselectedGroupId = args['preselectedGroupId'];
+    preselectedBoardId = args['preselectedBoardId'];
+
     tabController = TabController(length: 3, vsync: this, initialIndex: tabIndex);
 
     fetchBookInfo();
@@ -54,15 +64,6 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
     super.onClose();
   }
 
-  bool hasAiSummaryContent() {
-    final isStillLoading = isLoadingBookmarks.value ||
-        isLoadingHighlights.value ||
-        isLoadingNotes.value;
-    if (isStillLoading) return true;
-
-    return bookmarks.isNotEmpty || highlights.isNotEmpty || notes.isNotEmpty;
-  }
-
   /// ===================== FETCH ALL =====================
   void fetchAll() {
     fetchBookmarks();
@@ -73,9 +74,9 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
   /// ===================== FETCH AI SUMMARY =====================
   Future<void> fetchAiSummary() async {
     try {
-      // TODO: AI 요약 API 호출
-      // 요약 데이터가 있으면 true
-      hasSummary.value = true;
+      final data = await api.get("/books/$bookId/reading-summary");
+      final currentStatus = data['status'] ?? '';
+      hasSummary.value = currentStatus == 'READY';
     } catch (e) {
       hasSummary.value = false;
       print("❌ Fetch AI Summary Error: $e");
@@ -306,5 +307,51 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
         DateTime.parse(b["created_date"])
             .compareTo(DateTime.parse(a["created_date"])));
     notes.refresh();
+  }
+
+  /// =====================================================
+  /// 📌 AI SUMMARY API
+  /// =====================================================
+  bool hasAiSummaryContent() {
+    final isStillLoading = isLoadingBookmarks.value ||
+        isLoadingHighlights.value ||
+        isLoadingNotes.value;
+    if (isStillLoading) return true;
+
+    return bookmarks.isNotEmpty || highlights.isNotEmpty || notes.isNotEmpty;
+  }
+
+  Future<void> pollUntilReadyInBackground({int maxRetries = 60}) async {
+    for (int i = 0; i < maxRetries; i++) {
+      await Future.delayed(const Duration(seconds: 5));
+      try {
+        final data = await api.get("/books/$bookId/reading-summary");
+        final currentStatus = data['status'] ?? '';
+        if (currentStatus == 'READY') {
+          hasSummary.value = true;
+          Get.snackbar(
+            'AI 메모 요약 완료',
+            '요약이 생성되었습니다. 확인해보세요!',
+            snackPosition: SnackPosition.TOP,
+            margin: const EdgeInsets.all(16),
+            borderRadius: 8,
+            onTap: (_) {
+              Get.to(
+                    () => const AiSummaryPage(),
+                arguments: {'bookId': bookId},
+                binding: BindingsBuilder(() {
+                  Get.delete<AiSummaryController>(force: true);
+                  Get.lazyPut(() => AiSummaryController());
+                }),
+              );
+            },
+          );
+          return;
+        }
+      } catch (e) {
+        print("❌ Background Poll Error: $e");
+      }
+    }
+    print("❌ 백그라운드 폴링 타임아웃");
   }
 }

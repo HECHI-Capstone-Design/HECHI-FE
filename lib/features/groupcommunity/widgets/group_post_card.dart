@@ -5,6 +5,9 @@ import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
 import 'package:hechi/features/groupcommunity/widgets/group_comment_bottom_sheet.dart';
+import 'package:hechi/features/book_note/widgets/bookmark_item.dart';
+import 'package:hechi/features/book_note/widgets/highlight_item.dart';
+import 'package:hechi/features/book_note/widgets/memo_item.dart';
 
 class GroupPostCard extends StatefulWidget {
   final Map<String, dynamic> post;
@@ -160,6 +163,9 @@ class _GroupPostCardState extends State<GroupPostCard> {
             ),
           ],
 
+          if (widget.post["recordType"] != null)
+          _buildSharedNoteCard(widget.post),
+
           const SizedBox(height: 16),
 
           Row(
@@ -179,7 +185,7 @@ class _GroupPostCardState extends State<GroupPostCard> {
                 ),
               )),
               const SizedBox(width: 16),
-              
+
               Obx(() {
                 final livePost = controller.missionPosts.firstWhere(
                   (p) => p["id"].toString() == currentPostId,
@@ -344,6 +350,39 @@ class _GroupPostCardState extends State<GroupPostCard> {
             ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSharedNoteCard(Map<String, dynamic> post) {
+    final String recordType = post["recordType"]?.toString() ?? "";
+    final Map<String, dynamic> data =
+    post["recordData"] is Map
+        ? Map<String, dynamic>.from(post["recordData"])
+        : {};
+
+    if (data.isEmpty) return const SizedBox.shrink();
+
+    final int bookId = int.tryParse(post["bookId"]?.toString() ?? "0") ?? 0;
+
+    void goToBookNote() {
+      if (bookId != 0) {
+        Get.toNamed('/book_note', arguments: {
+          'bookId': bookId,
+          'tabIndex': recordType == "BOOKMARK" ? 0
+              : recordType == "HIGHLIGHT" ? 1
+              : 2,
+        });
+      }
+    }
+
+    return GestureDetector(
+      onTap: goToBookNote,
+      child: switch (recordType) {
+        "BOOKMARK"  => BookmarkItem(data: data, isReadOnly: true, isPreview: true),
+        "HIGHLIGHT" => HighlightItem(data: data, isReadOnly: true, isPreview: true),
+        "NOTE"      => MemoItem(data: data, isReadOnly: true, isPreview: true),
+        _           => const SizedBox.shrink(),
+      },
     );
   }
 
