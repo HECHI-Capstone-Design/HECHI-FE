@@ -42,40 +42,39 @@ class GroupPostListView extends GetView<GroupController> {
           Column(
             children: [
               if (isMissionBoard)
-                Container(
-                  width: double.infinity, 
-                  height: 140, 
-                  color: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: Obx(() => Image.network(
-                                controller.currentMissionBookCover.value, 
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => Container(color: const Color(0xFF3A3A3C)),
-                              )),
-                        ),
-                        Positioned.fill(
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0), 
-                            child: Container(color: Colors.black.withOpacity(0.18)),
+                GestureDetector(
+                  onTap: () {
+                    if (controller.currentMissionBookId.value != 0) {
+                      Get.toNamed('/book_detail_page', arguments: controller.currentMissionBookId.value);
+                    }
+                  },
+                  child: Container(
+                    width: double.infinity, 
+                    height: 140, 
+                    color: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: Obx(() => Image.network(
+                                  controller.currentMissionBookCover.value, 
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) => Container(color: const Color(0xFF3A3A3C)),
+                                )),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-                          child: Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Get.toNamed(
-                                    '/book/detail', 
-                                    arguments: controller.currentMissionBookId.value,
-                                  );
-                                },
-                                child: Obx(() => Container(
+                          Positioned.fill(
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0), 
+                              child: Container(color: Colors.black.withOpacity(0.18)),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                            child: Row(
+                              children: [
+                                Obx(() => Container(
                                   width: 68, 
                                   height: 98,
                                   decoration: BoxDecoration(
@@ -87,33 +86,33 @@ class GroupPostListView extends GetView<GroupController> {
                                     ),
                                   ),
                                 )),
-                              ),
-                              const SizedBox(width: 20),
-                              Expanded(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Obx(() => Text(
-                                          controller.currentMissionBookTitle.value, 
-                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white), 
-                                          maxLines: 1, 
-                                          overflow: TextOverflow.ellipsis,
-                                        )),
-                                    const SizedBox(height: 6),
-                                    Obx(() => Text(
-                                          controller.currentMissionBookAuthor.value, 
-                                          style: const TextStyle(color: Colors.white70, fontSize: 13), 
-                                          maxLines: 1, 
-                                          overflow: TextOverflow.ellipsis,
-                                        )), 
-                                  ],
+                                const SizedBox(width: 20),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Obx(() => Text(
+                                            controller.currentMissionBookTitle.value, 
+                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white), 
+                                            maxLines: 1, 
+                                            overflow: TextOverflow.ellipsis,
+                                          )),
+                                      const SizedBox(height: 6),
+                                      Obx(() => Text(
+                                            controller.currentMissionBookAuthor.value, 
+                                            style: const TextStyle(color: Colors.white70, fontSize: 13), 
+                                            maxLines: 1, 
+                                            overflow: TextOverflow.ellipsis,
+                                          )), 
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -134,10 +133,16 @@ class GroupPostListView extends GetView<GroupController> {
                     );
                   }
 
-                  return ListView.builder(
-                    padding: const EdgeInsets.only(top: 8, bottom: 90), 
-                    itemCount: currentPosts.length, 
-                    itemBuilder: (context, index) => GroupPostCard(post: currentPosts[index]),
+                  // 🔄 [수정]: 당겨서 리프레시 기능을 적용하여 게시판 진입 및 갱신 시 댓글 개수 강제 리바인딩 보장
+                  return RefreshIndicator(
+                    color: unifiedGreen,
+                    onRefresh: () => controller.refreshPostsOnly(),
+                    child: ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.only(top: 8, bottom: 90), 
+                      itemCount: currentPosts.length, 
+                      itemBuilder: (context, index) => GroupPostCard(post: currentPosts[index]),
+                    ),
                   );
                 }),
               ),
