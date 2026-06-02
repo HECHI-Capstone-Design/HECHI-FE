@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:hechi/features/search/data/search_repository.dart';
 import 'package:hechi/features/search/data/book_model.dart';
 import '../../myGroup/models/group_model.dart';
+import '../../book_detail_page/controllers/book_detail_controller.dart';
 
 class GroupController extends GetxController {
   final String baseUrl = "https://api.43-202-101-63.sslip.io";
@@ -646,6 +647,50 @@ class GroupController extends GetxController {
         await http.post(url, headers: _headers);
       }
     } catch (_) {}
+  }
+
+  Future<void> loadHistoryBookWithDetail(Map<String, dynamic> bookData) async {
+    isLoading.value = true;
+
+    // 1. 과거 게시글 리스트 API 통신 선행 호출
+    await fetchHistoryBookBoard(bookData);
+
+    // 2. 과거 보관함 명세서 규격에 따른 변수 기본 셋팅 (1차 백업 주소 연동)
+    historySelectedBookTitle.value = bookData["title"]?.toString() ?? "제목 없음";
+    historySelectedBookCover.value = bookData["thumbnail"]?.toString() ?? bookData["cover"]?.toString() ?? "";
+    historySelectedBookAuthor.value = "저자 미상";
+
+    // 3. 스웨거에 명시된 bookId 추출
+    final int? targetBookId = int.tryParse(bookData["bookId"]?.toString() ?? "");
+
+    if (targetBookId != null && targetBookId != 0) {
+      try {
+        final String targetUrl = "https://api.43-202-101-63.sslip.io/books/$targetBookId";
+        final response = await http.get(Uri.parse(targetUrl));
+
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> decodedData = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+
+          // 🎯 [완치 포인트 1]: 책 상세 API의 정품 thumbnail 주소를 인양하여 이미지 유실을 원천 차단합니다.
+          final String detailThumbnail = decodedData["thumbnail"]?.toString() ??
+              decodedData["small_thumbnail"]?.toString() ?? "";
+
+          if (detailThumbnail.isNotEmpty) {
+            historySelectedBookCover.value = detailThumbnail;
+          }
+
+          // 🎯 [완치 Point 2]: 저자명 리스트 첫 번째 요소 인양
+          if (decodedData["authors"] != null && (decodedData["authors"] as List).isNotEmpty) {
+            historySelectedBookAuthor.value = decodedData["authors"][0].toString();
+            print("🎯 과거 도서 저자명 인양 완료: ${historySelectedBookAuthor.value}");
+          }
+        }
+      } catch (e) {
+        print("❌ 과거 도서 상세 데이터 인양 실패: $e");
+      }
+    }
+
+    isLoading.value = false;
   }
 
   Future<void> togglePinAnnouncement(Map<String, dynamic> announcement) async {
