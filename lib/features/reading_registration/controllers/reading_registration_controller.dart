@@ -584,4 +584,36 @@ class ReadingRegistrationController extends GetxController {
       );
     }
   }
+
+  void openHighlightCreationForCurrentBook() {
+    final activeBook = currentActiveBook.value;
+
+    if (activeBook == null) {
+      Get.snackbar(
+        "알림",
+        "먼저 독서 중인 책을 선택해주세요.",
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    final initialPage = activeBook.currentPage > 0 ? activeBook.currentPage : 1;
+
+    print(
+      "✍️ [독서 등록] 하이라이트 OCR 진입 (bookId: ${activeBook.book.id}, page: $initialPage)",
+    );
+
+    Get.toNamed(
+      '/book_note',
+      arguments: {
+        'bookId': activeBook.book.id,
+        'tabIndex': 1,
+        'openHighlightCreation': true,
+        'initialHighlightPage': initialPage,
+        'autoStartHighlightOcr': true,
+        'closePageAfterHighlightCreate': true,
+      },
+    );
+  }
 }

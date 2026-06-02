@@ -10,6 +10,10 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
 
   late int bookId;
   late int tabIndex;
+  late bool openHighlightCreation;
+  late bool autoStartHighlightOcr;
+  late bool closePageAfterHighlightCreate;
+  int? initialHighlightPage;
 
   String? preselectedGroupId;
   String? preselectedBoardId;
@@ -47,6 +51,10 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
     final args = Get.arguments ?? {};
     bookId = args['bookId'] ?? 0;
     tabIndex = args['tabIndex'] ?? 0;
+    openHighlightCreation = args['openHighlightCreation'] == true;
+    autoStartHighlightOcr = args['autoStartHighlightOcr'] == true;
+    closePageAfterHighlightCreate = args['closePageAfterHighlightCreate'] == true;
+    initialHighlightPage = args['initialHighlightPage'] as int?;
 
     preselectedGroupId = args['preselectedGroupId'];
     preselectedBoardId = args['preselectedBoardId'];
@@ -56,6 +64,16 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
     fetchBookInfo();
     fetchAll();
     fetchAiSummary();
+  }
+
+  Map<String, dynamic>? consumeHighlightCreationRequest() {
+    if (!openHighlightCreation) return null;
+    openHighlightCreation = false;
+    return {
+      'page': initialHighlightPage,
+      'autoStartOcr': autoStartHighlightOcr,
+      'closeParentPageOnSave': closePageAfterHighlightCreate,
+    };
   }
 
   @override
@@ -187,7 +205,7 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
     isLoadingHighlights.value = false;
   }
 
-  Future<void> createHighlight(int page, String sentence, String memo, bool isPublic) async {
+  Future<bool> createHighlight(int page, String sentence, String memo, bool isPublic) async {
     try {
       await api.post(
         "/highlights/",
@@ -202,8 +220,11 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
 
       fetchHighlights();
       Get.back();
+      return true;
     } catch (e) {
       print("❌ Create Highlight Error: $e");
+      Get.snackbar("오류", "하이라이트 저장에 실패했습니다.");
+      return false;
     }
   }
 

@@ -11,6 +11,7 @@ class HighlightTab extends GetView<BookNoteController> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<BookNoteController>();
+    _maybeOpenCreationOverlay(context, controller);
 
     return Column(
       children: [
@@ -40,6 +41,33 @@ class HighlightTab extends GetView<BookNoteController> {
         ),
       ],
     );
+  }
+
+  void _maybeOpenCreationOverlay(
+    BuildContext context,
+    BookNoteController controller,
+  ) {
+    if (controller.tabController.index != 1) return;
+
+    final request = controller.consumeHighlightCreationRequest();
+    if (request == null) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
+      if (Get.isBottomSheetOpen == true) return;
+
+      Get.bottomSheet(
+        CreationOverlay(
+          type: "highlight",
+          isEdit: false,
+          page: request['page'] as int?,
+          autoStartOcr: request['autoStartOcr'] == true,
+          closeParentPageOnCreate: request['closeParentPageOnSave'] == true,
+        ),
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+      );
+    });
   }
 
   Widget _buildControlBar(BuildContext context) {
