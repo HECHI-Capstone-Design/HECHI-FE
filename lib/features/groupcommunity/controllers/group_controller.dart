@@ -10,7 +10,6 @@ import '../../myGroup/models/group_model.dart';
 class GroupController extends GetxController {
   final String baseUrl = "https://api.43-202-101-63.sslip.io";
 
-  // 🚀 변수 중복 선언 및 충돌 찌꺼기 완벽 제거
   final currentGroupId = "".obs;
   final isLeader = false.obs;
   final isLoading = false.obs;
@@ -98,20 +97,26 @@ class GroupController extends GetxController {
 
         final currentBookObj = groupData["currentMissionBook"];
         if (currentBookObj != null) {
-          currentMissionBookId.value = int.tryParse(currentBookObj["bookId"]?.toString() ?? "0") ?? 0;
+          final rawBookId = currentBookObj["id"] ?? currentBookObj["bookId"];
+          currentMissionBookId.value = int.tryParse(rawBookId?.toString() ?? "0") ?? 0;
+          
           currentMissionBookTitle.value = currentBookObj["title"]?.toString() ?? "미설정";
           currentMissionBookCover.value = currentBookObj["thumbnail"] ?? "";
+
+          print("📚 [고유 ID 확보 완결] 서버 맵핑 결과 추출한 책 ID: ${currentMissionBookId.value}");
 
           final List? authorsList = currentBookObj["authors"];
           currentMissionBookAuthor.value = (authorsList != null && authorsList.isNotEmpty)
               ? authorsList.first.toString()
               : "저자 정보 없음";
 
-          groupBookCacheMaster[currentMissionBookId.value] = {
-            "title": currentMissionBookTitle.value,
-            "author": currentMissionBookAuthor.value,
-            "cover": currentMissionBookCover.value,
-          };
+          if (currentMissionBookId.value != 0) {
+            groupBookCacheMaster[currentMissionBookId.value] = {
+              "title": currentMissionBookTitle.value,
+              "author": currentMissionBookAuthor.value,
+              "cover": currentMissionBookCover.value,
+            };
+          }
 
           final double rawGroupProgress = double.tryParse(currentBookObj["groupAverageProgressPercent"]?.toString() ?? "0.0") ?? 0.0;
           final double rawMyProgress = double.tryParse(currentBookObj["myProgressPercent"]?.toString() ?? "0.0") ?? 0.0;
@@ -122,7 +127,7 @@ class GroupController extends GetxController {
         final List? allMissionBooks = groupData["missionBooks"];
         if (allMissionBooks != null) {
           for (var b in allMissionBooks) {
-            final int bId = int.tryParse(b["bookId"]?.toString() ?? "0") ?? 0;
+            final int bId = int.tryParse((b["id"] ?? b["bookId"])?.toString() ?? "0") ?? 0;
             if (bId != 0) {
               final List? authList = b["authors"];
               groupBookCacheMaster[bId] = {
@@ -151,7 +156,7 @@ class GroupController extends GetxController {
         final List<Map<String, dynamic>> distinctHistory = [];
 
         for (var item in listData) {
-          final String bId = item["bookId"]?.toString() ?? item["id"]?.toString() ?? "";
+          final String bId = item["id"]?.toString() ?? item["bookId"]?.toString() ?? "";
           if (bId.isNotEmpty && !seenBookIds.contains(bId)) {
             seenBookIds.add(bId);
 
@@ -215,34 +220,59 @@ class GroupController extends GetxController {
     }
   }
 
+  List<Map<String, dynamic>> parseCommentsList(dynamic rawComments) {
+    final List comments = (rawComments is List) ? rawComments : [];
+    return comments.map((c) {
+      final List rawReplies = c["replies"] ?? [];
+      final List<Map<String, dynamic>> parsedReplies = rawReplies.map((r) {
+        return {
+          "id": (r["commentId"] ?? "0").toString(),
+          "author": r["userName"] ?? "익명",
+          "content": r["content"] ?? "",
+          "likes": (int.tryParse((r["likeCount"] ?? 0).toString()) ?? 0).obs,
+          "isCommentLiked": ((r["isLiked"] ?? false) as bool).obs,
+        };
+      }).toList();
+
+      return {
+        "id": (c["commentId"] ?? "0").toString(),
+        "author": c["userName"] ?? "익명",
+        "content": c["content"] ?? "",
+        "likes": (int.tryParse((c["likeCount"] ?? 0).toString()) ?? 0).obs,
+        "isCommentLiked": ((c["isLiked"] ?? false) as bool).obs,
+        "replies": parsedReplies.obs,
+      };
+    }).toList();
+  }
+
+  Future<void> loadCommentsForPost(Map<String, dynamic> post) async {
+    final String pId = post["id"].toString();
+    try {
+      final commentRes = await http.get(
+        Uri.parse('$baseUrl/groups/posts/$pId/comments'),
+        headers: _headers,
+      ).catchError((_) => http.Response('{}', 404));
+
+      if (commentRes.statusCode == 200) {
+        final Map<String, dynamic> cData = jsonDecode(utf8.decode(commentRes.bodyBytes));
+        final List rawComments = cData["comments"] is List ? cData["comments"] : [];
+
+        final freshComments = parseCommentsList(rawComments);
+        if (post["comments"] is RxList) {
+          (post["comments"] as RxList).assignAll(freshComments);
+        } else {
+          post["comments"] = freshComments.obs;
+        }
+        if (post["comments"] is RxList) {
+          (post["comments"] as RxList).refresh();
+        }
+      }
+    } catch (_) {}
+  }
+
   Future<void> refreshPostsOnly() async {
     final gId = currentGroupId.value;
     if (gId.isEmpty) return;
-
-    List<Map<String, dynamic>> _parseComments(dynamic rawComments) {
-      final List comments = (rawComments is List) ? rawComments : [];
-      return comments.map((c) {
-        final List rawReplies = c["replies"] ?? [];
-        final List<Map<String, dynamic>> parsedReplies = rawReplies.map((r) {
-          return {
-            "id": (r["commentId"] ?? "0").toString(),
-            "author": r["userName"] ?? "익명",
-            "content": r["content"] ?? "",
-            "likes": (int.tryParse((r["likeCount"] ?? 0).toString()) ?? 0).obs,
-            "isCommentLiked": ((r["isLiked"] ?? false) as bool).obs,
-          };
-        }).toList();
-
-        return {
-          "id": (c["commentId"] ?? "0").toString(),
-          "author": c["userName"] ?? "익명",
-          "content": c["content"] ?? "",
-          "likes": (int.tryParse((c["likeCount"] ?? 0).toString()) ?? 0).obs,
-          "isCommentLiked": ((c["isLiked"] ?? false) as bool).obs,
-          "replies": parsedReplies.obs,
-        };
-      }).toList();
-    }
 
     Future<Map<String, dynamic>> _fetchPostDiscussionDetails(Map<String, dynamic> parsedPost) async {
       final String pId = parsedPost["id"].toString();
@@ -324,30 +354,6 @@ class GroupController extends GetxController {
       return parsedPost;
     }
 
-    Future<void> _loadCommentsForPost(Map<String, dynamic> post) async {
-      final String pId = post["id"].toString();
-      try {
-        final commentRes = await http.get(
-          Uri.parse('$baseUrl/groups/posts/$pId/comments'),
-          headers: _headers,
-        ).catchError((_) => http.Response('{}', 404));
-
-        if (commentRes.statusCode == 200) {
-          final Map<String, dynamic> cData = jsonDecode(utf8.decode(commentRes.bodyBytes));
-          final List rawComments = cData["comments"] is List ? cData["comments"] : [];
-
-          if (rawComments.isNotEmpty) {
-            final freshComments = _parseComments(rawComments);
-            if (post["comments"] is RxList) {
-              (post["comments"] as RxList).assignAll(freshComments);
-            } else {
-              post["comments"] = freshComments.obs;
-            }
-          }
-        }
-      } catch (_) {}
-    }
-
     final missionPostRes = await http.get(
       Uri.parse('$baseUrl/groups/$gId/posts?type=MISSION'),
       headers: _headers,
@@ -361,10 +367,14 @@ class GroupController extends GetxController {
       for (var item in mData) {
         var postItem = _parsePostItem(item);
         postItem = await _fetchPostDiscussionDetails(postItem);
-        await _loadCommentsForPost(postItem);
         parsedMission.add(postItem);
       }
-      missionPosts.value = parsedMission;
+      
+      // 🚀 [핵심 수정]: 화면을 그리기 전에 모든 포스트의 댓글 조회를 비동기로 일제히 선로딩 완료 대기
+      await Future.wait(parsedMission.map((post) => loadCommentsForPost(post)));
+      
+      missionPosts.assignAll(parsedMission);
+      missionPosts.refresh();
     }
 
     final freePostRes = await http.get(
@@ -380,10 +390,14 @@ class GroupController extends GetxController {
       for (var item in fData) {
         var postItem = _parsePostItem(item);
         postItem = await _fetchPostDiscussionDetails(postItem);
-        await _loadCommentsForPost(postItem);
         parsedFree.add(postItem);
       }
-      freePosts.value = parsedFree;
+      
+      // 🚀 [핵심 수정]: 화면을 그리기 전에 모든 포스트의 댓글 조회를 비동기로 일제히 선로딩 완료 대기
+      await Future.wait(parsedFree.map((post) => loadCommentsForPost(post)));
+      
+      freePosts.assignAll(parsedFree);
+      freePosts.refresh();
     }
   }
 
@@ -398,10 +412,15 @@ class GroupController extends GetxController {
         final dynamic rawData = jsonDecode(utf8.decode(response.bodyBytes));
         List postData = (rawData is Map) ? (rawData['posts'] ?? []) : (rawData is List ? rawData : []);
 
+        List<Map<String, dynamic>> parsedPosts = postData.map((item) => _parsePostItem(item)).toList();
+        await Future.wait(parsedPosts.map((post) => loadCommentsForPost(post)));
+
         if (isMission) {
-          missionPosts.value = postData.map((item) => _parsePostItem(item)).toList();
+          missionPosts.assignAll(parsedPosts);
+          missionPosts.refresh();
         } else {
-          freePosts.value = postData.map((item) => _parsePostItem(item)).toList();
+          freePosts.assignAll(parsedPosts);
+          freePosts.refresh();
         }
       }
     } catch (_) {
@@ -421,7 +440,12 @@ class GroupController extends GetxController {
       if (response.statusCode == 200) {
         final dynamic rawPosts = jsonDecode(utf8.decode(response.bodyBytes));
         List postData = (rawPosts is Map) ? (rawPosts['posts'] ?? []) : (rawPosts is List ? rawPosts : []);
-        historyMissionPosts.value = postData.map((item) => _parsePostItem(item)).toList();
+        
+        List<Map<String, dynamic>> parsedHistoryPosts = postData.map((item) => _parsePostItem(item)).toList();
+        await Future.wait(parsedHistoryPosts.map((post) => loadCommentsForPost(post)));
+        
+        historyMissionPosts.assignAll(parsedHistoryPosts);
+        historyMissionPosts.refresh();
       }
     } catch (_) {}
     finally { isLoading.value = false; }
@@ -697,7 +721,7 @@ class GroupController extends GetxController {
     final bool isMissionPost = (postType == "MISSION" || postType == "mission");
     final int baseLikes = int.tryParse((item["likeCount"] ?? item["likesCount"] ?? 0).toString()) ?? 0;
     final bool baseIsLiked = item["isLiked"] ?? false;
-    final int parsedBookId = int.tryParse(item["bookId"]?.toString() ?? "0") ?? 0;
+    final int parsedBookId = int.tryParse((item["id"] ?? item["bookId"])?.toString() ?? "0") ?? 0;
 
     String finalTitle = "";
     String finalAuthor = "";

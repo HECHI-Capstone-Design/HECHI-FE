@@ -50,14 +50,12 @@ class _GroupPostCardState extends State<GroupPostCard> {
           rxDiscussion.value = Map<String, dynamic>.from(discussionObj);
           hasPoll.value = true;
           
-          // 🚨 [긴급 수리]: 상세 조회 응답 객체에 comments가 누락되어 기존 댓글 데이터를 초기화하는 현상 원천 차단
           final dynamic existingComments = widget.post["comments"];
           
           widget.post["discussion"] = discussionObj;
           widget.post["hasPoll"] = true;
           widget.post["isDiscussion"] = true;
           
-          // 기존 댓글 자원이 이미 들어와 있는 상태라면 오버라이딩되지 않도록 안전하게 락인(Lock) 마감
           if (existingComments != null) {
             widget.post["comments"] = existingComments;
           }
@@ -117,7 +115,7 @@ class _GroupPostCardState extends State<GroupPostCard> {
             const SizedBox(height: 16),
             GestureDetector(
               onTap: () {
-                Get.toNamed('/book/detail', arguments: targetBookId);
+                Get.toNamed('/book_detail_page', arguments: targetBookId);
               },
               child: Container(
                 padding: const EdgeInsets.all(12),
@@ -208,7 +206,11 @@ class _GroupPostCardState extends State<GroupPostCard> {
                       isScrollControlled: true,
                       backgroundColor: Colors.transparent,
                       barrierColor: Colors.black.withOpacity(0.4),
-                    );
+                    ).then((_) {
+                      if (livePost["comments"] is RxList) {
+                        (livePost["comments"] as RxList).refresh();
+                      }
+                    });
                   },
                   child: Row(
                     mainAxisSize: MainAxisSize.min,

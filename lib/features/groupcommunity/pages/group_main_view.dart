@@ -39,7 +39,7 @@ class GroupMainView extends GetView<GroupController> {
               ),
               onPressed: () {
                 if (hasBook) {
-                  Get.toNamed('/book/detail', arguments: controller.currentMissionBookId.value);
+                  Get.toNamed('/book_detail_page', arguments: controller.currentMissionBookId.value);
                 } else {
                   Get.snackbar("알림", "현재 선정된 미션책이 없습니다. 메뉴에서 미션책을 변경해보세요!");
                 }
@@ -74,7 +74,7 @@ class GroupMainView extends GetView<GroupController> {
                     return GestureDetector(
                       onTap: () {
                         if (hasBook) {
-                          Get.toNamed('/book/detail', arguments: controller.currentMissionBookId.value);
+                          Get.toNamed('/book_detail_page', arguments: controller.currentMissionBookId.value);
                         }
                       },
                       child: Container(
@@ -155,29 +155,89 @@ class GroupMainView extends GetView<GroupController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text("그룹명 미션 독서 진행률", style: TextStyle(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w500)),
+                      Obx(() {
+                        final name = controller.groupName.value.isEmpty ? "그룹" : controller.groupName.value;
+                        return Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: name,
+                                style: const TextStyle(
+                                  fontSize: 13, 
+                                  color: Colors.black87, 
+                                  fontWeight: FontWeight.bold, 
+                                ),
+                              ),
+                              const TextSpan(
+                                text: " 미션 독서 진행률",
+                                style: TextStyle(
+                                  fontSize: 13, 
+                                  color: Colors.black87, 
+                                  fontWeight: FontWeight.w500, 
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
                       const SizedBox(height: 6),
-                      Obx(() => ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: LinearProgressIndicator(
-                              value: controller.groupAverageProgress.value,
-                              backgroundColor: Colors.grey.shade100,
-                              valueColor: const AlwaysStoppedAnimation<Color>(unifiedGreen), 
-                              minHeight: 10,
+                      Obx(() {
+                        final int percent = (controller.groupAverageProgress.value * 100).clamp(0, 100).toInt();
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: LinearProgressIndicator(
+                                  value: controller.groupAverageProgress.value,
+                                  backgroundColor: Colors.grey.shade100,
+                                  valueColor: const AlwaysStoppedAnimation<Color>(unifiedGreen), 
+                                  minHeight: 10,
+                                ),
+                              ),
                             ),
-                          )),
+                            const SizedBox(width: 12),
+                            SizedBox(
+                              width: 36,
+                              child: Text(
+                                "$percent%",
+                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                                textAlign: TextAlign.end,
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
                       const SizedBox(height: 16),
                       const Text("나의 미션 독서 진행률", style: TextStyle(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w500)),
                       const SizedBox(height: 6),
-                      Obx(() => ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: LinearProgressIndicator(
-                              value: controller.myProgress.value,
-                              backgroundColor: Colors.grey.shade100,
-                              valueColor: const AlwaysStoppedAnimation<Color>(unifiedGreen), 
-                              minHeight: 10,
+                      Obx(() {
+                        final int percent = (controller.myProgress.value * 100).clamp(0, 100).toInt();
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: LinearProgressIndicator(
+                                  value: controller.myProgress.value,
+                                  backgroundColor: Colors.grey.shade100,
+                                  valueColor: const AlwaysStoppedAnimation<Color>(unifiedGreen), 
+                                  minHeight: 10,
+                                ),
+                              ),
                             ),
-                          )),
+                            const SizedBox(width: 12),
+                            SizedBox(
+                              width: 36,
+                              child: Text(
+                                "$percent%",
+                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                                textAlign: TextAlign.end,
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
                     ],
                   ),
                 ),
@@ -442,7 +502,6 @@ class GroupAnnouncementListView extends GetView<GroupController> {
   }
 
   void _showAnnouncementOptions(BuildContext context, Map<String, dynamic> ann) {
-    // 🎯 [완치 3]: 안전 가드 널 처리 및 RxBool 값 추출 안전망 세우기
     final bool isPinned = ann["isPinned"]?.value ?? false;
 
     Get.bottomSheet(
@@ -459,9 +518,8 @@ class GroupAnnouncementListView extends GetView<GroupController> {
                 leading: Icon(isPinned ? Icons.push_pin_outlined : Icons.push_pin, color: Colors.blue),
                 title: Text(isPinned ? "상단 고정 해제 (글 밑으로 내리기)" : "가장 상단에 올리기 (핀 고정)"),
                 onTap: () async {
-                  Get.back(); // 바텀시트 먼저 닫기
+                  Get.back(); 
 
-                  // 🎯 [완치 4]: 백엔드 API 연동 누락 메서드 동기화 슛
                   await controller.togglePinAnnouncement(ann);
                   Get.snackbar("알림", isPinned ? "공지 고정이 해제되었습니다." : "공지가 최상단에 고정되었습니다.");
                 },
