@@ -63,6 +63,28 @@ class AiSummaryPage extends GetView<AiSummaryController> {
         );
       }
 
+      // 생성 요청 후 폴링 중
+      if (controller.isGenerating.value) {
+        return const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(color: Color(0xFF4DB56C)),
+              SizedBox(height: 16),
+              Text(
+                'AI가 요약을 생성 중입니다...',
+                style: TextStyle(
+                  color: Color(0xFF717171),
+                  fontSize: 15,
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+
       if (controller.summaryText.value.isEmpty) {
         return _buildEmptyState();
       }
@@ -75,74 +97,215 @@ class AiSummaryPage extends GetView<AiSummaryController> {
   Widget _buildSummaryContent() {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8F8F8),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: const [
-                    Icon(Icons.auto_awesome, size: 16, color: Color(0xFF4DB56C)),
-                    SizedBox(width: 6),
-                    Text(
-                      'AI 요약',
-                      style: TextStyle(
-                        color: Color(0xFF4DB56C),
-                        fontSize: 13,
-                        fontFamily: 'Roboto',
-                        fontWeight: FontWeight.w500,
+      child: Obx(() {
+        final content = controller.summaryText.value;
+        final keyPoints = controller.keyPoints;
+        final notesDigest = controller.notesDigest;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: const Color(0xFFE5E5E5), width: 0.5),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── 요약
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: const [
+                            Icon(Icons.auto_awesome, size: 16, color: Color(0xFF4DB56C)),
+                            SizedBox(width: 6),
+                            Text(
+                              'AI 요약',
+                              style: TextStyle(
+                                color: Color(0xFF4DB56C),
+                                fontSize: 13,
+                                fontFamily: 'Roboto',
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          content,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF3F3F3F),
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.w400,
+                            height: 1.75,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // ── 주요 내용
+                  if (keyPoints.isNotEmpty) ...[
+                    const Divider(height: 1, thickness: 0.5, color: Color(0xFFE5E5E5)),
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 3,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: Color(0xFF4DB56C),
+                                  borderRadius: BorderRadius.all(Radius.circular(2)),
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                '주요 내용',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF3F3F3F),
+                                  fontFamily: 'Roboto',
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          ...keyPoints.map((point) => Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  width: 4,
+                                  height: 4,
+                                  margin: const EdgeInsets.only(top: 8, right: 8),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFBDBDBD),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    point,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Color(0xFF3F3F3F),
+                                      fontFamily: 'Roboto',
+                                      fontWeight: FontWeight.w400,
+                                      height: 1.6,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )),
+                        ],
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 12),
-                Obx(() => Text(
-                  controller.summaryText.value,
-                  style: const TextStyle(
-                    color: Color(0xFF3F3F3F),
-                    fontSize: 14,
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.w400,
-                    height: 1.75,
-                  ),
-                )),
-                const SizedBox(height: 16),
-                const Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
-                const SizedBox(height: 12),
 
-                // ── 재생성 버튼
-                GestureDetector(
-                  onTap: () => controller.fetchSummary(),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.refresh, size: 14, color: Color(0xFFABABAB)),
-                      SizedBox(width: 4),
-                      Text(
-                        '다시 생성',
-                        style: TextStyle(
-                          color: Color(0xFFABABAB),
-                          fontSize: 13,
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.w400,
-                        ),
+                  // ── 내가 남긴 메모
+                  if (notesDigest.isNotEmpty) ...[
+                    const Divider(height: 1, thickness: 0.5, color: Color(0xFFE5E5E5)),
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 3,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: Color(0xFF4DB56C),
+                                  borderRadius: BorderRadius.all(Radius.circular(2)),
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                '내가 남긴 메모',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF3F3F3F),
+                                  fontFamily: 'Roboto',
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          ...notesDigest.map((note) => Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.only(left: 12, top: 2, bottom: 2),
+                              decoration: const BoxDecoration(
+                                border: Border(
+                                  left: BorderSide(color: Color(0xFFBDBDBD), width: 2),
+                                ),
+                              ),
+                              child: Text(
+                                note,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFF3F3F3F),
+                                  fontFamily: 'Roboto',
+                                  fontWeight: FontWeight.w400,
+                                  height: 1.65,
+                                ),
+                              ),
+                            ),
+                          )),
+                        ],
                       ),
-                    ],
+                    ),
+                  ],
+
+                  // ── 다시 생성
+                  const Divider(height: 1, thickness: 0.5, color: Color(0xFFE5E5E5)),
+                  GestureDetector(
+                    onTap: () => controller.fetchSummary(),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      alignment: Alignment.center,
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.refresh, size: 14, color: Color(0xFFBDBDBD)),
+                          SizedBox(width: 6),
+                          Text(
+                            '다시 생성',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFFBDBDBD),
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      }),
     );
   }
 
