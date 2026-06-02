@@ -1,20 +1,18 @@
+// D:\HECHI\lib\features\reading_registration\widgets\current_reading_book_widget.dart 전면 교체
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../data/models/reading_library_model.dart';
 import '../controllers/reading_registration_controller.dart';
 
 class CurrentReadingBookWidget extends StatelessWidget {
-  final ReadingLibraryItem? item;
-
-  const CurrentReadingBookWidget({
-    Key? key,
-    required this.item,
-  }) : super(key: key);
+  // 🎯 [완치 핵심 1]: 외부에서 주입받아 0초로 강제 오염시키던 불필요한 'final item' 인자를 전면 삭제합니다!
+  const CurrentReadingBookWidget({Key? key}) : super(key: key);
 
   static const Color mainColor = Color(0xFF4DB56C);
 
   String _formatTime(int seconds) {
-    if (seconds == 0) return "00:00";
+    if (seconds <= 0) return "00:00";
     final h = (seconds ~/ 3600).toString().padLeft(2, '0');
     final m = ((seconds % 3600) ~/ 60).toString().padLeft(2, '0');
     final s = (seconds % 60).toString().padLeft(2, '0');
@@ -27,6 +25,7 @@ class CurrentReadingBookWidget extends StatelessWidget {
     final controller = Get.find<ReadingRegistrationController>();
 
     return Obx(() {
+      // 🎯 [완치 핵심 2]: 이제 오직 컨트롤러가 지켜낸 완벽한 실시간 가드 데이터 스트림만 화면에 뿜어냅니다.
       final activeItem = controller.currentActiveBook.value;
 
       if (activeItem == null) {
@@ -163,7 +162,7 @@ class CurrentReadingBookWidget extends StatelessWidget {
                               isReadingNow
                                   ? "현재 ${_formatTime(currentSessionSeconds)} | 총 ${_formatTime(totalAccumulatedSeconds)}"
                                   : "총 ${_formatTime(totalAccumulatedSeconds)}",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.normal,
                                 color: Colors.black87,

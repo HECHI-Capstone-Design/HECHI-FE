@@ -113,4 +113,29 @@ class ReadingRegistrationRepository extends GetConnect {
     }
     return null;
   }
+  Future<List<ReadingRegistrationSession>> getReadingSessions(int bookId) async {
+    String token = box.read('access_token') ?? '';
+
+    // 💡 Swagger 명세 규격: GET /reading/sessions?book_id={bookId} 완벽 싱크 바인딩
+    final response = await get(
+      '/reading/sessions',
+      query: {'book_id': bookId.toString()},
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+
+    if (response.status.hasError) {
+      print("🚨 리포지토리 세션 목록 조회 실패: ${response.statusText}");
+      return [];
+    }
+
+    if (response.body != null) {
+      // 바디가 정상 List 형태로 들어오면 map 엔진 가동하여 오브젝트화
+      final List<dynamic> rawList = response.body is List ? response.body : [];
+      return rawList.map((e) => ReadingRegistrationSession.fromJson(e)).toList();
+    }
+    return [];
+  }
 }
