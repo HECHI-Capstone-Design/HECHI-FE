@@ -165,8 +165,8 @@ class _GroupPostCardState extends State<GroupPostCard> {
             ),
           ],
 
-          if (widget.post["recordType"] != null)
-          _buildSharedNoteCard(widget.post),
+          if ((widget.post["recordDataList"] as List?)?.isNotEmpty == true)
+            _buildSharedNoteCards(widget.post),
 
           const SizedBox(height: 16),
 
@@ -351,36 +351,31 @@ class _GroupPostCardState extends State<GroupPostCard> {
     );
   }
 
-  Widget _buildSharedNoteCard(Map<String, dynamic> post) {
-    final String recordType = post["recordType"]?.toString() ?? "";
-    final Map<String, dynamic> data =
-    post["recordData"] is Map
-        ? Map<String, dynamic>.from(post["recordData"])
-        : {};
+  Widget _buildSharedNoteCards(Map<String, dynamic> post) {
+    final List<Map<String, dynamic>> list =
+    List<Map<String, dynamic>>.from(post["recordDataList"] ?? []);
 
-    if (data.isEmpty) return const SizedBox.shrink();
+    if (list.isEmpty) return const SizedBox.shrink();
 
-    final int bookId = int.tryParse(post["bookId"]?.toString() ?? "0") ?? 0;
+    return Column(
+      children: list.map((entry) {
+        final String recordType = entry["recordType"]?.toString() ?? "";
+        final Map<String, dynamic> data = Map<String, dynamic>.from(entry["recordData"] ?? {});
 
-    void goToBookNote() {
-      if (bookId != 0) {
-        Get.toNamed('/book_note', arguments: {
-          'bookId': bookId,
-          'tabIndex': recordType == "BOOKMARK" ? 0
-              : recordType == "HIGHLIGHT" ? 1
-              : 2,
-        });
-      }
-    }
+        if (data.isEmpty) return const SizedBox.shrink();
 
-    return GestureDetector(
-      onTap: goToBookNote,
-      child: switch (recordType) {
-        "BOOKMARK"  => BookmarkItem(data: data, isReadOnly: true, isPreview: true),
-        "HIGHLIGHT" => HighlightItem(data: data, isReadOnly: true, isPreview: true),
-        "NOTE"      => MemoItem(data: data, isReadOnly: true, isPreview: true),
-        _           => const SizedBox.shrink(),
-      },
+        final Widget noteWidget = switch (recordType) {
+          "BOOKMARK"  => BookmarkItem(data: data, isReadOnly: true, isPreview: true),
+          "HIGHLIGHT" => HighlightItem(data: data, isReadOnly: true, isPreview: true),
+          "NOTE"      => MemoItem(data: data, isReadOnly: true, isPreview: true),
+          _           => const SizedBox.shrink(),
+        };
+
+        return Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: SizedBox(width: double.infinity, child: noteWidget),
+        );
+      }).toList(),
     );
   }
 
