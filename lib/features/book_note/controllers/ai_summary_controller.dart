@@ -33,7 +33,21 @@ class AiSummaryController extends GetxController {
       if (currentStatus == 'READY') {
         _applyContent(data);
       } else {
-        await requestGenerate();
+        await api.post("/books/$bookId/reading-summary/generate", {});
+        final isReady = await _pollUntilReadyOrTimeout();
+        if (!isReady) {
+          Get.back();
+          Get.snackbar(
+            'AI 요약 생성 중',
+            '요약을 생성하고 있습니다. 완료되면 알림을 드릴게요.',
+            snackPosition: SnackPosition.TOP,
+            margin: const EdgeInsets.all(16),
+            borderRadius: 8,
+          );
+          if (Get.isRegistered<BookNoteController>()) {
+            Get.find<BookNoteController>().pollUntilReadyInBackground();
+          }
+        }
       }
     } catch (e) {
       print("❌ Load Summary Error: $e");
@@ -42,97 +56,27 @@ class AiSummaryController extends GetxController {
     }
   }
 
-  /// ===================== 수동 생성 요청 (POST) =====================
-  Future<void> requestGenerate() async {
+  /// ===================== 폴링 =====================
+  Future<bool> _pollUntilReadyOrTimeout({int maxRetries = 3}) async {
     isGenerating.value = true;
     try {
-      await api.post("/books/$bookId/reading-summary/generate", {});
-      await _pollUntilReady();
-    } catch (e) {
-      print("❌ Generate Summary Error: $e");
+      for (int i = 0; i < maxRetries; i++) {
+        await Future.delayed(const Duration(seconds: 5));
+        try {
+          final data = await api.get("/books/$bookId/reading-summary");
+          final currentStatus = data['status'] ?? '';
+          if (currentStatus == 'READY') {
+            _applyContent(data);
+            return true;
+          }
+        } catch (e) {
+          print("❌ Poll Error: $e");
+        }
+      }
+      return false;
     } finally {
       isGenerating.value = false;
     }
-  }
-
-  /// ===================== 폴링 =====================
-  Future<void> _pollUntilReady({int maxRetries = 20}) async {
-    for (int i = 0; i < maxRetries; i++) {
-      await Future.delayed(const Duration(seconds: 5));
-      try {
-        final data = await api.get("/books/$bookId/reading-summary");
-        final currentStatus = data['status'] ?? '';
-        print("📊 폴링 $i: status = $currentStatus");
-        if (currentStatus == 'READY') {
-          _applyContent(data);
-          return;
-        }
-      } catch (e) {
-        print("❌ Poll Error: $e");
-      }
-    }
-    print("❌ 폴링 타임아웃");
-    _showTimeoutDialog();
-  }
-
-  void _showTimeoutDialog() {
-    Get.dialog(
-      Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Container(
-          width: 200,
-          height: 107,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(
-            children: [
-              const Expanded(
-                child: Center(
-                  child: Text(
-                    '요약 생성이 지연되고 있습니다.\n잠시 후 다시 시도해주세요.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Color(0xFF3F3F3F),
-                      fontSize: 14,
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.w400,
-                      height: 1.75,
-                    ),
-                  ),
-                ),
-              ),
-              Container(height: 1, color: const Color(0xFFF3F3F3)),
-              SizedBox(
-                height: 36,
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(10),
-                      bottomRight: Radius.circular(10),
-                    ),
-                    onTap: () => Get.back(),
-                    child: const Center(
-                      child: Text(
-                        '닫기',
-                        style: TextStyle(
-                          color: Color(0xFF4DB56C),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   /// ===================== 요약 내용 적용 =====================
@@ -161,8 +105,29 @@ class AiSummaryController extends GetxController {
   /// ===================== 다시 생성 =====================
   Future<void> fetchSummary() async {
     summaryText.value = '';
+    keyPoints.value = [];
+    notesDigest.value = [];
     status.value = '';
-    await requestGenerate();
+
+    try {
+      await api.post("/books/$bookId/reading-summary/generate", {});
+      final isReady = await _pollUntilReadyOrTimeout();
+      if (!isReady) {
+        Get.back();
+        Get.snackbar(
+          'AI 요약 생성 중',
+          '요약을 생성하고 있습니다. 완료되면 알림을 드릴게요.',
+          snackPosition: SnackPosition.TOP,
+          margin: const EdgeInsets.all(16),
+          borderRadius: 8,
+        );
+        if (Get.isRegistered<BookNoteController>()) {
+          Get.find<BookNoteController>().pollUntilReadyInBackground();
+        }
+      }
+    } catch (e) {
+      print("❌ Fetch Summary Error: $e");
+    }
   }
 
   /// ===================== 삭제 =====================

@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'group_share_mixin.dart';
-import '../../controllers/ai_summary_controller.dart';
 
 class AiSummaryOptionBottomSheet extends StatelessWidget with GroupShareMixin {
   final VoidCallback? onDelete;
-  final VoidCallback? onShareToGroup;
 
   const AiSummaryOptionBottomSheet({
     super.key,
     this.onDelete,
-    this.onShareToGroup,
   });
 
   @override
@@ -59,19 +56,6 @@ class AiSummaryOptionBottomSheet extends StatelessWidget with GroupShareMixin {
               onTap: () {
                 Get.back();
                 _showDeleteDialog();
-              },
-            ),
-            _buildOption(
-              label: "그룹 공유",
-              onTap: () {
-                Get.back();
-                // TODO: 그룹 연결
-                /*
-                openGroupShareFlow(
-                  itemType: 'ai_summary',
-                  itemData: {'summary': Get.find<AiSummaryController>().summaryText.value},
-                );
-                 */
               },
             ),
             const SizedBox(height: 30),

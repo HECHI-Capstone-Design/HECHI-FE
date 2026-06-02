@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../services/api_service.dart';
+import '../controllers/ai_summary_controller.dart';
+import '../pages/ai_summary_page.dart';
 
 class BookNoteController extends GetxController with GetSingleTickerProviderStateMixin {
   final ApiService api = ApiService();
@@ -317,5 +319,39 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
     if (isStillLoading) return true;
 
     return bookmarks.isNotEmpty || highlights.isNotEmpty || notes.isNotEmpty;
+  }
+
+  Future<void> pollUntilReadyInBackground({int maxRetries = 60}) async {
+    for (int i = 0; i < maxRetries; i++) {
+      await Future.delayed(const Duration(seconds: 5));
+      try {
+        final data = await api.get("/books/$bookId/reading-summary");
+        final currentStatus = data['status'] ?? '';
+        if (currentStatus == 'READY') {
+          hasSummary.value = true;
+          Get.snackbar(
+            'AI 메모 요약 완료',
+            '요약이 생성되었습니다. 확인해보세요!',
+            snackPosition: SnackPosition.TOP,
+            margin: const EdgeInsets.all(16),
+            borderRadius: 8,
+            onTap: (_) {
+              Get.to(
+                    () => const AiSummaryPage(),
+                arguments: {'bookId': bookId},
+                binding: BindingsBuilder(() {
+                  Get.delete<AiSummaryController>(force: true);
+                  Get.lazyPut(() => AiSummaryController());
+                }),
+              );
+            },
+          );
+          return;
+        }
+      } catch (e) {
+        print("❌ Background Poll Error: $e");
+      }
+    }
+    print("❌ 백그라운드 폴링 타임아웃");
   }
 }

@@ -40,52 +40,27 @@ class BookInfoHeader extends GetView<BookNoteController> {
                 children: [
                   GestureDetector(
                     onTap: () async {
-                      // 이미 요약 있으면 바로 이동
                       if (controller.hasSummary.value) {
-                        Get.to(
-                              () => const AiSummaryPage(),
+                        Get.to(() => const AiSummaryPage(),
                           arguments: {'bookId': controller.bookId},
                           binding: BindingsBuilder(() {
+                            Get.delete<AiSummaryController>(force: true);
                             Get.lazyPut(() => AiSummaryController());
                           }),
                         );
                         return;
                       }
 
-                      // 기록 자체가 없으면 불가 다이얼로그
                       if (!controller.hasAiSummaryContent()) {
                         _showNoContentDialog();
                         return;
                       }
 
-                      // 생성 요건 체크 (GET 호출)
                       try {
                         final data = await controller.api.get("/books/${controller.bookId}/reading-summary");
-
-                        // 응답값 확인용 추가
-                        print("📊 autoEligible: ${data['autoEligible']}");
-                        print("📊 stats: ${data['stats']}");
-
                         final autoEligible = data['autoEligible'] ?? false;
-                        final stats = data['stats'] ?? {};
 
-                        final noteCount = stats['noteCount'] ?? 0;
-                        final noteCharacterCount = stats['noteCharacterCount'] ?? 0;
-                        final highlightCount = stats['highlightCount'] ?? 0;
-                        final bookmarkCount = stats['bookmarkCount'] ?? 0;
-
-                        print("📊 noteCount: $noteCount, noteCharacterCount: $noteCharacterCount");
-                        print("📊 highlightCount: $highlightCount, bookmarkCount: $bookmarkCount");
-
-                        final isEligible = autoEligible ||
-                            noteCount >= 3 ||
-                            highlightCount >= 3 ||
-                            bookmarkCount >= 3 ||
-                            noteCharacterCount >= 500;
-
-                        print("📊 isEligible: $isEligible");
-
-                        if (!isEligible) {
+                        if (!autoEligible) {
                           _showIneligibleDialog();
                           return;
                         }
@@ -93,7 +68,6 @@ class BookInfoHeader extends GetView<BookNoteController> {
                         print("❌ Eligibility Check Error: $e");
                       }
 
-                      // 요건 충족 시 페이지 이동
                       Get.to(
                             () => const AiSummaryPage(),
                         arguments: {'bookId': controller.bookId},
