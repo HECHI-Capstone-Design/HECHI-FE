@@ -42,9 +42,7 @@ class ReadingRegistrationView extends GetView<ReadingRegistrationController> {
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: CurrentReadingBookWidget(
-                    item: controller.currentActiveBook.value,
-                  ),
+                  child: const CurrentReadingBookWidget()
                 ),
 
                 const SizedBox(height: 40),
