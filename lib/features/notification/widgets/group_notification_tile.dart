@@ -139,7 +139,7 @@ class GroupNotificationTile extends StatelessWidget {
   }
 }
 
-// 📚 책 표지 썸네일 (60x60 일괄 적용)
+// 📚 책 표지 썸네일 (60x80 일괄 적용)
 class _BookThumbnail extends StatelessWidget {
   final String? imageUrl;
   const _BookThumbnail({this.imageUrl});
@@ -149,7 +149,7 @@ class _BookThumbnail extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(4),
       child: Container(
-        width: 60, height: 60, color: const Color(0xFFF3F3F3),
+        width: 60, height: 80, color: const Color(0xFFF3F3F3),
         child: imageUrl != null && imageUrl!.isNotEmpty
             ? Image.network(imageUrl!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.book, color: kNotifBorder, size: 28))
             : const Icon(Icons.book, color: kNotifBorder, size: 28),

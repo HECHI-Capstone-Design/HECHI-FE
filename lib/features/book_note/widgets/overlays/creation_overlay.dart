@@ -67,10 +67,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
     isPublic = widget.isPublic ?? false;
     _isReadOnly = widget.isReadOnly;
 
-    if (widget.type == "highlight" &&
-        widget.autoStartOcr &&
-        !widget.isEdit &&
-        !_isReadOnly) {
+    if (widget.type == "highlight" && widget.autoStartOcr && !widget.isEdit && !_isReadOnly) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted || _hasTriggeredAutoOcr) return;
         _hasTriggeredAutoOcr = true;
@@ -93,18 +90,18 @@ class _CreationOverlayState extends State<CreationOverlay> {
     final controller = Get.find<BookNoteController>();
 
     return Container(
-      height: MediaQuery.of(context).size.height * 0.9,
+      // 🚀 최대 높이를 제한하되, 기기 화면의 92%까지만 허용 (노치 대응)
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.92),
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)), // 모서리 살짝 더 둥글게
       ),
       clipBehavior: Clip.hardEdge,
-
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        resizeToAvoidBottomInset: false,
-
+        resizeToAvoidBottomInset: false, // 🚀 하단 패딩을 수동으로 주므로 false 유지
         body: SafeArea(
+          top: false,
           bottom: false,
           child: widget.type == "bookmark"
               ? _buildBookmarkLayout(controller)
@@ -117,7 +114,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
   }
 
   // =========================================================
-  // 공통 헤더 (취소 / 제목 / 확인)
+  // 공통 헤더
   // =========================================================
   Widget _buildHeader(BookNoteController controller) {
     return Padding(
@@ -128,22 +125,14 @@ class _CreationOverlayState extends State<CreationOverlay> {
           TextButton(
             onPressed: () {
               if (_isReadOnly) {
-                setState(() {
-                  _isReadOnly = false;
-                });
+                setState(() => _isReadOnly = false);
               } else {
                 Get.back();
               }
             },
-            child: Text(
-              _isReadOnly ? "수정" : "취소",
-              style: OverlayCommon.actionStyle,
-            ),
+            child: Text(_isReadOnly ? "수정" : "취소", style: OverlayCommon.actionStyle),
           ),
-          Text(
-            _title(),
-            style: OverlayCommon.headerStyle,
-          ),
+          Text(_title(), style: OverlayCommon.headerStyle),
           TextButton(
             onPressed: () {
               if (_isReadOnly) {
@@ -154,9 +143,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
             },
             child: Text(
               _isReadOnly ? "닫기" : "확인",
-              style: OverlayCommon.actionStyle.copyWith(
-                color: Colors.black,
-              ),
+              style: OverlayCommon.actionStyle.copyWith(color: Colors.black),
             ),
           ),
         ],
@@ -166,14 +153,10 @@ class _CreationOverlayState extends State<CreationOverlay> {
 
   String _title() {
     if (_isReadOnly) return "상세 보기";
-
     switch (widget.type) {
-      case "bookmark":
-        return widget.isEdit ? "북마크 수정" : "북마크 작성";
-      case "highlight":
-        return widget.isEdit ? "하이라이트 수정" : "하이라이트 작성";
-      default:
-        return widget.isEdit ? "메모 수정" : "메모 작성";
+      case "bookmark": return widget.isEdit ? "북마크 수정" : "북마크 작성";
+      case "highlight": return widget.isEdit ? "하이라이트 수정" : "하이라이트 작성";
+      default: return widget.isEdit ? "메모 수정" : "메모 작성";
     }
   }
 
@@ -183,17 +166,8 @@ class _CreationOverlayState extends State<CreationOverlay> {
   Widget _buildBookmarkLayout(BookNoteController controller) {
     return Column(
       children: [
-        // --------------------- Header ---------------------
         _buildHeader(controller),
-
-        // --------------------- Divider ---------------------
-        Container(
-          width: double.infinity,
-          height: 1,
-          color: const Color(0xFFF3F3F3),
-        ),
-
-        // --------------------- 연두색 영역 (페이지 입력) ---------------------
+        Container(width: double.infinity, height: 1, color: const Color(0xFFF3F3F3)),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 15),
@@ -201,68 +175,44 @@ class _CreationOverlayState extends State<CreationOverlay> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const Text(
-                "p.",
-                style: TextStyle(
-                  color: Color(0xFF717171),
-                  fontSize: 15,
-                  height: 1.67,
-                ),
-              ),
+              const Text("p.", style: TextStyle(color: Color(0xFF717171), fontSize: 15, height: 1.67)),
               const SizedBox(width: 5),
               Expanded(
                 child: TextField(
                   controller: pageController,
                   readOnly: _isReadOnly,
                   keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    isCollapsed: true,
+                    border: InputBorder.none, isCollapsed: true,
                     hintText: "북마크할 페이지 번호를 입력해주세요.",
-                    hintStyle: TextStyle(
-                      color: Color(0xFFABABAB),
-                      fontSize: 13,
-                      height: 1.9,
-                    ),
+                    hintStyle: TextStyle(color: Color(0xFFABABAB), fontSize: 13, height: 1.9),
                   ),
-                  style: const TextStyle(
-                    color: Color(0xFF3F3F3F),
-                    fontSize: 15,
-                    height: 1.67,
-                  ),
+                  style: const TextStyle(color: Color(0xFF3F3F3F), fontSize: 15, height: 1.67),
                 ),
               ),
             ],
           ),
         ),
-
-        // --------------------- 메모 입력 ---------------------
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 16),
+          // 🚀 수정: 키보드 올라와도 터지지 않게 스크롤뷰 적용 및 expands 제거
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: EdgeInsets.only(
+              left: 17, right: 17, top: 16,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 16, // 키보드 패딩
+            ),
             child: TextField(
               controller: memoController,
               readOnly: _isReadOnly,
+              minLines: 8, // 최소 높이 확보
               maxLines: null,
-              expands: true,
-              textAlignVertical: TextAlignVertical.top,
               decoration: const InputDecoration(
                 border: InputBorder.none,
                 hintText: "페이지에 대한 생각을 자유롭게 적어주세요.",
-                hintStyle: TextStyle(
-                  color: Color(0xFFABABAB),
-                  fontSize: 13,
-                  height: 2.15,
-                ),
+                hintStyle: TextStyle(color: Color(0xFFABABAB), fontSize: 13, height: 2.15),
               ),
-              style: const TextStyle(
-                color: Color(0xFF3F3F3F),
-                fontSize: 15,
-                height: 1.6,
-              ),
+              style: const TextStyle(color: Color(0xFF3F3F3F), fontSize: 15, height: 1.6),
             ),
           ),
         ),
@@ -273,191 +223,132 @@ class _CreationOverlayState extends State<CreationOverlay> {
   // =========================================================
   // highlight 레이아웃
   // =========================================================
-
   Widget _buildHighlightLayout(BookNoteController controller, BuildContext context) {
     return Column(
       children: [
-        // --------------------- Header ---------------------
         _buildHeader(controller),
+        Container(width: double.infinity, height: 1, color: const Color(0xFFF3F3F3)),
 
-        // --------------------- Divider ---------------------
-        Container(
-          width: double.infinity,
-          height: 1,
-          color: const Color(0xFFF3F3F3),
-        ),
-
-        // --------------------- 내용 영역 ---------------------
         Expanded(
-          child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: double.infinity,
-                constraints: const BoxConstraints(
-                  maxHeight: 160,
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 15),
-                decoration: const BoxDecoration(
-                  color: Color(0x7FD1ECD9),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (!_isReadOnly)
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: GestureDetector(
-                          onTap: _isExtractingOcr
-                              ? null
-                              : _handleHighlightOcrCapture,
-                          behavior: HitTestBehavior.opaque,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (_isExtractingOcr)
-                                const SizedBox(
-                                  width: 14,
-                                  height: 14,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Color(0xFF4DB56C),
-                                  ),
-                                )
-                              else
-                                const Icon(
-                                  Icons.camera_alt_outlined,
-                                  size: 16,
-                                  color: Color(0xFF4DB56C),
+          // 🚀 핵심 수정: 하이라이트 입력 폼 전체를 스크롤 가능하게 묶어줌
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 문장 입력 영역
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 15),
+                  decoration: const BoxDecoration(color: Color(0x7FD1ECD9)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (!_isReadOnly)
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: _isExtractingOcr ? null : _handleHighlightOcrCapture,
+                            behavior: HitTestBehavior.opaque,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (_isExtractingOcr)
+                                  const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF4DB56C)))
+                                else
+                                  const Icon(Icons.camera_alt_outlined, size: 16, color: Color(0xFF4DB56C)),
+                                const SizedBox(width: 6),
+                                Text(
+                                  _isExtractingOcr ? "문장 추출 중..." : "카메라로 문장 가져오기",
+                                  style: const TextStyle(color: Color(0xFF4DB56C), fontSize: 12, fontWeight: FontWeight.w600),
                                 ),
-                              const SizedBox(width: 6),
-                              Text(
-                                _isExtractingOcr
-                                    ? "문장 추출 중..."
-                                    : "카메라로 문장 가져오기",
-                                style: const TextStyle(
-                                  color: Color(0xFF4DB56C),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    if (!_isReadOnly) const SizedBox(height: 10),
-                    Expanded(
-                      child: TextField(
+                      if (!_isReadOnly) const SizedBox(height: 10),
+                      TextField( // 🚀 Expanded 제거, 스크롤 뷰 안에 있으므로 자연스럽게 늘어남
                         controller: sentenceController,
                         readOnly: _isReadOnly,
+                        minLines: 2,
                         maxLines: null,
                         keyboardType: TextInputType.multiline,
                         decoration: const InputDecoration(
-                          isCollapsed: true,
-                          border: InputBorder.none,
+                          isCollapsed: true, border: InputBorder.none,
                           hintText: "하이라이트 문장을 입력해주세요.",
-                          hintStyle: TextStyle(
-                            color: Color(0xFFABABAB),
-                            fontSize: 13,
-                            height: 1.9,
-                          ),
+                          hintStyle: TextStyle(color: Color(0xFFABABAB), fontSize: 13, height: 1.9),
                         ),
-                        style: const TextStyle(
-                          color: Color(0xFF3F3F3F),
-                          fontSize: 15,
-                          height: 1.67,
-                        ),
+                        style: const TextStyle(color: Color(0xFF3F3F3F), fontSize: 15, height: 1.67),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
-
-              // --------------------- 페이지 입력 ---------------------
-              Padding(
-                padding: const EdgeInsets.fromLTRB(17, 14, 17, 0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text(
-                      "p.",
-                      style: TextStyle(
-                        color: Color(0xFFABABAB),
-                        fontSize: 15,
-                        height: 1.67,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: TextField(
-                        controller: pageController,
-                        readOnly: _isReadOnly,
-                        maxLines: 1,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          isCollapsed: true,
-                          hintText: "페이지 번호",
-                          hintStyle: TextStyle(
-                            color: Color(0xFFABABAB),
-                            fontSize: 13,
-                            height: 1.9,
+                // 페이지 입력
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(17, 14, 17, 0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text("p.", style: TextStyle(color: Color(0xFFABABAB), fontSize: 15, height: 1.67)),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: TextField(
+                          controller: pageController,
+                          readOnly: _isReadOnly,
+                          maxLines: 1,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                          decoration: const InputDecoration(
+                            border: InputBorder.none, isCollapsed: true,
+                            hintText: "페이지 번호",
+                            hintStyle: TextStyle(color: Color(0xFFABABAB), fontSize: 13, height: 1.9),
                           ),
-                        ),
-                        style: const TextStyle(
-                          color: Color(0xFF3F3F3F),
-                          fontSize: 15,
-                          height: 1.67,
+                          style: const TextStyle(color: Color(0xFF3F3F3F), fontSize: 15, height: 1.67),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
-              // --------------------- 메모 입력 ---------------------
-              Expanded(
-                child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 16),
-                  child: TextField(
+                // 메모 입력
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 16),
+                  child: TextField( // 🚀 Expanded 제거, 최소 5줄 확보
                     controller: memoController,
                     readOnly: _isReadOnly,
+                    minLines: 5,
                     maxLines: null,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       hintText: "문장에 대한 생각을 자유롭게 적어주세요.",
-                      hintStyle: TextStyle(
-                        color: Color(0xFFABABAB),
-                        fontSize: 13,
-                      ),
+                      hintStyle: TextStyle(color: Color(0xFFABABAB), fontSize: 13),
                     ),
-                    style: const TextStyle(
-                      color: Color(0xFF3F3F3F),
-                      fontSize: 15,
-                      height: 1.6,
-                    ),
+                    style: const TextStyle(color: Color(0xFF3F3F3F), fontSize: 15, height: 1.6),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
 
-        // --------------------- 공개 여부 ---------------------
+        // --------------------- 공개 여부 (바닥 고정) ---------------------
         Container(
           padding: EdgeInsets.fromLTRB(
             17, 16, 17,
+            // 🚀 키보드가 올라오면 스위치 박스 전체를 키보드 위로 예쁘게 밀어올림
             MediaQuery.of(context).viewInsets.bottom > 0
-                ? MediaQuery.of(context).viewInsets.bottom
-                : 16,
+                ? MediaQuery.of(context).viewInsets.bottom + 20 // 키보드 있을 때: 키보드 위로 20px
+                : MediaQuery.of(context).padding.bottom + 20,  // 🚀 키보드 없을 때: 기기 홈 버튼 영역(padding.bottom) + 20px 여백 추가
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            border: Border(top: BorderSide(color: Color(0xFFF3F3F3))), // 구분선 추가
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("공개 여부",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400)),
+              const Text("공개 여부", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400)),
               IgnorePointer(
                 ignoring: _isReadOnly,
                 child: Opacity(
@@ -465,6 +356,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
                   child: Switch(
                     value: isPublic,
                     onChanged: (v) => setState(() => isPublic = v),
+                    activeColor: const Color(0xFF4DB56C),
                   ),
                 ),
               ),
@@ -481,48 +373,27 @@ class _CreationOverlayState extends State<CreationOverlay> {
   Widget _buildMemoLayout(BookNoteController controller) {
     return Column(
       children: [
-        // -----------------------------------------------------
-        // Header
-        // -----------------------------------------------------
         _buildHeader(controller),
-
-        Container(
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            border: Border(
-              top: BorderSide(color: Color(0xFFF3F3F3), width: 1),
-              bottom: BorderSide(color: Color(0xFFF3F3F3), width: 1),
-            ),
-          ),
-        ),
-
-        // -----------------------------------------------------
-        // Memo 입력 영역
-        // -----------------------------------------------------
+        Container(width: double.infinity, height: 1, color: const Color(0xFFF3F3F3)),
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 14),
+          // 🚀 수정: 스크롤뷰 추가 및 expands 옵션 제거
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: EdgeInsets.only(
+              left: 17, right: 17, top: 14,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 16, // 키보드 패딩
+            ),
             child: TextField(
               controller: contentController,
               readOnly: _isReadOnly,
+              minLines: 10,
               maxLines: null,
-              expands: true,
-              textAlignVertical: TextAlignVertical.top,
               decoration: const InputDecoration(
                 border: InputBorder.none,
                 hintText: "작품에 대한 생각을 자유롭게 적어주세요.",
-                hintStyle: TextStyle(
-                  color: Color(0xFFABABAB),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
-                  height: 2.15,
-                ),
+                hintStyle: TextStyle(color: Color(0xFFABABAB), fontSize: 13, fontWeight: FontWeight.w400, height: 2.15),
               ),
-              style: const TextStyle(
-                color: Color(0xFF3F3F3F),
-                fontSize: 15,
-                height: 1.6,
-              ),
+              style: const TextStyle(color: Color(0xFF3F3F3F), fontSize: 15, height: 1.6),
             ),
           ),
         ),
@@ -530,10 +401,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
     );
   }
 
-
-  // =========================================================
-  // Confirm 버튼 로직
-  // =========================================================
+  // Confirm 버튼 로직 등은 기존 코드와 100% 동일하게 유지했습니다.
   Future<void> _onConfirm(BookNoteController controller) async {
     switch (widget.type) {
       case "bookmark":

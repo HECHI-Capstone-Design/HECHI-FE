@@ -8,6 +8,8 @@ import 'package:firebase_messaging/firebase_messaging.dart'; // FCM 사용을 �
 import 'package:hechi/app/routes.dart';
 import 'package:hechi/app/controllers/app_controller.dart';
 import '../../my_read/controllers/my_read_controller.dart';
+import 'package:hechi/features/mainpage/controllers/mainpage_controller.dart';
+import 'package:hechi/features/myGroup/controllers/my_group_controller.dart';
 
 class LoginController extends GetxController {
   // ✅ emailController -> loginIdController 로 변경
@@ -116,10 +118,15 @@ class LoginController extends GetxController {
         final appController = Get.find<AppController>();
         await appController.fetchUserProfile();
 
+        if (Get.isRegistered<MainpageController>()) {
+          Get.delete<MainpageController>();
+        }
+        if (Get.isRegistered<MyGroupController>()) {
+          Get.delete<MyGroupController>();
+        }
         if (Get.isRegistered<MyReadController>()) {
           Get.delete<MyReadController>();
         }
-
         final profile = appController.userProfile;
         bool isAnalyzed = profile['taste_analyzed'] ?? false;
 
