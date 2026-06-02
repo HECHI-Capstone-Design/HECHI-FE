@@ -58,6 +58,7 @@ class BadgeItemWidget extends StatelessWidget {
     }
   }
 
+  // BadgeItemWidget.dart 수정본
   @override
   Widget build(BuildContext context) {
     final bool isEarned = badge.isEarned;
@@ -65,67 +66,56 @@ class BadgeItemWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showBadgeDetailDialog(context),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        // 🚀 Column이 꽉 차지 않게 설정
         children: [
-          AspectRatio(
-            aspectRatio: 1.0,
-            child: Container(
-              decoration: BoxDecoration(
-                color: isEarned ? const Color(0xFFF6FBF7) : const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: isEarned ? const Color(0xFFE2F3E7) : const Color(0xFFEAEAEA),
-                  width: 1,
+          // 1. 위쪽 이미지 영역 (Expanded로 감싸서 남는 공간만 차지하게 함)
+          Expanded(
+            child: AspectRatio(
+              aspectRatio: 1.0,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isEarned ? const Color(0xFFF6FBF7) : const Color(0xFFF5F5F5),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: isEarned ? const Color(0xFFE2F3E7) : const Color(0xFFEAEAEA),
+                    width: 1,
+                  ),
+                ),
+                padding: const EdgeInsets.all(12), // 패딩 살짝 조절
+                child: isEarned
+                    ? Center(
+                  child: Icon(
+                    _getBadgeIcon(badge.code),
+                    color: const Color(0xFF5CBA74),
+                    size: 32, // 🚀 아이콘 크기 살짝 줄임
+                  ),
+                )
+                    : const Center(
+                  child: Text('?', style: TextStyle(fontSize: 24, color: Color(0xFFD2D2D2), fontWeight: FontWeight.bold)),
                 ),
               ),
-              padding: const EdgeInsets.all(16),
-              child: isEarned
-                  ? Center(
-                      child: Icon(
-                        _getBadgeIcon(badge.code), // 💡 고유 아이콘 함수 호출
-                        color: const Color(0xFF5CBA74),
-                        size: 36,
-                      ),
-                    )
-                  : const Center(
-                      child: Text(
-                        '?',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFD2D2D2),
-                        ),
-                      ),
-                    ),
             ),
           ),
-          const SizedBox(height: 10),
-          isEarned
-              ? Text(
-                  badge.title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2A2A2A),
-                    letterSpacing: -0.3,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                )
-              : ImageFiltered(
-                  imageFilter: ImageFilter.blur(sigmaX: 3.5, sigmaY: 3.5),
-                  child: Text(
-                    badge.title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF9E9E9E),
-                    ),
-                    maxLines: 2,
-                  ),
-                ),
+
+          const SizedBox(height: 8), // 이미지와 글자 사이 간격
+
+          // 2. 아래쪽 텍스트 영역
+          // 🚀 획득 전/후 텍스트 공간을 동일하게 확보
+          SizedBox(
+            height: 40, // 🚀 글자 두 줄을 위한 고정 높이 확보 (오버플로우 방지 핵심)
+            child: Text(
+              badge.title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: isEarned ? FontWeight.w600 : FontWeight.w500,
+                color: isEarned ? const Color(0xFF2A2A2A) : const Color(0xFF9E9E9E).withOpacity(0.7),
+                letterSpacing: -0.3,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );

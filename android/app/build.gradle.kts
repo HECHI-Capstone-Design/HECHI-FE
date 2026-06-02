@@ -11,6 +11,8 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        // 🚀 핵심 수정: .kts 파일에서는 앞에 'is'를 붙여야 합니다!
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -25,6 +27,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        multiDexEnabled = true // 🚀 안전장치
     }
 
     buildTypes {
@@ -42,4 +45,6 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.mlkit:text-recognition-korean:16.0.1")
+    // 🚀 필수 라이브러리 추가
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

@@ -130,6 +130,7 @@ abstract class Routes {
   static const groupBoardFree = '/group/board/free';
 
   static const reward = '/reward';
+  static const notification = ' /NotificationPage';
 }
 
 class AppPages {

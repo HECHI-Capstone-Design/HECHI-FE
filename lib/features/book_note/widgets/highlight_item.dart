@@ -40,6 +40,7 @@ class _HighlightItemState extends State<HighlightItem> {
           isPublic: widget.data['is_public'],
         ),
         isScrollControlled: true,
+        ignoreSafeArea: false,
         backgroundColor: Colors.transparent,
       );
     }
