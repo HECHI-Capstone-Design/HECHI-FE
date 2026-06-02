@@ -23,12 +23,16 @@ dependencies:
   firebase_core: ^4.6.0
   firebase_messaging: ^16.1.3
   image_picker: ^1.0.7
+  google_mlkit_text_recognition: ^0.15.1
   flutter_slidable: ^4.0.3
+<<<<<<< HEAD
   permission_handler: ^12.0.3
   flutter_local_notifications: ^20.1.0
   flutter_dotenv: ^5.1.0
 
   google_mlkit_text_recognition: ^0.15.1
+=======
+>>>>>>> 17d898f (feat: add camera OCR flow for highlight capture)
   mobile_ocr_flutter:
     path: packages/mobile_ocr_flutter
 
