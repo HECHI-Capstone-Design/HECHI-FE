@@ -128,6 +128,7 @@ Future<void> sendFcmTokenToBackend(String fcmToken) async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
@@ -135,6 +136,14 @@ class MyApp extends StatelessWidget {
       initialBinding: AppBinding(),
       initialRoute: Routes.splash,
       getPages: AppPages.pages,
+      // ✅ 추가: 키보드로 인한 리사이징 전역 설정
+      builder: (context, child) {
+        return MediaQuery(
+          // 시스템 폰트 크기 변경해도 앱 레이아웃 안 깨지게
+          data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
+          child: child!,
+        );
+      },
     );
   }
 }
