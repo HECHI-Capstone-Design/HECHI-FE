@@ -273,7 +273,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
           maxLines: null,
           decoration: InputDecoration(
             hintText:
-            widget.type == "memo" ? "메모를 입력하세요." : "생각을 적으세요.",
+            widget.type == "memo" ? "메모를 입력하세요." : "생각을 자유롭게 적어주세요.",
             border: InputBorder.none,
           ),
         ),
@@ -328,8 +328,53 @@ class _CreationOverlayState extends State<CreationOverlay> {
   }
 
   Future<void> _onConfirm(BookNoteController controller) async {
-    // 기존 비즈니스 로직 유지
-    Get.back();
+    if (_isReadOnly) {
+      Get.back();
+      return;
+    }
+
+    final pageText = pageController.text.trim();
+    final page = int.tryParse(pageText);
+    final memo = memoController.text.trim();
+    final sentence = sentenceController.text.trim();
+    final content = contentController.text.trim();
+
+    if (widget.type == "bookmark") {
+      if (page == null || page <= 0) {
+        Get.snackbar("입력 오류", "페이지 번호를 입력해주세요.");
+        return;
+      }
+      if (widget.isEdit && widget.itemId != null) {
+        await controller.updateBookmark(widget.itemId!, page, memo);
+      } else {
+        await controller.createBookmark(page, memo);
+      }
+    } else if (widget.type == "highlight") {
+      if (sentence.isEmpty) {
+        Get.snackbar("입력 오류", "문장을 입력해주세요.");
+        return;
+      }
+      if (page == null || page <= 0) {
+        Get.snackbar("입력 오류", "페이지 번호를 입력해주세요.");
+        return;
+      }
+      if (widget.isEdit && widget.itemId != null) {
+        await controller.updateHighlight(widget.itemId!, page, sentence, memo, isPublic);
+      } else {
+        await controller.createHighlight(page, sentence, memo, isPublic);
+      }
+    } else {
+      // memo
+      if (content.isEmpty) {
+        Get.snackbar("입력 오류", "메모 내용을 입력해주세요.");
+        return;
+      }
+      if (widget.isEdit && widget.itemId != null) {
+        await controller.updateMemo(widget.itemId!, content);
+      } else {
+        await controller.createMemo(content);
+      }
+    }
   }
 
   String _title() {

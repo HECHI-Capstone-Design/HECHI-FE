@@ -41,6 +41,10 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
   RxString sortTypeHighlight = "date".obs; // date | page
   RxString sortTextHighlight = "최신 순".obs;
 
+  // Memo
+  RxString sortTypeMemo = "date".obs; // date | oldest
+  RxString sortTextMemo = "최신 순".obs;
+
   /// ===================== Ai Summary =====================
   RxBool hasSummary = false.obs;
 
@@ -324,9 +328,15 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
 
   /// ===================== MEMO SORT =====================
   void sortMemos() {
-    notes.sort((a, b) =>
-        DateTime.parse(b["created_date"])
-            .compareTo(DateTime.parse(a["created_date"])));
+    if (sortTypeMemo.value == "date") {
+      notes.sort((a, b) =>
+          DateTime.parse(b["created_date"])
+              .compareTo(DateTime.parse(a["created_date"])));
+    } else {
+      notes.sort((a, b) =>
+          DateTime.parse(a["created_date"])
+              .compareTo(DateTime.parse(b["created_date"])));
+    }
     notes.refresh();
   }
 
