@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/book_note_controller.dart';
 import '../widgets/memo_item.dart';
+import '../widgets/dialogs/sort_bottom_sheet.dart';
 import '../widgets/overlays/creation_overlay.dart';
 
 class MemoTab extends GetView<BookNoteController> {
@@ -46,8 +47,24 @@ class MemoTab extends GetView<BookNoteController> {
         border: Border(bottom: BorderSide(color: Color(0xFFF5F5F5))),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          GestureDetector(
+            onTap: () => Get.bottomSheet(
+              const SortBottomSheet(type: "memo"),
+              backgroundColor: Colors.transparent,
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.sort, size: 18, color: Colors.grey),
+                const SizedBox(width: 6),
+                Obx(() => Text(
+                  controller.sortTextMemo.value,
+                  style: const TextStyle(color: Colors.grey, fontSize: 14),
+                )),
+              ],
+            ),
+          ),
           GestureDetector(
             onTap: () {
               Get.bottomSheet(

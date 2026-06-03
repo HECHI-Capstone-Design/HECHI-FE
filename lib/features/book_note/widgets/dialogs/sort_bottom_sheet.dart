@@ -77,6 +77,8 @@ class SortBottomSheet extends StatelessWidget {
         return _bookmarkOptions(controller);
       case "highlight":
         return _highlightOptions(controller);
+      case "memo":
+        return _memoOptions(controller);
       default:
         return const SizedBox.shrink();
     }
@@ -139,6 +141,38 @@ class SortBottomSheet extends StatelessWidget {
             controller.sortTypeHighlight.value = "page";
             controller.sortTextHighlight.value = "페이지 순";
             controller.sortHighlights();
+            Get.back();
+          },
+        ),
+      ],
+    );
+  }
+
+  // =====================================================
+  // MEMO 정렬 옵션
+  // 최신 순 / 오래된 순
+  // =====================================================
+  Widget _memoOptions(BookNoteController controller) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildOption(
+          label: "최신 순",
+          isSelected: controller.sortTypeMemo.value == "date",
+          onTap: () {
+            controller.sortTypeMemo.value = "date";
+            controller.sortTextMemo.value = "최신 순";
+            controller.sortMemos();
+            Get.back();
+          },
+        ),
+        _buildOption(
+          label: "오래된 순",
+          isSelected: controller.sortTypeMemo.value == "oldest",
+          onTap: () {
+            controller.sortTypeMemo.value = "oldest";
+            controller.sortTextMemo.value = "오래된 순";
+            controller.sortMemos();
             Get.back();
           },
         ),
