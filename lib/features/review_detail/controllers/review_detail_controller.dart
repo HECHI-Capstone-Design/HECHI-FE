@@ -9,7 +9,7 @@ class ReviewDetailController extends GetxController {
   final String baseUrl = "https://api.43-202-101-63.sslip.io";
   final box = GetStorage();
 
-  final int reviewId = Get.arguments;
+  final int reviewId = (Get.arguments is int) ? Get.arguments as int : int.tryParse(Get.arguments.toString()) ?? 0;
 
   final RxBool isLoadingReview = true.obs;
   final RxBool isLoadingBook = true.obs;
