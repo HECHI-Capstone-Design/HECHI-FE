@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../controllers/review_detail_controller.dart';
 import '../widgets/option_bottom_sheet.dart';
+import '../widgets/comment_delete_dialog.dart';
 
 class ReviewDetailPage extends GetView<ReviewDetailController> {
   const ReviewDetailPage({super.key});
@@ -325,9 +326,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
         const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         itemBuilder: (context, index) {
           final comment = controller.comments[index];
-          final myUserId = controller.box.read("user_id") ?? -1;
-          final isMyComment =
-              int.tryParse(comment['user_id'].toString()) == myUserId;
+          final isMyComment = comment['is_my_comment'] == true;
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -349,7 +348,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                         Row(
                           children: [
                             Text(
-                              comment['user_nickname'] ??
+                              comment['nickname'] ??
                                   "User ${comment['user_id']}",
                               style: const TextStyle(
                                   fontWeight: FontWeight.bold,
@@ -368,15 +367,11 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                         ),
                         if (isMyComment)
                           GestureDetector(
-                            onTap: () => controller
-                                .deleteComment(comment['id']),
-                            child: const Text(
-                              "삭제",
-                              style: TextStyle(
-                                color: Color(0xFFE53935),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
+                            onTap: () => _showCommentDeleteDialog(comment['id']),
+                            child: const Icon(
+                              Icons.more_horiz,
+                              size: 18,
+                              color: Color(0xFFBDBDBD),
                             ),
                           ),
                       ],
@@ -460,6 +455,15 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                     fontWeight: FontWeight.bold)),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showCommentDeleteDialog(int commentId) {
+    Get.dialog(
+      CommentDeleteDialog(
+        commentId: commentId,
+        onDelete: (id) => controller.deleteComment(id),
       ),
     );
   }
