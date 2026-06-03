@@ -17,7 +17,8 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-        resizeToAvoidBottomInset: false,
+        // ✅ 핵심 수정: false 제거 → Flutter가 키보드 올라오면 자동으로 body 축소
+        // resizeToAvoidBottomInset: false  ← 이 줄 삭제
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
@@ -28,7 +29,8 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
           ),
           title: const Text(
             '코멘트',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
+            style: TextStyle(
+                color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
           ),
           actions: [
             Obx(() {
@@ -48,6 +50,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                         onDelete: (_) => controller.deleteReview(),
                       ),
                       backgroundColor: Colors.transparent,
+                      ignoreSafeArea: false, // ✅ 추가
                     );
                   },
                 ),
@@ -55,33 +58,35 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
             }),
           ],
         ),
-        body: SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: Obx(() {
-                  if (controller.isLoadingReview.value) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  return SingleChildScrollView(
-                    physics: const ClampingScrollPhysics(),
-                    padding: const EdgeInsets.only(bottom: 100),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildMainContent(),
-                        _buildActionButtons(),
-                        _buildStatsLine(),
-                        const Divider(thickness: 1, height: 1, color: Color(0xFFF3F3F3)),
-                        _buildCommentList(),
-                      ],
-                    ),
-                  );
-                }),
-              ),
-              _buildBottomInputField(context),
-            ],
-          ),
+        // ✅ SafeArea 제거: resizeToAvoidBottomInset: true(기본값)이면 Scaffold가 이미 처리함
+        body: Column(
+          children: [
+            Expanded(
+              child: Obx(() {
+                if (controller.isLoadingReview.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                return SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildMainContent(),
+                      _buildActionButtons(),
+                      _buildStatsLine(),
+                      const Divider(
+                          thickness: 1,
+                          height: 1,
+                          color: Color(0xFFF3F3F3)),
+                      _buildCommentList(),
+                    ],
+                  ),
+                );
+              }),
+            ),
+            _buildBottomInputField(context),
+          ],
         ),
       ),
     );
@@ -106,13 +111,16 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
     final review = controller.review;
     final book = controller.book;
 
-    final double rating = (review['rating'] as num?)?.toDouble() ?? 0.0;
-    final String nickname = review['nickname'] ?? "User ${review['user_id']}";
-
-    final String date = (review['created_at'] ?? '').toString().split('T')[0];
+    final double rating =
+        (review['rating'] as num?)?.toDouble() ?? 0.0;
+    final String nickname =
+        review['nickname'] ?? "User ${review['user_id']}";
+    final String date =
+    (review['created_at'] ?? '').toString().split('T')[0];
     final String content = review['content'] ?? "";
     final String bookTitle = book['title'] ?? "";
-    final String bookAuthor = (book['authors'] is List && (book['authors'] as List).isNotEmpty)
+    final String bookAuthor =
+    (book['authors'] is List && (book['authors'] as List).isNotEmpty)
         ? book['authors'][0]
         : "저자 미상";
     final String bookImage = book['thumbnail'] ?? "";
@@ -133,40 +141,43 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                       children: [
                         CircleAvatar(
                           radius: 12,
-                          backgroundColor: Color(0xFF4DB56C).withOpacity(0.5),
-                          child: const Icon(Icons.person, color: Colors.white, size: 20),
+                          backgroundColor:
+                          const Color(0xFF4DB56C).withOpacity(0.5),
+                          child: const Icon(Icons.person,
+                              color: Colors.white, size: 20),
                         ),
                         const SizedBox(width: 8),
                         Text(
                           "$nickname $date",
-                          style: const TextStyle(color: Color(0xFF717171), fontSize: 13),
+                          style: const TextStyle(
+                              color: Color(0xFF717171), fontSize: 13),
                         ),
                       ],
                     ),
                     const SizedBox(height: 6),
-
-                    // 별점
                     if (rating > 0)
                       RatingBarIndicator(
                         rating: rating,
-                        itemBuilder: (context, index) => const Icon(Icons.star_rounded, color: Color(0xFFFFD700)),
+                        itemBuilder: (context, index) => const Icon(
+                            Icons.star_rounded,
+                            color: Color(0xFFFFD700)),
                         itemCount: 5,
                         itemSize: 16.0,
                         direction: Axis.horizontal,
                       ),
-                      const SizedBox(height: 10),
-
+                    const SizedBox(height: 10),
                     Text(
                       bookTitle,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 18),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-
                     Text(
                       bookAuthor,
-                      style: const TextStyle(color: Color(0xFF717171), fontSize: 14),
+                      style: const TextStyle(
+                          color: Color(0xFF717171), fontSize: 14),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -174,7 +185,6 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                 ),
               ),
               const SizedBox(width: 16),
-
               if (bookImage.isNotEmpty)
                 Container(
                   width: 70,
@@ -190,12 +200,11 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                 ),
             ],
           ),
-
           const SizedBox(height: 20),
-
           Text(
             content,
-            style: const TextStyle(fontSize: 15, height: 1.6, color: Colors.black),
+            style: const TextStyle(
+                fontSize: 15, height: 1.6, color: Colors.black),
           ),
         ],
       ),
@@ -213,47 +222,52 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
           height: 48,
           child: Row(
             children: [
-              // 좋아요 버튼
               Expanded(
                 child: Obx(() {
                   final isLiked = controller.review['is_liked'] ?? false;
-
                   return InkWell(
                     onTap: controller.toggleLike,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          isLiked ? Icons.thumb_up : Icons.thumb_up_alt_outlined,
+                          isLiked
+                              ? Icons.thumb_up
+                              : Icons.thumb_up_alt_outlined,
                           size: 18,
-                          color: isLiked ? const Color(0xFF4DB56C) : Colors.grey,
+                          color: isLiked
+                              ? const Color(0xFF4DB56C)
+                              : Colors.grey,
                         ),
                         const SizedBox(width: 6),
                         Text(
                           "좋아요",
                           style: TextStyle(
-                              color: isLiked ? const Color(0xFF4DB56C) : Colors.grey,
-                              fontWeight: FontWeight.w500
-                          ),
+                              color: isLiked
+                                  ? const Color(0xFF4DB56C)
+                                  : Colors.grey,
+                              fontWeight: FontWeight.w500),
                         ),
                       ],
                     ),
                   );
                 }),
               ),
-              Container(width: 1, height: 20, color: const Color(0xFFF3F3F3)),
-              // 댓글 버튼
+              Container(
+                  width: 1, height: 20, color: const Color(0xFFF3F3F3)),
               Expanded(
                 child: InkWell(
-                  onTap: () {
-                    // 댓글 입력창으로 포커스 이동 기능 추가
-                  },
+                  onTap: () {},
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.comment_outlined, size: 18, color: Colors.grey),
+                      Icon(Icons.comment_outlined,
+                          size: 18, color: Colors.grey),
                       SizedBox(width: 6),
-                      Text("댓글", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500)),
+                      Text("댓글",
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w500)),
                     ],
                   ),
                 ),
@@ -287,13 +301,17 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
   Widget _buildCommentList() {
     return Obx(() {
       if (controller.isLoadingComments.value) {
-        return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()));
+        return const Center(
+            child: Padding(
+                padding: EdgeInsets.all(20),
+                child: CircularProgressIndicator()));
       }
       if (controller.comments.isEmpty) {
         return const Padding(
           padding: EdgeInsets.all(40.0),
           child: Center(
-            child: Text("아직 댓글이 없습니다.", style: TextStyle(color: Colors.grey)),
+            child: Text("아직 댓글이 없습니다.",
+                style: TextStyle(color: Colors.grey)),
           ),
         );
       }
@@ -303,18 +321,22 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
         shrinkWrap: true,
         itemCount: controller.comments.length,
         separatorBuilder: (_, __) => const SizedBox(height: 16),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding:
+        const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         itemBuilder: (context, index) {
           final comment = controller.comments[index];
           final myUserId = controller.box.read("user_id") ?? -1;
-          final isMyComment = int.tryParse(comment['user_id'].toString()) == myUserId;
+          final isMyComment =
+              int.tryParse(comment['user_id'].toString()) == myUserId;
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CircleAvatar(
                 radius: 18,
-                backgroundColor: Color(0xFF4DB56C).withOpacity(0.5),
-                child: const Icon(Icons.person, color: Colors.white, size: 20),
+                backgroundColor:
+                const Color(0xFF4DB56C).withOpacity(0.5),
+                child: const Icon(Icons.person,
+                    color: Colors.white, size: 20),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -327,20 +349,27 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                         Row(
                           children: [
                             Text(
-                              comment['user_nickname'] ?? "User ${comment['user_id']}",
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                              comment['user_nickname'] ??
+                                  "User ${comment['user_id']}",
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13),
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              (comment['created_at'] ?? "").toString().split('T')[0],
-                              style: const TextStyle(fontSize: 11, color: Color(0xFFABABAB)),
+                              (comment['created_at'] ?? "")
+                                  .toString()
+                                  .split('T')[0],
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Color(0xFFABABAB)),
                             ),
                           ],
                         ),
                         if (isMyComment)
                           GestureDetector(
-                            onTap: () =>
-                                controller.deleteComment(comment['id']),
+                            onTap: () => controller
+                                .deleteComment(comment['id']),
                             child: const Text(
                               "삭제",
                               style: TextStyle(
@@ -355,7 +384,10 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                     const SizedBox(height: 4),
                     Text(
                       comment['content'] ?? "",
-                      style: const TextStyle(fontSize: 13, height: 1.4, color: Color(0xFF3F3F3F)),
+                      style: const TextStyle(
+                          fontSize: 13,
+                          height: 1.4,
+                          color: Color(0xFF3F3F3F)),
                     ),
                   ],
                 ),
@@ -369,12 +401,16 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
 
   // ==========================
   // 5. 하단 입력창
+  // ✅ resizeToAvoidBottomInset: true(기본값) 덕분에
+  //    Scaffold가 키보드만큼 body를 줄여주므로
+  //    이 위젯은 항상 키보드 바로 위에 위치함
+  //    → 별도 viewInsets 계산 불필요, 홈바만 처리
   // ==========================
   Widget _buildBottomInputField(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final double safeBottom = MediaQuery.of(context).padding.bottom;
 
     return Container(
-      padding: EdgeInsets.fromLTRB(16, 10, 16, bottomInset > 0 ? bottomInset : 10),
+      padding: EdgeInsets.fromLTRB(16, 10, 16, safeBottom > 0 ? safeBottom : 10),
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: Color(0xFFF3F3F3))),
@@ -394,9 +430,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
           Expanded(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 15),
-              constraints: const BoxConstraints(
-                maxHeight: 120,
-              ),
+              constraints: const BoxConstraints(maxHeight: 120),
               decoration: BoxDecoration(
                 color: const Color(0xFFF5F5F5),
                 borderRadius: BorderRadius.circular(20),
@@ -408,7 +442,8 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                 decoration: const InputDecoration(
                   hintText: "코멘트에 댓글을 남겨보세요",
                   border: InputBorder.none,
-                  hintStyle: TextStyle(fontSize: 13, color: Color(0xFFBDBDBD)),
+                  hintStyle:
+                  TextStyle(fontSize: 13, color: Color(0xFFBDBDBD)),
                   isDense: true,
                   contentPadding: EdgeInsets.symmetric(vertical: 10),
                 ),
@@ -419,7 +454,10 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
           const SizedBox(width: 10),
           GestureDetector(
             onTap: controller.postComment,
-            child: const Text("등록", style: TextStyle(color: Color(0xFF4DB56C), fontWeight: FontWeight.bold)),
+            child: const Text("등록",
+                style: TextStyle(
+                    color: Color(0xFF4DB56C),
+                    fontWeight: FontWeight.bold)),
           ),
         ],
       ),

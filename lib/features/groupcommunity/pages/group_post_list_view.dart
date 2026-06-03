@@ -1,5 +1,3 @@
-// lib/features/groupcommunity/pages/group_post_list_view.dart 전체 교체
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:ui';
@@ -21,7 +19,9 @@ class GroupPostListView extends GetView<GroupController> {
   Widget build(BuildContext context) {
     const unifiedGreen = Color(0xFF4EB56D);
 
-    // 스웨거 명세서의 bookId와 boardBookId를 모두 추적하여 유실 없이 인양합니다.
+    // ✅ 네비게이션바 높이를 build()에서 한 번만 가져옴
+    final double safeBottom = MediaQuery.of(context).padding.bottom;
+
     final dynamic args = Get.arguments;
     int historyBookId = 0;
 
@@ -40,15 +40,22 @@ class GroupPostListView extends GetView<GroupController> {
           final String bookTitle = isHistory
               ? controller.historySelectedBookTitle.value
               : controller.currentMissionBookTitle.value;
-          final bool isSet = bookTitle.isNotEmpty && bookTitle != "미설정";
+          final bool isSet =
+              bookTitle.isNotEmpty && bookTitle != "미설정";
           return Text(
             isSet ? "[$bookTitle] 게시판" : "[미션책 제목] 게시판",
-            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+            style: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 16),
           );
         })
             : const Text(
           "자유 게시판",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+          style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 16),
         ),
         centerTitle: true,
         leading: IconButton(
@@ -62,10 +69,11 @@ class GroupPostListView extends GetView<GroupController> {
             children: [
               if (isMissionBoard)
                 GestureDetector(
-                  // 🎯 [완치 포인트 1]: behavior 속성은 GestureDetector 바로 아래에 위치해야 정상 작동합니다!
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
-                    final int targetId = isHistory ? historyBookId : controller.currentMissionBookId.value;
+                    final int targetId = isHistory
+                        ? historyBookId
+                        : controller.currentMissionBookId.value;
 
                     int finalId = targetId;
                     if (isHistory && finalId == 0) {
@@ -73,50 +81,63 @@ class GroupPostListView extends GetView<GroupController> {
                     }
 
                     if (finalId != 0) {
-                      print("🚀 책 상세 페이지 이동 트리거! Book ID: $finalId");
                       Get.toNamed('/book_detail_page', arguments: finalId);
-                    } else {
-                      print("⚠️ 이동 실패: 책 ID를 가져오지 못했습니다.");
                     }
                   },
                   child: Container(
                     width: double.infinity,
                     height: 140,
                     color: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                    // 🎯 [완치 포인트 2]: Container 내부의 잘못 들어갔던 behavior 구문은 깔끔하게 삭제했습니다.
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 12.0),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
                       child: Stack(
                         children: [
                           Positioned.fill(
                             child: Obx(() {
-                              final cover = isHistory ? controller.historySelectedBookCover.value : controller.currentMissionBookCover.value;
+                              final cover = isHistory
+                                  ? controller.historySelectedBookCover.value
+                                  : controller.currentMissionBookCover.value;
                               return cover.isNotEmpty
-                                  ? Image.network(cover, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: const Color(0xFF3A3A3C)))
+                                  ? Image.network(cover,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Container(
+                                      color: const Color(0xFF3A3A3C)))
                                   : Container(color: const Color(0xFF3A3A3C));
                             }),
                           ),
                           Positioned.fill(
                             child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
-                              child: Container(color: Colors.black.withOpacity(0.18)),
+                              filter:
+                              ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+                              child: Container(
+                                  color: Colors.black.withOpacity(0.18)),
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20.0, vertical: 16.0),
                             child: Row(
                               children: [
                                 Obx(() {
-                                  final cover = isHistory ? controller.historySelectedBookCover.value : controller.currentMissionBookCover.value;
+                                  final cover = isHistory
+                                      ? controller
+                                      .historySelectedBookCover.value
+                                      : controller
+                                      .currentMissionBookCover.value;
                                   return Container(
                                     width: 68,
                                     height: 98,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(6),
-                                      border: Border.all(color: const Color(0xFFEAEAEA), width: 0.5),
+                                      border: Border.all(
+                                          color: const Color(0xFFEAEAEA),
+                                          width: 0.5),
                                       image: cover.isNotEmpty
-                                          ? DecorationImage(image: NetworkImage(cover), fit: BoxFit.cover)
+                                          ? DecorationImage(
+                                          image: NetworkImage(cover),
+                                          fit: BoxFit.cover)
                                           : null,
                                     ),
                                   );
@@ -124,22 +145,37 @@ class GroupPostListView extends GetView<GroupController> {
                                 const SizedBox(width: 20),
                                 Expanded(
                                   child: Obx(() {
-                                    final title = isHistory ? controller.historySelectedBookTitle.value : controller.currentMissionBookTitle.value;
-                                    final author = isHistory ? controller.historySelectedBookAuthor.value : controller.currentMissionBookAuthor.value;
+                                    final title = isHistory
+                                        ? controller
+                                        .historySelectedBookTitle.value
+                                        : controller
+                                        .currentMissionBookTitle.value;
+                                    final author = isHistory
+                                        ? controller
+                                        .historySelectedBookAuthor.value
+                                        : controller
+                                        .currentMissionBookAuthor.value;
                                     return Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           title,
-                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.white),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                         const SizedBox(height: 6),
                                         Text(
                                           author.isNotEmpty ? author : "저자 미상",
-                                          style: const TextStyle(color: Colors.white70, fontSize: 13),
+                                          style: const TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 13),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -159,62 +195,87 @@ class GroupPostListView extends GetView<GroupController> {
                 child: Obx(() {
                   final currentPosts = !isMissionBoard
                       ? controller.freePosts
-                      : (isHistory ? controller.historyMissionPosts : controller.missionPosts);
+                      : (isHistory
+                      ? controller.historyMissionPosts
+                      : controller.missionPosts);
 
                   if (controller.isLoading.value && currentPosts.isEmpty) {
-                    return const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(unifiedGreen)));
+                    return const Center(
+                        child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                unifiedGreen)));
                   }
 
                   if (currentPosts.isEmpty) {
                     return Center(
                       child: Text(
-                        isMissionBoard ? "아직 등록된 미션 인증 글이 없습니다." : "자유게시판에 첫 글을 작성해보세요!",
-                        style: const TextStyle(color: Colors.grey, fontSize: 14),
+                        isMissionBoard
+                            ? "아직 등록된 미션 인증 글이 없습니다."
+                            : "자유게시판에 첫 글을 작성해보세요!",
+                        style:
+                        const TextStyle(color: Colors.grey, fontSize: 14),
                       ),
                     );
                   }
 
                   return RefreshIndicator(
                     color: unifiedGreen,
-                    onRefresh: () => isHistory ? Future.value() : controller.refreshPostsOnly(),
+                    onRefresh: () => isHistory
+                        ? Future.value()
+                        : controller.refreshPostsOnly(),
                     child: ListView.builder(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.only(top: 8, bottom: 90),
+                      // ✅ bottom padding도 safeBottom 반영 (리스트 마지막 항목이 버튼에 가리지 않게)
+                      padding: EdgeInsets.only(
+                          top: 8, bottom: safeBottom + 80),
                       itemCount: currentPosts.length,
-                      itemBuilder: (context, index) => GroupPostCard(post: currentPosts[index]),
+                      itemBuilder: (context, index) =>
+                          GroupPostCard(post: currentPosts[index]),
                     ),
                   );
                 }),
               ),
             ],
           ),
-          if (!isHistory && (controller.currentMissionBookId.value != 0 || !isMissionBoard))
+
+          // ✅ 핵심 수정: bottom: 25 → bottom: safeBottom + 16
+          // 네비게이션바 높이만큼 버튼을 위로 올려서 잘림 해결
+          if (!isHistory &&
+              (controller.currentMissionBookId.value != 0 ||
+                  !isMissionBoard))
             Positioned(
-              bottom: 25, left: 0, right: 0,
+              bottom: safeBottom + 16, // ← 이 한 줄이 핵심
+              left: 0,
+              right: 0,
               child: Center(
                 child: ElevatedButton(
-                  onPressed: () => Get.to(() => GroupPostCreateView(isMission: isMissionBoard)),
+                  onPressed: () =>
+                      Get.to(() => GroupPostCreateView(isMission: isMissionBoard)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF5F5F5),
                     foregroundColor: Colors.black87,
                     elevation: 3,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(35),
-                      side: BorderSide(color: Colors.grey.shade300, width: 1.2),
+                      side: BorderSide(
+                          color: Colors.grey.shade300, width: 1.2),
                     ),
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.edit, color: unifiedGreen, size: 18),
-                      const SizedBox(width: 8),
-                      const Text("글쓰기", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      Icon(Icons.edit, color: unifiedGreen, size: 18),
+                      SizedBox(width: 8),
+                      Text("글쓰기",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 14)),
                     ],
                   ),
                 ),
               ),
-            )
+            ),
         ],
       ),
     );

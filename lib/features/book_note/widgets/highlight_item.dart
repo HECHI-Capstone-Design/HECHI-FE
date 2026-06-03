@@ -27,6 +27,9 @@ class _HighlightItemState extends State<HighlightItem> {
     final memo = widget.data["memo"] ?? "";
     final hasMemo = memo.toString().isNotEmpty;
 
+    // ────────────────────────────────────────────────────────────
+    // ✅ CreationOverlay 호출부 수정 (ignoreSafeArea: true)
+    // ────────────────────────────────────────────────────────────
     void showDetailOverlay() {
       Get.bottomSheet(
         CreationOverlay(
@@ -40,8 +43,9 @@ class _HighlightItemState extends State<HighlightItem> {
           isPublic: widget.data['is_public'],
         ),
         isScrollControlled: true,
-        ignoreSafeArea: false,
+        ignoreSafeArea: true, // 🚀 시스템 자동 패딩을 끄고 내부 수동 패딩을 사용함
         backgroundColor: Colors.transparent,
+        enterBottomSheetDuration: const Duration(milliseconds: 300),
       );
     }
 

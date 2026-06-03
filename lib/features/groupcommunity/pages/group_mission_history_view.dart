@@ -41,7 +41,11 @@ class GroupMissionHistoryView extends GetView<GroupController> {
         return Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              padding: EdgeInsets.only(
+                left: 16.0,
+                right: 16.0,
+                bottom: MediaQuery.of(context).padding.bottom + 16, // ✅ 네비바 높이 반영
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -66,7 +70,7 @@ class GroupMissionHistoryView extends GetView<GroupController> {
                   crossAxisCount: 3,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 16,
-                  childAspectRatio: 0.52,
+                  childAspectRatio: 0.50,
                 ),
                 itemCount: controller.missionHistory.length,
                 itemBuilder: (context, index) {
