@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:convert';
 import '../routes.dart';
 
@@ -140,6 +141,9 @@ class AppController extends GetxController {
           description.value = serverDesc;
         }
 
+        // 자동 로그인 시 FCM 토큰 등록
+        _registerFcmToken(accessToken);
+
         bool isAnalyzed = meData['taste_analyzed'] ?? false;
         if (isAnalyzed) {
           Get.offAllNamed(Routes.initial);
@@ -152,6 +156,24 @@ class AppController extends GetxController {
       }
     } catch (e) {
       Get.offAllNamed(Routes.login);
+    }
+  }
+
+  Future<void> _registerFcmToken(String accessToken) async {
+    try {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      if (fcmToken == null) return;
+      await http.post(
+        Uri.parse('$baseUrl/notifications/register-token'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode({"fcm_token": fcmToken}),
+      );
+      print("🚀 자동 로그인 FCM 토큰 등록 완료");
+    } catch (e) {
+      print("❌ 자동 로그인 FCM 토큰 등록 실패: $e");
     }
   }
 }

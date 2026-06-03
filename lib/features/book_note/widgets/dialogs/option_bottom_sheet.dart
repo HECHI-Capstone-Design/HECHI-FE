@@ -29,7 +29,7 @@ class OptionBottomSheet extends StatelessWidget with GroupShareMixin {
           : "메모",
       items: [
         "삭제",
-        type == "memo" ? "메모 수정" : (hasMemo ? "메모 수정" : "메모 작성"),
+        "수정",
         "그룹 공유",
       ],
       itemColors: [

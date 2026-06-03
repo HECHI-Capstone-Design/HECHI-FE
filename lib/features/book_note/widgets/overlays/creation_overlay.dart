@@ -213,6 +213,10 @@ class _CreationOverlayState extends State<CreationOverlay> {
   ];
 
   Widget _buildPageInput() {
+    final controller = Get.find<BookNoteController>();
+    final totalPages = (controller.bookInfo["total_pages"] ?? 0) as int;
+    final hintText = totalPages > 0 ? "페이지 번호 (최대 ${totalPages}p)" : "페이지 번호";
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(17, 14, 17, 0),
       child: Row(
@@ -225,8 +229,8 @@ class _CreationOverlayState extends State<CreationOverlay> {
               controller: pageController,
               readOnly: _isReadOnly,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                hintText: "페이지 번호",
+              decoration: InputDecoration(
+                hintText: hintText,
                 border: InputBorder.none,
               ),
             ),
@@ -339,9 +343,15 @@ class _CreationOverlayState extends State<CreationOverlay> {
     final sentence = sentenceController.text.trim();
     final content = contentController.text.trim();
 
+    final totalPages = (controller.bookInfo["total_pages"] ?? 0) as int;
+
     if (widget.type == "bookmark") {
       if (page == null || page <= 0) {
         Get.snackbar("입력 오류", "페이지 번호를 입력해주세요.");
+        return;
+      }
+      if (totalPages > 0 && page > totalPages) {
+        Get.snackbar("입력 오류", "페이지는 최대 ${totalPages}p까지 입력 가능합니다.");
         return;
       }
       if (widget.isEdit && widget.itemId != null) {
@@ -356,6 +366,10 @@ class _CreationOverlayState extends State<CreationOverlay> {
       }
       if (page == null || page <= 0) {
         Get.snackbar("입력 오류", "페이지 번호를 입력해주세요.");
+        return;
+      }
+      if (totalPages > 0 && page > totalPages) {
+        Get.snackbar("입력 오류", "페이지는 최대 ${totalPages}p까지 입력 가능합니다.");
         return;
       }
       if (widget.isEdit && widget.itemId != null) {
@@ -380,12 +394,9 @@ class _CreationOverlayState extends State<CreationOverlay> {
   String _title() {
     if (_isReadOnly) return "상세 보기";
     switch (widget.type) {
-      case "bookmark":
-        return "북마크 작성";
-      case "highlight":
-        return "하이라이트 작성";
-      default:
-        return "메모 작성";
+      case "bookmark": return widget.isEdit ? "북마크 수정" : "북마크 작성";
+      case "highlight": return widget.isEdit ? "하이라이트 수정" : "하이라이트 작성";
+      default: return widget.isEdit ? "메모 수정" : "메모 작성";
     }
   }
 }
