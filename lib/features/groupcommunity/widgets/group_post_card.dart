@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -80,7 +81,7 @@ class _GroupPostCardState extends State<GroupPostCard> {
             children: [
               const CircleAvatar(
                 radius: 18,
-                backgroundColor: Color(0xFF8DC695),
+                backgroundColor: AppColors.primaryLight,
                 child: Icon(Icons.person, color: Colors.white, size: 20),
               ),
               const SizedBox(width: 10),
@@ -120,7 +121,7 @@ class _GroupPostCardState extends State<GroupPostCard> {
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2C2C2E),
+                  color: AppColors.textDark,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -243,16 +244,16 @@ class _GroupPostCardState extends State<GroupPostCard> {
       margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
+        color: AppColors.backgroundGrey,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE9ECEF)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.how_to_vote, size: 18, color: Color(0xFF4EB56D)),
+              const Icon(Icons.how_to_vote, size: 18, color: AppColors.primary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -290,7 +291,7 @@ class _GroupPostCardState extends State<GroupPostCard> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: isMyVote ? const Color(0xFF4EB56D) : const Color(0xFFDEE2E6),
+                            color: isMyVote ? AppColors.primary : AppColors.border,
                             width: isMyVote ? 1.5 : 1,
                           ),
                         ),
@@ -304,8 +305,8 @@ class _GroupPostCardState extends State<GroupPostCard> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: isMyVote 
-                                      ? const Color(0xFF4EB56D).withOpacity(0.18) 
-                                      : const Color(0xFFE9ECEF),
+                                      ? AppColors.primary.withOpacity(0.18) 
+                                      : AppColors.border,
                                 ),
                               ),
                             ),
@@ -322,7 +323,7 @@ class _GroupPostCardState extends State<GroupPostCard> {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: isMyVote ? FontWeight.bold : FontWeight.normal,
-                                color: isMyVote ? const Color(0xFF4EB56D) : Colors.black87,
+                                color: isMyVote ? AppColors.primary : Colors.black87,
                               ),
                             ),
                             if (isVoted)
@@ -331,7 +332,7 @@ class _GroupPostCardState extends State<GroupPostCard> {
                                 style: TextStyle(
                                   fontSize: 12, 
                                   fontWeight: FontWeight.bold, 
-                                  color: isMyVote ? const Color(0xFF4EB56D) : Colors.black54
+                                  color: isMyVote ? AppColors.primary : Colors.black54
                                 ),
                               ),
                           ],
@@ -382,9 +383,10 @@ class _GroupPostCardState extends State<GroupPostCard> {
   }
 
   void _showActionSheet(BuildContext context) {
+    final safeBottom = MediaQuery.of(context).padding.bottom;
     Get.bottomSheet(
       Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
+        padding: EdgeInsets.fromLTRB(0, 20, 0, 20 + safeBottom),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -412,10 +414,11 @@ class _GroupPostCardState extends State<GroupPostCard> {
   }
 
   void _showReportReasonSelector(BuildContext context) {
+    final safeBottom = MediaQuery.of(context).padding.bottom;
     final List<String> reasons = ["부적절한 홍보 게시글", "음란성 또는 청소년에게 부적합한 내용", "명예훼손/사생활 침해", "욕설 및 비하 발언"];
     Get.bottomSheet(
       Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + safeBottom),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -465,7 +468,7 @@ class _GroupPostCardState extends State<GroupPostCard> {
                 ],
               ),
               const SizedBox(height: 24),
-              const Divider(height: 1, color: Color(0xFFEEEEEE)),
+              const Divider(height: 1, color: AppColors.divider),
               const SizedBox(height: 24),
               const Text(
                 "신고가 완료 되었습니다.",

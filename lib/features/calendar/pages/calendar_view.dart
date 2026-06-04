@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/calendar_controller.dart';
@@ -21,7 +22,7 @@ class CalendarView extends GetView<CalendarController> {
 
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator(color: Color(0xFF4DB56C)));
+          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
         }
 
         return SingleChildScrollView(

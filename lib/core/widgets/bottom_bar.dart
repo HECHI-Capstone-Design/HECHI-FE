@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../app/controllers/app_controller.dart';
@@ -53,7 +54,7 @@ class BottomBar extends GetView<AppController> {
             const SizedBox(height: 4),
             Obx(() {
               final bool isSelected = controller.currentIndex.value == index;
-              final Color color = isSelected ? const Color(0xFF3F3F3F) : const Color(0xFFABABAB);
+              final Color color = isSelected ? AppColors.textDark : AppColors.textHint;
 
               return Container(
                 width: 24,
@@ -75,7 +76,7 @@ class BottomBar extends GetView<AppController> {
                 style: TextStyle(
                   fontSize: 11,
                   fontFamily: 'Inter',
-                  color: isSelected ? const Color(0xFF3F3F3F) : const Color(0xFFABABAB),
+                  color: isSelected ? AppColors.textDark : AppColors.textHint,
                 ),
               );
             }),

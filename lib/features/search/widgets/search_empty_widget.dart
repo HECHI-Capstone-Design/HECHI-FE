@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class SearchEmptyWidget extends StatelessWidget {
@@ -12,7 +13,7 @@ class SearchEmptyWidget extends StatelessWidget {
         child: Text(
           '최근 검색어가 없습니다.\n도서를 검색해보세요.',
           textAlign: TextAlign.center,
-          style: TextStyle(color: Color(0xFF3F3F3F), fontSize: 13, height: 1.5),
+          style: TextStyle(color: AppColors.textDark, fontSize: 13, height: 1.5),
         ),
       ),
     );

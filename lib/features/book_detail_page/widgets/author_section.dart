@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/book_detail_controller.dart';
@@ -55,10 +56,10 @@ class AuthorSection extends GetView<BookDetailController> {
               height: 50,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: const Color(0xFFC8E6C9).withValues(alpha: 0.3),
+                color: AppColors.primaryLight.withValues(alpha: 0.3),
                 border: Border(
-                  top: BorderSide(width: 1, color: Color(0xFFD4D4D4)),
-                  bottom: BorderSide(width: 1, color: Color(0xFFD4D4D4)),
+                  top: BorderSide(width: 1, color: AppColors.borderMedium),
+                  bottom: BorderSide(width: 1, color: AppColors.borderMedium),
                 ),
               ),
               child: const Text(
@@ -82,7 +83,7 @@ Widget _buildAuthorRow(String name){
         height: 50,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: const Color(0xFF89C99C).withValues(alpha: 0.7),
+          color: AppColors.primaryLight.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(5),
         ),
         child: const Center(
@@ -113,7 +114,7 @@ Widget _buildAuthorRow(String name){
             const Text('작가',
                 style: TextStyle(
                   fontSize: 13,
-                  color: Color(0xFF717171),
+                  color: AppColors.textMedium,
                   fontWeight: FontWeight.w500,
                   height: 1.33,
                 )
@@ -127,7 +128,7 @@ Widget _buildAuthorRow(String name){
       const Icon(
         Icons.arrow_forward_ios,
         size: 20,
-        color: Color(0xFF717171),
+        color: AppColors.textMedium,
       ),
        */
     ],

@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/book_detail_controller.dart';
@@ -41,7 +42,7 @@ class BookInfoSection extends GetView<BookDetailController> {
                   Text(
                     '예상★${book.expectedRating}',
                     style: const TextStyle(
-                      color: Color(0xFF4DB56C), // TextIcon-OnNormal-Primary
+                      color: AppColors.primary, // TextIcon-OnNormal-Primary
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                       height: 1.54,
@@ -55,7 +56,7 @@ class BookInfoSection extends GetView<BookDetailController> {
                 Text(
                   '평균★${(book["average_rating"] ?? 0.0).toStringAsFixed(2)}',
                   style: const TextStyle(
-                    color: Color(0xFF717171), // TextIcon-OnNormal-NormalMidEmp
+                    color: AppColors.textMedium, // TextIcon-OnNormal-NormalMidEmp
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                     height: 1.54,

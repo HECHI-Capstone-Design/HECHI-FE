@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
@@ -43,7 +44,7 @@ class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    const brandColor = Color(0xFF8DC695);
+    const brandColor = AppColors.primaryLight;
     final String postId = (widget.post["id"] ?? "0").toString();
 
     // ✅ 핵심 수정:
@@ -299,7 +300,7 @@ class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
               left: 12,
               right: 12,
               top: 12,
-              bottom: safeBottom > 0 ? safeBottom : 12,
+              bottom: keyboardHeight > 0 ? 12 : (safeBottom > 0 ? safeBottom + 4 : 12),
             ),
             decoration: BoxDecoration(
               color: Colors.white,

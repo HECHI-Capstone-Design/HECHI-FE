@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/collection_detail_controller.dart';
@@ -16,7 +17,7 @@ class CollectionActionButtons extends StatelessWidget {
         children: [
           Obx(() => Text(
             "좋아요 ${controller.likeCount.value}",
-            style: const TextStyle(fontSize: 14, color: Color(0xFF717171)),
+            style: const TextStyle(fontSize: 14, color: AppColors.textMedium),
           )),
           const SizedBox(height: 16),
 
@@ -32,7 +33,7 @@ class CollectionActionButtons extends StatelessWidget {
                       children: [
                         Icon(
                           controller.isLiked.value ? Icons.thumb_up : Icons.thumb_up_alt_outlined,
-                          color: controller.isLiked.value ? const Color(0xFF4DB56C) : Colors.grey,
+                          color: controller.isLiked.value ? AppColors.primary : Colors.grey,
                           size: 20,
                         ),
                         const SizedBox(width: 8),
@@ -41,7 +42,7 @@ class CollectionActionButtons extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: controller.isLiked.value ? const Color(0xFF4DB56C) : Colors.grey,
+                            color: controller.isLiked.value ? AppColors.primary : Colors.grey,
                           ),
                         ),
                       ],
@@ -50,7 +51,7 @@ class CollectionActionButtons extends StatelessWidget {
                 )),
               ),
 
-              Container(width: 1, height: 20, color: const Color(0xFFE0E0E0)),
+              Container(width: 1, height: 20, color: AppColors.border),
 
               Expanded(
                 child: InkWell(

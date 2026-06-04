@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 // lib/features/myGroup/widgets/recommended_group_item_widget.dart
 
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class RecommendedGroupItemWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xffE5E5E5), width: 1),
+          border: Border.all(color: AppColors.border, width: 1),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(11),
@@ -95,7 +96,7 @@ class RecommendedGroupItemWidget extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xff333333),
+                        color: AppColors.textDark,
                       ),
                     ),
                     if (showDescription && group.description != null) ...[

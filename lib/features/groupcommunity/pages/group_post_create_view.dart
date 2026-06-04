@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
@@ -15,7 +16,7 @@ class GroupPostCreateView extends GetView<GroupController> {
   Widget build(BuildContext context) {
     final titleController = TextEditingController();
     final contentController = TextEditingController();
-    const brandColor = Color(0xFF8DC695); 
+    const brandColor = AppColors.primaryLight; 
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -62,7 +63,7 @@ class GroupPostCreateView extends GetView<GroupController> {
                   decoration: const InputDecoration(hintText: "제목", border: InputBorder.none),
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                const Divider(height: 1, color: Color(0xFFEAEAEA)),
+                const Divider(height: 1, color: AppColors.border),
                 const SizedBox(height: 12),
                 TextField(
                   controller: contentController, maxLines: null, minLines: 8, cursorColor: brandColor,
@@ -74,7 +75,7 @@ class GroupPostCreateView extends GetView<GroupController> {
                   Obx(() => controller.isBookAttached.value
                       ? Container(
                           padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(color: const Color(0xFF222222), borderRadius: BorderRadius.circular(12)),
+                          decoration: BoxDecoration(color: AppColors.textDark, borderRadius: BorderRadius.circular(12)),
                           child: Row(children: [
                             Container(width: 45, height: 65, decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), image: DecorationImage(image: NetworkImage(controller.attachedBookCover.value), fit: BoxFit.cover))),
                             const SizedBox(width: 12),
@@ -155,7 +156,7 @@ class GroupPostCreateView extends GetView<GroupController> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), offset: const Offset(0, -3), blurRadius: 4)],
-                border: const Border(top: BorderSide(color: Color(0xFFF5F5F5)))
+                border: const Border(top: BorderSide(color: AppColors.backgroundGrey))
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -278,7 +279,7 @@ class GroupPostCreateView extends GetView<GroupController> {
       TextEditingController(),
       TextEditingController(),
     ].obs;
-    const brandColor = Color(0xFF8DC695);
+    const brandColor = AppColors.primaryLight;
 
     Get.to(
       Scaffold(

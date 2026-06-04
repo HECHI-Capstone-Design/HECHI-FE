@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/my_read_controller.dart';
@@ -79,13 +80,13 @@ class _ProfileEditViewState extends State<ProfileEditView> {
             ),
             const SizedBox(height: 40),
 
-            const Text("이름(닉네임)", style: TextStyle(fontSize: 14, color: Color(0xFF3F3F3F))),
+            const Text("이름(닉네임)", style: TextStyle(fontSize: 14, color: AppColors.textDark)),
             const SizedBox(height: 8),
             _buildTextField(nameController, "이름(닉네임)을 입력해주세요."),
 
             const SizedBox(height: 24),
 
-            const Text("소개", style: TextStyle(fontSize: 14, color: Color(0xFF3F3F3F))),
+            const Text("소개", style: TextStyle(fontSize: 14, color: AppColors.textDark)),
             const SizedBox(height: 8),
             _buildTextField(descController, "나만의 소개글을 입력해주세요!"),
 
@@ -99,7 +100,7 @@ class _ProfileEditViewState extends State<ProfileEditView> {
                   controller.updateProfile(nameController.text, descController.text);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4DB56C),
+                  backgroundColor: AppColors.primary,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
                   elevation: 0,
                 ),
@@ -115,7 +116,7 @@ class _ProfileEditViewState extends State<ProfileEditView> {
   Widget _buildTextField(TextEditingController controller, String hint) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F3F3),
+        color: AppColors.divider,
         borderRadius: BorderRadius.circular(12),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -124,7 +125,7 @@ class _ProfileEditViewState extends State<ProfileEditView> {
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: hint,
-          hintStyle: const TextStyle(color: Color(0xFF9E9E9E), fontSize: 14),
+          hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 14),
         ),
         style: const TextStyle(fontSize: 15, color: Colors.black87),
       ),

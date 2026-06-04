@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 //상단 프로필 정보
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,11 +24,11 @@ class ProfileHeader extends StatelessWidget {
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFF4DB56C), width: 2),
+                border: Border.all(color: AppColors.primary, width: 2),
               ),
               child: const CircleAvatar(
                 radius: 40,
-                backgroundColor: Color(0xFFA5D6A7),
+                backgroundColor: AppColors.primaryLight,
                 child: Icon(Icons.person, size: 50, color: Colors.white),
               ),
             ),
@@ -63,7 +64,7 @@ class ProfileHeader extends StatelessWidget {
                   foregroundColor: Colors.black87, // 글자색
                   elevation: 0,
                   // 테두리: 너무 진하지 않은 은은한 회색
-                  side: const BorderSide(color: Color(0xFFDBDBDB), width: 1),
+                  side: const BorderSide(color: AppColors.border, width: 1),
                   // 모서리: 요즘 트렌드에 맞춰 살짝 둥글게 (8px)
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),

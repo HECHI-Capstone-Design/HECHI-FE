@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/calendar_controller.dart';
@@ -24,7 +25,7 @@ class MonthlySummarySection extends StatelessWidget {
           style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF3F3F3F)
+              color: AppColors.textDark
           ),
         )),
         const SizedBox(height: 8),
@@ -50,7 +51,7 @@ class MonthlySummarySection extends StatelessWidget {
                 TextSpan(
                   text: controller.topGenre.value,
                   style: const TextStyle(
-                    color: Color(0xFF4DB56C),
+                    color: AppColors.primary,
                     fontWeight: FontWeight.normal,
                   ),
                 ),

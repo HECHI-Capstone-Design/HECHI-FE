@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/taste_analysis_controller.dart';
@@ -17,7 +18,7 @@ class ReadingTimeSection extends GetView<TasteAnalysisController> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF3F3F3F),
+              color: AppColors.textDark,
             ),
           ),
           const SizedBox(height: 20),
@@ -26,7 +27,7 @@ class ReadingTimeSection extends GetView<TasteAnalysisController> {
               text: TextSpan(
                 style: const TextStyle(
                   fontSize: 15, // 16 -> 15 (본문 크기 통일)
-                  color: Color(0xFF3F3F3F), // 완전 검정보다 부드러운 검정
+                  color: AppColors.textDark, // 완전 검정보다 부드러운 검정
                   height: 1.4, // 줄 간격 확보
                 ),
                 children: [
@@ -34,7 +35,7 @@ class ReadingTimeSection extends GetView<TasteAnalysisController> {
                   TextSpan(
                     text: controller.totalReadingTime.value,
                     style: const TextStyle(
-                      color: Color(0xFF4DB56C),
+                      color: AppColors.primary,
                       fontWeight: FontWeight.bold,
                       fontSize: 16, // 숫자만 살짝 키움
                     ),

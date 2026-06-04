@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/book_collection_list_controller.dart';
@@ -15,13 +16,13 @@ class BookCollectionListPage extends GetView<BookCollectionListController> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF3F3F3F)),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
           onPressed: () => Get.back(),
         ),
         title: const Text(
           '이 도서가 담긴 컬렉션',
           style: TextStyle(
-            color: Color(0xFF3F3F3F),
+            color: AppColors.textDark,
             fontSize: 16,
             fontFamily: 'Roboto',
             fontWeight: FontWeight.w500,
@@ -29,13 +30,13 @@ class BookCollectionListPage extends GetView<BookCollectionListController> {
         ),
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+          child: Divider(height: 1, thickness: 0.5, color: AppColors.border),
         ),
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(
-            child: CircularProgressIndicator(color: Color(0xFF4DB56C)),
+            child: CircularProgressIndicator(color: AppColors.primary),
           );
         }
 
@@ -78,7 +79,7 @@ class BookCollectionListPage extends GetView<BookCollectionListController> {
                   child: Container(
                     padding: const EdgeInsets.all(itemPadding),
                     decoration: ShapeDecoration(
-                      color: const Color(0x4CDADADA),
+                      color: AppColors.border.withOpacity(0.3),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(3),
                       ),
@@ -109,7 +110,7 @@ class BookCollectionListPage extends GetView<BookCollectionListController> {
                         Text(
                           '좋아요 ${collection.likeCount}',
                           style: const TextStyle(
-                            color: Color(0xFF717171),
+                            color: AppColors.textMedium,
                             fontSize: 13,
                             fontFamily: 'Roboto',
                             fontWeight: FontWeight.w400,

@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/search_controller.dart';
@@ -17,7 +18,7 @@ class SearchHeaderWidget extends GetView<BookSearchController> {
           child: Container(
             height: 30,
             decoration: ShapeDecoration(
-              color: const Color(0xFFF4F4F4),
+              color: AppColors.backgroundGrey,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(13),
               ),
@@ -31,7 +32,7 @@ class SearchHeaderWidget extends GetView<BookSearchController> {
                   controller.onSubmit(controller.searchTextController.text),
               decoration: InputDecoration(
                 prefixIcon: controller.selectedSearchTags.isEmpty
-                    ? const Icon(Icons.search, color: Color(0xFF3F3F3F))
+                    ? const Icon(Icons.search, color: AppColors.textDark)
                     : SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -44,11 +45,11 @@ class SearchHeaderWidget extends GetView<BookSearchController> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 2),
                             decoration: ShapeDecoration(
-                              color: const Color(0x7FD1ECD9),
+                              color: AppColors.primarySurface,
                               shape: RoundedRectangleBorder(
                                 side: const BorderSide(
                                     width: 0.5,
-                                    color: Color(0xFF4DB56C)),
+                                    color: AppColors.primary),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
@@ -71,7 +72,7 @@ class SearchHeaderWidget extends GetView<BookSearchController> {
                                       controller.removeSearchTag(tag),
                                   child: const Icon(Icons.close,
                                       size: 14,
-                                      color: Color(0xFF4DB56C)),
+                                      color: AppColors.primary),
                                 ),
                               ],
                             ),
@@ -81,7 +82,7 @@ class SearchHeaderWidget extends GetView<BookSearchController> {
                 ),
                 hintText: controller.selectedSearchTags.isEmpty ? '검색' : '',
                 hintStyle: const TextStyle(
-                  color: Color(0xFF3F3F3F),
+                  color: AppColors.textDark,
                   fontSize: 16,
                   fontFamily: 'Roboto',
                 ),
@@ -102,7 +103,7 @@ class SearchHeaderWidget extends GetView<BookSearchController> {
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(color: const Color(0xFFDADADA)),
+              border: Border.all(color: AppColors.border),
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
@@ -124,16 +125,16 @@ class SearchHeaderWidget extends GetView<BookSearchController> {
                         width: double.infinity,
                         height: 40,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        color: const Color(0xFFF0FAF3),
+                        color: AppColors.primarySurface,
                         child: Row(
                           children: [
                             const Icon(Icons.arrow_back_ios,
-                                size: 14, color: Color(0xFF4DB56C)),
+                                size: 14, color: AppColors.primary),
                             const SizedBox(width: 4),
                             Text(
                               controller.selectedTagCategory.value,
                               style: const TextStyle(
-                                  color: Color(0xFF4DB56C),
+                                  color: AppColors.primary,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500),
                             ),
@@ -142,7 +143,7 @@ class SearchHeaderWidget extends GetView<BookSearchController> {
                       ),
                     ),
                     const Divider(
-                        height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+                        height: 1, thickness: 0.5, color: AppColors.border),
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxHeight: 170),
                       child: SingleChildScrollView(
@@ -159,7 +160,7 @@ class SearchHeaderWidget extends GetView<BookSearchController> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 4),
                                 decoration: ShapeDecoration(
-                                  color: const Color(0x7FDADADA),
+                                  color: AppColors.border.withOpacity(0.5),
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(15)),
                                 ),
@@ -186,7 +187,7 @@ class SearchHeaderWidget extends GetView<BookSearchController> {
                     physics: const ClampingScrollPhysics(),
                     itemCount: controller.tagDropdownResults.length,
                     separatorBuilder: (_, __) => const Divider(
-                        height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+                        height: 1, thickness: 0.5, color: AppColors.border),
                     itemBuilder: (context, index) {
                       final tag = controller.tagDropdownResults[index];
                       return InkWell(
@@ -198,17 +199,17 @@ class SearchHeaderWidget extends GetView<BookSearchController> {
                             children: [
                               const Text('#',
                                   style: TextStyle(
-                                      color: Color(0xFF4DB56C),
+                                      color: AppColors.primary,
                                       fontSize: 15,
                                       fontWeight: FontWeight.w500)),
                               const SizedBox(width: 4),
                               Text(tag['name'] ?? '',
                                   style: const TextStyle(
-                                      color: Color(0xFF3F3F3F), fontSize: 15)),
+                                      color: AppColors.textDark, fontSize: 15)),
                               const Spacer(),
                               Text(tag['categoryName'] ?? '',
                                   style: const TextStyle(
-                                      color: Color(0xFFABABAB), fontSize: 12)),
+                                      color: AppColors.textHint, fontSize: 12)),
                             ],
                           ),
                         ),
@@ -227,7 +228,7 @@ class SearchHeaderWidget extends GetView<BookSearchController> {
                   physics: const ClampingScrollPhysics(),
                   itemCount: controller.tagCategories.length,
                   separatorBuilder: (_, __) => const Divider(
-                      height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+                      height: 1, thickness: 0.5, color: AppColors.border),
                   itemBuilder: (context, index) {
                     final category = controller.tagCategories[index];
                     return InkWell(
@@ -242,7 +243,7 @@ class SearchHeaderWidget extends GetView<BookSearchController> {
                                 style: const TextStyle(
                                     color: Colors.black, fontSize: 15)),
                             const Icon(Icons.arrow_forward_ios,
-                                size: 14, color: Color(0xFFABABAB)),
+                                size: 14, color: AppColors.textHint),
                           ],
                         ),
                       ),

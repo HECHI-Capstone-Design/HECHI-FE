@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,7 +12,7 @@ class GroupMainView extends GetView<GroupController> {
 
   @override
   Widget build(BuildContext context) {
-    const unifiedGreen = Color(0xFF8DC695);
+    const unifiedGreen = AppColors.primaryLight;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -82,7 +83,7 @@ class GroupMainView extends GetView<GroupController> {
                         height: 140,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
-                          color: const Color(0xFF2C2C2E),
+                          color: AppColors.textDark,
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(16),
@@ -90,7 +91,7 @@ class GroupMainView extends GetView<GroupController> {
                             children: [
                               Positioned.fill(
                                 child: controller.currentMissionBookCover.value.isEmpty || controller.currentMissionBookCover.value == "미설정"
-                                    ? Container(color: const Color(0xFF3A3A3C))
+                                    ? Container(color: AppColors.textDark)
                                     : Image.network(controller.currentMissionBookCover.value, fit: BoxFit.cover),
                               ),
                               Positioned.fill(
@@ -109,7 +110,7 @@ class GroupMainView extends GetView<GroupController> {
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(6),
                                         color: Colors.grey.shade800,
-                                        border: Border.all(color: const Color(0xFFEAEAEA), width: 0.5), 
+                                        border: Border.all(color: AppColors.border, width: 0.5), 
                                         image: hasBook ? DecorationImage(
                                           image: NetworkImage(controller.currentMissionBookCover.value),
                                           fit: BoxFit.cover,
@@ -249,7 +250,7 @@ class GroupMainView extends GetView<GroupController> {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
+                      color: AppColors.backgroundGrey,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Obx(() {
@@ -314,7 +315,7 @@ class GroupMainView extends GetView<GroupController> {
                       onTap: () => Get.to(() => const GroupAnnouncementListView()),
                       child: Container(
                         padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(12)),
+                        decoration: BoxDecoration(color: AppColors.backgroundGrey, borderRadius: BorderRadius.circular(12)),
                         child: Row(
                           children: [
                             const Icon(Icons.volume_up, color: unifiedGreen, size: 18),
@@ -401,7 +402,7 @@ class GroupMainView extends GetView<GroupController> {
   Widget _buildOpenBoardTile(String subtitle, VoidCallback onTap) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5), 
+        color: AppColors.backgroundGrey, 
         borderRadius: BorderRadius.circular(12)
       ),
       clipBehavior: Clip.antiAlias, 
@@ -434,7 +435,7 @@ class GroupAnnouncementListView extends GetView<GroupController> {
 
   @override
   Widget build(BuildContext context) {
-    const brandColor = Color(0xFF8DC695);
+    const brandColor = AppColors.primaryLight;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -454,7 +455,7 @@ class GroupAnnouncementListView extends GetView<GroupController> {
         }
         return ListView.separated(
           itemCount: controller.announcements.length,
-          separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFEAEAEA)),
+          separatorBuilder: (context, index) => const Divider(height: 1, color: AppColors.border),
           itemBuilder: (context, index) {
             final ann = controller.announcements[index];
             return Obx(() {
@@ -462,7 +463,7 @@ class GroupAnnouncementListView extends GetView<GroupController> {
 
               return ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                tileColor: isPinned ? const Color(0xFFF4FBF6) : Colors.white,
+                tileColor: isPinned ? AppColors.primarySurface : Colors.white,
                 leading: Icon(
                     Icons.campaign,
                     color: isPinned ? brandColor : Colors.grey,

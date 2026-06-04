@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/group_join_controller.dart';
@@ -29,15 +30,15 @@ void showPublicJoinDialog(BuildContext context, GroupJoinController controller) 
                 child: TextButton(
                   onPressed: () => controller.joinGroup(),
                   style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
-                  child: const Text('예', style: TextStyle(color: Color(0xff4CAF50), fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: const Text('예', style: TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
-              Container(width: 1, height: 48, color: const Color(0xffE0E0E0)),
+              Container(width: 1, height: 48, color: AppColors.border),
               Expanded(
                 child: TextButton(
                   onPressed: () => Get.back(),
                   style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
-                  child: const Text('아니오', style: TextStyle(color: Color(0xff4CAF50), fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: const Text('아니오', style: TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
@@ -64,7 +65,7 @@ void showPrivateJoinDialog(BuildContext context, GroupJoinController controller)
           const SizedBox(height: 16),
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xffF5F5F5),
+              color: AppColors.backgroundGrey,
               borderRadius: BorderRadius.circular(12),
             ),
             child: TextField(
@@ -85,10 +86,10 @@ void showPrivateJoinDialog(BuildContext context, GroupJoinController controller)
                 child: TextButton(
                   onPressed: () => controller.joinGroup(),
                   style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
-                  child: const Text('예', style: TextStyle(color: Color(0xff4CAF50), fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: const Text('예', style: TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
-              Container(width: 1, height: 48, color: const Color(0xffE0E0E0)),
+              Container(width: 1, height: 48, color: AppColors.border),
               Expanded(
                 child: TextButton(
                   onPressed: () {
@@ -96,7 +97,7 @@ void showPrivateJoinDialog(BuildContext context, GroupJoinController controller)
                     Get.back();
                   },
                   style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
-                  child: const Text('아니오', style: TextStyle(color: Color(0xff4CAF50), fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: const Text('아니오', style: TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],

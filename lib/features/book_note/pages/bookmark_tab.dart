@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/book_note_controller.dart';
@@ -44,7 +45,7 @@ class BookmarkTab extends GetView<BookNoteController> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFF5F5F5))),
+        border: Border(bottom: BorderSide(color: AppColors.backgroundGrey)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

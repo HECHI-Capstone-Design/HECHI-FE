@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/app/routes.dart';
@@ -83,7 +84,7 @@ class ForgetPasswordController extends GetxController {
     if (newPassController.text.isEmpty || confirmPassController.text.isEmpty) return;
 
     if (newPassController.text != confirmPassController.text) {
-      Get.snackbar("오류", "비밀번호가 일치하지 않습니다.", backgroundColor: Colors.white, colorText: const Color(0xFFEA1717), snackPosition: SnackPosition.BOTTOM, borderColor: Colors.grey[300], borderWidth: 1);
+      Get.snackbar("오류", "비밀번호가 일치하지 않습니다.", backgroundColor: Colors.white, colorText: AppColors.error, snackPosition: SnackPosition.BOTTOM, borderColor: Colors.grey[300], borderWidth: 1);
       return;
     }
 
@@ -117,15 +118,15 @@ class ForgetPasswordController extends GetxController {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(color: const Color(0xFF4DB56C), borderRadius: BorderRadius.circular(4)),
+                        decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(4)),
                         child: const Icon(Icons.check, color: Colors.white, size: 16),
                       ),
                       const SizedBox(width: 10),
-                      const Text('비밀번호 변경 성공!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF3F3F3F), fontFamily: 'Roboto')),
+                      const Text('비밀번호 변경 성공!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textDark, fontFamily: 'Roboto')),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const Text('비밀번호가 변경되었습니다.\n로그인을 진행해주세요.', textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: Color(0xFF3F3F3F), fontFamily: 'Roboto')),
+                  const Text('비밀번호가 변경되었습니다.\n로그인을 진행해주세요.', textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: AppColors.textDark, fontFamily: 'Roboto')),
                   const SizedBox(height: 24),
                   GestureDetector(
                     onTap: () {
@@ -135,7 +136,7 @@ class ForgetPasswordController extends GetxController {
                     child: Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(color: const Color(0xFF4DB56C), borderRadius: BorderRadius.circular(25)),
+                      decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(25)),
                       alignment: Alignment.center,
                       child: const Text('로그인하러 가기', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
                     ),

@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/collection_detail_controller.dart';
@@ -73,7 +74,7 @@ class CollectionDetailView extends GetView<CollectionDetailController> {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator(color: Color(0xFF4DB56C)));
+          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
         }
         return SingleChildScrollView(
           child: Column(
@@ -81,9 +82,9 @@ class CollectionDetailView extends GetView<CollectionDetailController> {
             children: [
               CollectionTopImages(controller: controller),
               CollectionInfoSection(controller: controller),
-              const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+              const Divider(height: 1, thickness: 1, color: AppColors.divider),
               CollectionActionButtons(controller: controller),
-              Container(height: 8, color: const Color(0xFFF5F5F5)),
+              Container(height: 8, color: AppColors.backgroundGrey),
               CollectionBookGrid(controller: controller),
               const SizedBox(height: 40),
             ],

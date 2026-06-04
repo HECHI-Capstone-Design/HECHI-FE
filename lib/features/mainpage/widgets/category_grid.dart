@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../taste_analysis/pages/taste_analysis_view.dart';
@@ -15,7 +16,7 @@ class CategoryGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
       // 스크린샷과 동일하게 브랜드 아이덴티티인 초록색 테마 포인트 컬러 적용
-      const Color pointGreen = Color(0xFF4DB56C);
+      final Color pointGreen = AppColors.primary;
 
       return Row(
         children: [

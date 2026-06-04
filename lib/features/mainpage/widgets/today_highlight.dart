@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/mainpage_controller.dart';
@@ -18,7 +19,7 @@ class TodayHighlight extends GetView<MainpageController> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
           decoration: BoxDecoration(
-            color: const Color(0xFFD1ECD9).withOpacity(0.5),
+            color: AppColors.primarySurface.withOpacity(0.5),
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
@@ -34,7 +35,7 @@ class TodayHighlight extends GetView<MainpageController> {
                 controller.highlightQuote.value,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  color: Color(0xFF3F3F3F),
+                  color: AppColors.textDark,
                   fontSize: 13,
                   height: 1.6,
                   fontFamily: 'Crimson Text',
@@ -46,7 +47,7 @@ class TodayHighlight extends GetView<MainpageController> {
                 child: Obx(() => RichText(
                   text: TextSpan(
                     style: const TextStyle(
-                      color: Color(0xFF555555),
+                      color: AppColors.textDark,
                       fontSize: 11,
                       fontFamily: 'Roboto',
                     ),

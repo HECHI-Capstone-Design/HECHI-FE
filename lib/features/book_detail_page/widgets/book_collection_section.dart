@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -81,7 +82,7 @@ class _BookCollectionSectionState extends State<BookCollectionSection> {
           padding: const EdgeInsets.symmetric(horizontal: 17),
           decoration: const BoxDecoration(
             border: Border(
-              bottom: BorderSide(width: 0.5, color: Color(0xFFABABAB)),
+              bottom: BorderSide(width: 0.5, color: AppColors.textHint),
             ),
           ),
           alignment: Alignment.centerLeft,
@@ -115,7 +116,7 @@ class _BookCollectionSectionState extends State<BookCollectionSection> {
                   margin: const EdgeInsets.only(right: 15),
                   padding: const EdgeInsets.all(10),
                   decoration: ShapeDecoration(
-                    color: const Color(0x4CDADADA),
+                    color: AppColors.border.withOpacity(0.3),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(3),
                     ),
@@ -146,7 +147,7 @@ class _BookCollectionSectionState extends State<BookCollectionSection> {
                       Text(
                         '좋아요 ${collection.likeCount}',
                         style: const TextStyle(
-                          color: Color(0xFF717171),
+                          color: AppColors.textMedium,
                           fontSize: 13,
                           fontFamily: 'Roboto',
                           fontWeight: FontWeight.w400,
@@ -173,10 +174,10 @@ class _BookCollectionSectionState extends State<BookCollectionSection> {
             height: 50,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: const Color(0xFFC8E6C9).withOpacity(0.3),
+              color: AppColors.primaryLight.withOpacity(0.3),
               border: const Border(
-                top: BorderSide(width: 1, color: Color(0xFFD4D4D4)),
-                bottom: BorderSide(width: 1, color: Color(0xFFD4D4D4)),
+                top: BorderSide(width: 1, color: AppColors.borderMedium),
+                bottom: BorderSide(width: 1, color: AppColors.borderMedium),
               ),
             ),
             child: const Text(

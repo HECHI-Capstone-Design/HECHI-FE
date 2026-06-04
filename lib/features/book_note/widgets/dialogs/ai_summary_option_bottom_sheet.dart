@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'group_share_mixin.dart';
@@ -32,7 +33,7 @@ class AiSummaryOptionBottomSheet extends StatelessWidget with GroupShareMixin {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF3F3F3F),
+                      color: AppColors.textDark,
                     ),
                   ),
                   GestureDetector(
@@ -42,14 +43,14 @@ class AiSummaryOptionBottomSheet extends StatelessWidget with GroupShareMixin {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w400,
-                        color: Color(0xFF4DB56C),
+                        color: AppColors.primary,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+            const Divider(height: 1, thickness: 0.5, color: AppColors.border),
             _buildOption(
               label: "삭제",
               color: Colors.red.withValues(alpha: 0.7),
@@ -78,7 +79,7 @@ class AiSummaryOptionBottomSheet extends StatelessWidget with GroupShareMixin {
         alignment: Alignment.centerLeft,
         decoration: const BoxDecoration(
           border: Border(
-            bottom: BorderSide(width: 0.5, color: Color(0xFFDADADA)),
+            bottom: BorderSide(width: 0.5, color: AppColors.border),
           ),
         ),
         child: Text(
@@ -113,7 +114,7 @@ class AiSummaryOptionBottomSheet extends StatelessWidget with GroupShareMixin {
                     'AI 요약을 삭제하시겠습니까',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Color(0xFF3F3F3F),
+                      color: AppColors.textDark,
                       fontSize: 15,
                       fontFamily: 'Roboto',
                       fontWeight: FontWeight.w400,
@@ -121,7 +122,7 @@ class AiSummaryOptionBottomSheet extends StatelessWidget with GroupShareMixin {
                   ),
                 ),
               ),
-              Container(height: 1, color: const Color(0xFFF3F3F3)),
+              Container(height: 1, color: AppColors.divider),
               SizedBox(
                 height: 36,
                 child: Row(
@@ -141,7 +142,7 @@ class AiSummaryOptionBottomSheet extends StatelessWidget with GroupShareMixin {
                             child: Text(
                               '네',
                               style: TextStyle(
-                                color: Color(0xFF4DB56C),
+                                color: AppColors.primary,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -150,7 +151,7 @@ class AiSummaryOptionBottomSheet extends StatelessWidget with GroupShareMixin {
                         ),
                       ),
                     ),
-                    Container(width: 1, color: const Color(0xFFF3F3F3)),
+                    Container(width: 1, color: AppColors.divider),
                     Expanded(
                       child: Material(
                         color: Colors.transparent,
@@ -163,7 +164,7 @@ class AiSummaryOptionBottomSheet extends StatelessWidget with GroupShareMixin {
                             child: Text(
                               '아니오',
                               style: TextStyle(
-                                color: Color(0xFF4DB56C),
+                                color: AppColors.primary,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
                               ),

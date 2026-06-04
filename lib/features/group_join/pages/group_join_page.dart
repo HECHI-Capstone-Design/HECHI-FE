@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 // lib/features/group_join/pages/group_join_page.dart
 
 import 'package:flutter/material.dart';
@@ -74,8 +75,8 @@ class GroupJoinPage extends GetView<GroupJoinController> {
                           style: ElevatedButton.styleFrom(
                             // 💡 이미 가입한 방이면 경고/탈퇴 느낌의 소프트 레드(#E26A6A), 미가입이면 초록색(#4DB56C)
                             backgroundColor: controller.isAlreadyJoined.value
-                                ? const Color(0xffE26A6A)
-                                : const Color(0xff4DB56C),
+                                ? AppColors.error
+                                : AppColors.primary,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -123,7 +124,7 @@ class GroupJoinPage extends GetView<GroupJoinController> {
               
               // 5. 함께 읽고 있는 책 섹션 (공개 그룹이면서 책이 있을 때만 노출)
               if (controller.isPublic.value && controller.books.isNotEmpty) ...[
-                const Divider(thickness: 1, color: Color(0xffE5E5E5)),
+                const Divider(thickness: 1, color: AppColors.border),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16),
                   child: Row(
@@ -131,7 +132,7 @@ class GroupJoinPage extends GetView<GroupJoinController> {
                     children: [
                       const Text(
                         '함께 읽고 있는 책',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xff555555)),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textDark),
                       ),
                       Icon(Icons.arrow_forward_ios, size: 18, color: Colors.black.withOpacity(0.8)),
                     ],

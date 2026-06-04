@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/collection_detail_controller.dart';
@@ -95,7 +96,7 @@ class CollectionTopImages extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: const Color(0xFFDDDDDD),
+        color: AppColors.border,
         image: url.isNotEmpty
             ? DecorationImage(image: NetworkImage(url), fit: BoxFit.cover)
             : null,

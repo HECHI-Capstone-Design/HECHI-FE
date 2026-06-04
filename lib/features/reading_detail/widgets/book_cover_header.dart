@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/reading_detail_controller.dart';
@@ -14,7 +15,7 @@ class BookCoverHeader extends GetView<ReadingDetailController> {
           return Container(
             width: double.infinity,
             height: 200,
-            color: const Color(0xFFF0F0F0),
+            color: AppColors.backgroundGrey,
             child: coverUrl.isNotEmpty
                 ? Image.network(
               coverUrl,

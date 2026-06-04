@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/collection_book_edit_controller.dart';
@@ -18,7 +19,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
         title: const Text(
           '작품들',
           style: TextStyle(
-            color: Color(0xFF3F3F3F),
+            color: AppColors.textDark,
             fontSize: 16,
             fontFamily: 'Roboto',
             fontWeight: FontWeight.w500,
@@ -31,7 +32,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
             child: Text(
               '취소',
               style: TextStyle(
-                color: Color(0xFF3F3F3F),
+                color: AppColors.textDark,
                 fontSize: 15,
                 fontFamily: 'Roboto',
                 fontWeight: FontWeight.w400,
@@ -49,7 +50,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
                 child: Text(
                   '확인',
                   style: TextStyle(
-                    color: Color(0xFF4DB56C),
+                    color: AppColors.primary,
                     fontSize: 15,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w500,
@@ -62,7 +63,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
         ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+          child: Divider(height: 1, thickness: 0.5, color: AppColors.border),
         ),
       ),
       body: Column(
@@ -81,7 +82,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
       child: Container(
         height: 45,
         decoration: ShapeDecoration(
-          color: const Color(0xFFF3F3F3),
+          color: AppColors.divider,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -89,13 +90,13 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
         child: Row(
           children: [
             const SizedBox(width: 14),
-            const Icon(Icons.search, size: 22, color: Color(0xFFABABAB)),
+            const Icon(Icons.search, size: 22, color: AppColors.textHint),
             const SizedBox(width: 8),
             Expanded(
               child: TextField(
                 controller: controller.searchController,
                 style: const TextStyle(
-                  color: Color(0xFF3F3F3F),
+                  color: AppColors.textDark,
                   fontSize: 15,
                   fontFamily: 'Roboto',
                   fontWeight: FontWeight.w400,
@@ -103,7 +104,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
                 decoration: const InputDecoration(
                   hintText: '검색하여 작품 추가하기',
                   hintStyle: TextStyle(
-                    color: Color(0xFFABABAB),
+                    color: AppColors.textHint,
                     fontSize: 15,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w400,
@@ -120,7 +121,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
               child: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12),
                 child: Icon(Icons.cancel,
-                    size: 20, color: Color(0xFFABABAB)),
+                    size: 20, color: AppColors.textHint),
               ),
             )
                 : const SizedBox(width: 12)),
@@ -142,7 +143,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
   Widget _buildSearchResults() {
     if (controller.isSearchLoading.value) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF4DB56C)),
+        child: CircularProgressIndicator(color: AppColors.primary),
       );
     }
 
@@ -152,7 +153,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
         child: Text(
           '검색 결과가 없어요',
           style: TextStyle(
-            color: Color(0xFFABABAB),
+            color: AppColors.textHint,
             fontSize: 15,
             fontFamily: 'Roboto',
           ),
@@ -165,7 +166,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
       separatorBuilder: (_, __) => const Divider(
         height: 1,
         thickness: 0.5,
-        color: Color(0xFFDADADA),
+        color: AppColors.border,
       ),
       itemBuilder: (context, index) {
         final book = results[index];
@@ -185,7 +186,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
         child: Text(
           '담긴 작품이 없어요',
           style: TextStyle(
-            color: Color(0xFFABABAB),
+            color: AppColors.textHint,
             fontSize: 15,
             fontFamily: 'Roboto',
           ),
@@ -236,7 +237,7 @@ class _SearchResultItem extends StatelessWidget {
         decoration: const BoxDecoration(
           color: Colors.white,
           border: Border(
-            bottom: BorderSide(width: 0.5, color: Color(0xFFD4D4D4)),
+            bottom: BorderSide(width: 0.5, color: AppColors.borderMedium),
           ),
         ),
         padding: const EdgeInsets.only(top: 15, left: 20, right: 20, bottom: 15),
@@ -247,7 +248,7 @@ class _SearchResultItem extends StatelessWidget {
               width: 60,
               height: 90,
               decoration: ShapeDecoration(
-                color: const Color(0xFFEEEEEE),
+                color: AppColors.divider,
                 image: book.coverUrl != null
                     ? DecorationImage(
                   image: NetworkImage(book.coverUrl!),
@@ -255,12 +256,12 @@ class _SearchResultItem extends StatelessWidget {
                 )
                     : null,
                 shape: RoundedRectangleBorder(
-                  side: const BorderSide(width: 0.5, color: Color(0xFFD4D4D4)),
+                  side: const BorderSide(width: 0.5, color: AppColors.borderMedium),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               child: book.coverUrl == null
-                  ? const Icon(Icons.book, size: 24, color: Color(0xFFABABAB))
+                  ? const Icon(Icons.book, size: 24, color: AppColors.textHint)
                   : null,
             ),
             const SizedBox(width: 14),
@@ -283,7 +284,7 @@ class _SearchResultItem extends StatelessWidget {
                   Text(
                     book.author,
                     style: const TextStyle(
-                      color: Color(0xFF717171),
+                      color: AppColors.textMedium,
                       fontSize: 13,
                       fontFamily: 'Roboto',
                       fontWeight: FontWeight.w400,
@@ -347,12 +348,12 @@ class _BookListItemState extends State<_BookListItem> {
                 widget.onDelete();
               },
               child: Container(
-                color: const Color(0xB2D4D4D4),
+                color: AppColors.borderMedium.withOpacity(0.7),
                 alignment: Alignment.center,
                 child: const Text(
                   '삭제',
                   style: TextStyle(
-                    color: Color(0xFFEA1717),
+                    color: AppColors.error,
                     fontSize: 15,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w400,
@@ -375,7 +376,7 @@ class _BookListItemState extends State<_BookListItem> {
             decoration: const BoxDecoration(
               color: Colors.white,
               border: Border(
-                bottom: BorderSide(width: 0.5, color: Color(0xFFD4D4D4)),
+                bottom: BorderSide(width: 0.5, color: AppColors.borderMedium),
               ),
             ),
             padding: const EdgeInsets.only(
@@ -387,7 +388,7 @@ class _BookListItemState extends State<_BookListItem> {
                   width: 60,
                   height: 90,
                   decoration: ShapeDecoration(
-                    color: const Color(0xFFEEEEEE),
+                    color: AppColors.divider,
                     image: widget.book.coverUrl != null
                         ? DecorationImage(
                       image: NetworkImage(widget.book.coverUrl!),
@@ -396,13 +397,13 @@ class _BookListItemState extends State<_BookListItem> {
                         : null,
                     shape: RoundedRectangleBorder(
                       side: const BorderSide(
-                          width: 0.5, color: Color(0xFFD4D4D4)),
+                          width: 0.5, color: AppColors.borderMedium),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                   child: widget.book.coverUrl == null
                       ? const Icon(Icons.book,
-                      size: 24, color: Color(0xFFABABAB))
+                      size: 24, color: AppColors.textHint)
                       : null,
                 ),
                 const SizedBox(width: 14),
@@ -425,7 +426,7 @@ class _BookListItemState extends State<_BookListItem> {
                       Text(
                         widget.book.author,
                         style: const TextStyle(
-                          color: Color(0xFF717171),
+                          color: AppColors.textMedium,
                           fontSize: 13,
                           fontFamily: 'Roboto',
                           fontWeight: FontWeight.w400,
@@ -441,7 +442,7 @@ class _BookListItemState extends State<_BookListItem> {
                   child: const Icon(
                     Icons.menu,
                     size: 24,
-                    color: Color(0xFFABABAB),
+                    color: AppColors.textHint,
                   ),
                 ),
               ],

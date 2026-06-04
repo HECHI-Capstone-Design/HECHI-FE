@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 // lib/features/group_join/controllers/group_join_controller.dart
 
 import 'package:flutter/material.dart';
@@ -198,7 +199,7 @@ class GroupJoinController extends GetxController {
               child: Text(
                 '\'${groupName.value}\' 그룹을 탈퇴하시겠습니까?',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF3F3F3F)),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textDark),
               ),
             ),
             const SizedBox(height: 10),
@@ -207,11 +208,11 @@ class GroupJoinController extends GetxController {
               child: Text(
                 '탈퇴 시 해당 그룹의 게시판 확인 및\n미션 참여가 제한됩니다.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Color(0xFF888888), height: 1.4),
+                style: TextStyle(fontSize: 14, color: AppColors.textHint, height: 1.4),
               ),
             ),
             const SizedBox(height: 30),
-            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+            const Divider(height: 1, color: AppColors.divider),
             SizedBox(
               height: 50,
               child: Row(
@@ -224,11 +225,11 @@ class GroupJoinController extends GetxController {
                       },
                       borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(16)),
                       child: const Center(
-                        child: Text('예', style: TextStyle(fontSize: 16, color: Color(0xffE26A6A), fontWeight: FontWeight.bold)),
+                        child: Text('예', style: TextStyle(fontSize: 16, color: AppColors.error, fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ),
-                  const VerticalDivider(width: 1, color: Color(0xFFEEEEEE)),
+                  const VerticalDivider(width: 1, color: AppColors.divider),
                   Expanded(
                     child: InkWell(
                       onTap: () {
@@ -237,7 +238,7 @@ class GroupJoinController extends GetxController {
                       },
                       borderRadius: const BorderRadius.only(bottomRight: Radius.circular(16)),
                       child: const Center(
-                        child: Text('아니오', style: TextStyle(fontSize: 16, color: Color(0xFF888888), fontWeight: FontWeight.w500)),
+                        child: Text('아니오', style: TextStyle(fontSize: 16, color: AppColors.textHint, fontWeight: FontWeight.w500)),
                       ),
                     ),
                   ),

@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -52,8 +53,13 @@ class _CollectionDescriptionOverlayState
 
   @override
   Widget build(BuildContext context) {
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final sheetHeight = (screenHeight * 0.9 - keyboardHeight)
+        .clamp(300.0, screenHeight * 0.9);
+
     return Container(
-      height: MediaQuery.of(context).size.height * 0.9,
+      height: sheetHeight,
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
@@ -61,7 +67,7 @@ class _CollectionDescriptionOverlayState
       clipBehavior: Clip.hardEdge,
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        resizeToAvoidBottomInset: true,
+        resizeToAvoidBottomInset: false,
         body: SafeArea(
           bottom: false,
           child: Column(
@@ -70,7 +76,7 @@ class _CollectionDescriptionOverlayState
               Container(
                 width: double.infinity,
                 height: 1,
-                color: const Color(0xFFF3F3F3),
+                color: AppColors.divider,
               ),
               Expanded(
                 child: Padding(
@@ -87,7 +93,7 @@ class _CollectionDescriptionOverlayState
                           expands: true,
                           textAlignVertical: TextAlignVertical.top,
                           style: const TextStyle(
-                            color: Color(0xFF3F3F3F),
+                            color: AppColors.textDark,
                             fontSize: 13,
                             fontFamily: 'Roboto',
                             fontWeight: FontWeight.w400,
@@ -96,7 +102,7 @@ class _CollectionDescriptionOverlayState
                           decoration: const InputDecoration(
                             hintText: '컬렉션에 대한 설명을 입력해주세요.',
                             hintStyle: TextStyle(
-                              color: Color(0xFFABABAB),
+                              color: AppColors.textHint,
                               fontSize: 13,
                               fontFamily: 'Roboto',
                               fontWeight: FontWeight.w400,
@@ -116,7 +122,7 @@ class _CollectionDescriptionOverlayState
                           child: Text(
                             '$_charCount/${widget.maxLength}',
                             style: const TextStyle(
-                              color: Color(0xFFABABAB),
+                              color: AppColors.textHint,
                               fontSize: 13,
                               fontFamily: 'Roboto',
                               fontWeight: FontWeight.w400,
@@ -150,7 +156,7 @@ class _CollectionDescriptionOverlayState
                 '취소',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Color(0xFF3F3F3F),
+                  color: AppColors.textDark,
                   fontSize: 15,
                   fontFamily: 'Roboto',
                   fontWeight: FontWeight.w400,
@@ -162,7 +168,7 @@ class _CollectionDescriptionOverlayState
               '컬렉션 설명',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Color(0xFF3F3F3F),
+                color: AppColors.textDark,
                 fontSize: 15,
                 fontFamily: 'Roboto',
                 fontWeight: FontWeight.w500,
@@ -175,7 +181,7 @@ class _CollectionDescriptionOverlayState
                 '확인',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Color(0xFF4DB56C),
+                  color: AppColors.primary,
                   fontSize: 15,
                   fontFamily: 'Roboto',
                   fontWeight: FontWeight.w400,

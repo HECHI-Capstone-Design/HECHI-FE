@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/search_controller.dart';
@@ -23,7 +24,7 @@ class SearchResultWidget extends GetView<BookSearchController> {
               return ListView.separated(
                 padding: EdgeInsets.zero,
                 itemCount: controller.searchResults.length,
-                separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFEEEEEE)),
+                separatorBuilder: (context, index) => const Divider(height: 1, color: AppColors.divider),
                 itemBuilder: (context, index) {
                   final book = controller.searchResults[index];
                   return InkWell(
@@ -51,9 +52,9 @@ class SearchResultWidget extends GetView<BookSearchController> {
                               children: [
                                 Text(book.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                                 const SizedBox(height: 4),
-                                Text(book.authorString, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 14, color: Color(0xFF888888))),
+                                Text(book.authorString, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 14, color: AppColors.textHint)),
                                 const SizedBox(height: 4),
-                                Text(book.publisher ?? '-', style: const TextStyle(fontSize: 12, color: Color(0xFFAAAAAA))),
+                                Text(book.publisher ?? '-', style: const TextStyle(fontSize: 12, color: AppColors.textHint)),
                               ],
                             ),
                           ),
@@ -68,7 +69,7 @@ class SearchResultWidget extends GetView<BookSearchController> {
                                 padding: const EdgeInsets.all(8),
                                 child: Icon(
                                   isRegistered ? Icons.check_circle : Icons.check_circle_outline,
-                                  color: isRegistered ? const Color(0xFF555555) : const Color(0xFF888888),
+                                  color: isRegistered ? AppColors.textDark : AppColors.textHint,
                                   size: 28,
                                 ),
                               ),
