@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/mainpage_controller.dart';
@@ -15,7 +16,7 @@ class MainAppBar extends GetView<MainpageController> implements PreferredSizeWid
       title: Obx(() => Text(
         controller.headerLogo.value,
         style: const TextStyle(
-          color: Color(0xFF4DB56C),
+          color: AppColors.primary,
           fontSize: 28,
           fontFamily: 'Sedgwick Ave Display',
           fontWeight: FontWeight.bold,
@@ -25,11 +26,11 @@ class MainAppBar extends GetView<MainpageController> implements PreferredSizeWid
         Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.notifications, color: Color(0xFF4DB56C)),
+              icon: const Icon(Icons.notifications, color: AppColors.primary),
               onPressed: () => Get.to(() => const NotificationPage()),
             ),
             const SizedBox(width: 5),
-            const Icon(Icons.bluetooth, color: Color(0xFF4DB56C)),
+            const Icon(Icons.bluetooth, color: AppColors.primary),
             const SizedBox(width: 20),
           ],
         )

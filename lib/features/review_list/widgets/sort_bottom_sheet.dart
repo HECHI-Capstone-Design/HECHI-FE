@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/review_list_controller.dart';
@@ -22,7 +23,7 @@ class SortBottomSheet extends GetView<ReviewListController> {
               padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 15,),
               decoration: const BoxDecoration(
                 border: Border(
-                  bottom: BorderSide(width: 0.5, color: Color(0xFFD4D4D4)),
+                  bottom: BorderSide(width: 0.5, color: AppColors.borderMedium),
                 ),
               ),
               child: Stack(
@@ -31,7 +32,7 @@ class SortBottomSheet extends GetView<ReviewListController> {
                   const Text(
                     '정렬',
                     style: TextStyle(
-                      color: Color(0xFF3F3F3F),
+                      color: AppColors.textDark,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -43,7 +44,7 @@ class SortBottomSheet extends GetView<ReviewListController> {
                       child: const Text(
                         '취소',
                         style: TextStyle(
-                          color: Color(0xFF4DB56C),
+                          color: AppColors.primary,
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                         ),
@@ -77,7 +78,7 @@ class SortBottomSheet extends GetView<ReviewListController> {
           border: Border(
             bottom: BorderSide(
               width: 0.5,
-              color: Color(0xFFD4D4D4),
+              color: AppColors.borderMedium,
             ),
           ),
         ),
@@ -98,7 +99,7 @@ class SortBottomSheet extends GetView<ReviewListController> {
                 const Icon(
                   Icons.check,
                   size: 22,
-                  color: Color(0xFF4DB56C),
+                  color: AppColors.primary,
                 ),
             ],
           );

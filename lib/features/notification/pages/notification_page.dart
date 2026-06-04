@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -52,7 +53,7 @@ class _NotificationPageState extends State<NotificationPage> {
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value) {
-                return const Center(child: CircularProgressIndicator(color: Color(0xFF4DB56C)));
+                return const Center(child: CircularProgressIndicator(color: AppColors.primary));
               }
               return _selectedTab == 0 ? const _GeneralListView() : const _GroupListView();
             }),
@@ -90,7 +91,7 @@ Widget _buildSwipeableTile({
               ),
               child: const Icon(
                 Icons.delete_outline,
-                color: Color(0xFFE57373),
+                color: AppColors.error,
                 size: 28,
               ),
             ),

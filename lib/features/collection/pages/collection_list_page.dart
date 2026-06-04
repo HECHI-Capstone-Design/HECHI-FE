@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/collection_list_controller.dart';
@@ -15,13 +16,13 @@ class CollectionListPage extends GetView<CollectionListController> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF3F3F3F)),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
           onPressed: () => Get.back(),
         ),
         title: const Text(
           '컬렉션',
           style: TextStyle(
-            color: Color(0xFF3F3F3F),
+            color: AppColors.textDark,
             fontSize: 16,
             fontFamily: 'Roboto',
             fontWeight: FontWeight.w500,
@@ -37,7 +38,7 @@ class CollectionListPage extends GetView<CollectionListController> {
                 child: Text(
                   '새 컬렉션',
                   style: TextStyle(
-                    color: Color(0xFF4DB56C),
+                    color: AppColors.primary,
                     fontSize: 15,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w400,
@@ -50,7 +51,7 @@ class CollectionListPage extends GetView<CollectionListController> {
         ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+          child: Divider(height: 1, thickness: 0.5, color: AppColors.border),
         ),
       ),
       body: _buildBody(),
@@ -62,7 +63,7 @@ class CollectionListPage extends GetView<CollectionListController> {
     return Obx(() {
       if (controller.isLoading.value) {
         return const Center(
-          child: CircularProgressIndicator(color: Color(0xFF4DB56C)),
+          child: CircularProgressIndicator(color: AppColors.primary),
         );
       }
 
@@ -96,12 +97,12 @@ class CollectionListPage extends GetView<CollectionListController> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.collections_bookmark_outlined,
-              size: 60, color: Color(0xFFDADADA)),
+              size: 60, color: AppColors.border),
           const SizedBox(height: 16),
           const Text(
             '아직 컬렉션이 없습니다.',
             style: TextStyle(
-              color: Color(0xFF717171),
+              color: AppColors.textMedium,
               fontSize: 15,
               fontFamily: 'Roboto',
               fontWeight: FontWeight.w400,
@@ -113,12 +114,12 @@ class CollectionListPage extends GetView<CollectionListController> {
             child: const Text(
               '첫 컬렉션 만들기',
               style: TextStyle(
-                color: Color(0xFF4DB56C),
+                color: AppColors.primary,
                 fontSize: 14,
                 fontFamily: 'Roboto',
                 fontWeight: FontWeight.w500,
                 decoration: TextDecoration.underline,
-                decorationColor: Color(0xFF4DB56C),
+                decorationColor: AppColors.primary,
               ),
             ),
           ),

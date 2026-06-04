@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -34,7 +35,7 @@ class AuthorListOverlay extends StatelessWidget {
                 separatorBuilder: (_, __) => Column(
                   children: [
                     const SizedBox(height: 10),
-                    const Divider(height: 1, thickness: 1, color: Color(0xFFF3F3F3)),
+                    const Divider(height: 1, thickness: 1, color: AppColors.divider),
                     const SizedBox(height: 10),
                   ],
                 ),
@@ -63,7 +64,7 @@ Widget _buildAuthorRow(String name){
         height: 45,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: const Color(0xFF89C99C).withValues(alpha: 0.7),
+          color: AppColors.primaryLight.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(5),
         ),
         child: const Center(
@@ -94,7 +95,7 @@ Widget _buildAuthorRow(String name){
             const Text('작가',
                 style: TextStyle(
                   fontSize: 13,
-                  color: Color(0xFF717171),
+                  color: AppColors.textMedium,
                   fontWeight: FontWeight.w500,
                   height: 1.33,
                 )

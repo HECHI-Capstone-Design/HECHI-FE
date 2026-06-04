@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/book_detail_controller.dart';
@@ -45,10 +46,10 @@ class CommentSection extends GetView<BookDetailController> {
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(17, 20, 17, 8),
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F5).withValues(alpha: 0.7),
+              color: AppColors.backgroundGrey.withValues(alpha: 0.7),
               border: Border(
-                bottom: BorderSide(width: 0.5, color: Color(0xFFD4D4D4)),
-                top: BorderSide(width: 0.5, color: Color(0xFFD4D4D4)),
+                bottom: BorderSide(width: 0.5, color: AppColors.borderMedium),
+                top: BorderSide(width: 0.5, color: AppColors.borderMedium),
               ),
             ),
             child: Row(
@@ -74,7 +75,7 @@ class CommentSection extends GetView<BookDetailController> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 35),
               decoration: const BoxDecoration(
-                color: Color(0xFFF9F9F9),
+                color: AppColors.backgroundGrey,
               ),
               child: const Center(child: Text("첫 번째 리뷰를 남겨보세요!", style: TextStyle(color: Colors.grey))),
             )
@@ -109,10 +110,10 @@ class CommentSection extends GetView<BookDetailController> {
                 height: 50,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFC8E6C9).withValues(alpha: 0.3),
+                  color: AppColors.primaryLight.withValues(alpha: 0.3),
                   border: Border(
-                    top: BorderSide(width: 1, color: Color(0xFFD4D4D4)),
-                    bottom: BorderSide(width: 1, color: Color(0xFFD4D4D4)),
+                    top: BorderSide(width: 1, color: AppColors.borderMedium),
+                    bottom: BorderSide(width: 1, color: AppColors.borderMedium),
                   ),
                 ),
                 child: const Text('모두보기', style: TextStyle(color: Colors.black, fontSize: 15)),
@@ -141,8 +142,8 @@ Widget _buildRatingGraph(Map<String, dynamic> histogram, int maxCount) {
     if (r > maxRatio) maxRatio = r;
   }
 
-  const Color DarkGreen = Color(0xFF4EB56D);
-  const Color LightGreen = Color(0xFFC8E6C9);
+  final Color DarkGreen = AppColors.primary;
+  final Color LightGreen = AppColors.primaryLight;
   const double maxHeight = 100.0;
 
   return SizedBox(
@@ -159,7 +160,7 @@ Widget _buildRatingGraph(Map<String, dynamic> histogram, int maxCount) {
           final bool isMax = (ratio == maxRatio && ratio > 0);
 
           Color barColor = isMax ? DarkGreen : LightGreen;
-          if (ratio == 0) barColor = const Color(0xFFF5F5F5);
+          if (ratio == 0) barColor = AppColors.backgroundGrey;
 
           double barHeight = 2.0;
           if (maxRatio > 0 && ratio > 0) {
@@ -184,7 +185,7 @@ Widget _buildRatingGraph(Map<String, dynamic> histogram, int maxCount) {
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF757575),
+                        color: AppColors.textMedium,
                       ),
                       overflow: TextOverflow.visible,
                       softWrap: false,

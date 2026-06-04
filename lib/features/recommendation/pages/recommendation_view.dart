@@ -31,8 +31,9 @@ class RecommendationView extends GetView<RecommendationController> {
           return const Center(child: Text("추천할 도서가 없습니다."));
         }
 
+        final bottomPadding = MediaQuery.of(context).padding.bottom;
         return ListView.separated(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottomPadding),
           itemCount: controller.recommendedBooks.length,
           separatorBuilder: (context, index) => const SizedBox(height: 20),
           itemBuilder: (context, index) {

@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class VerifyInput extends StatelessWidget {
@@ -17,9 +18,9 @@ class VerifyInput extends StatelessWidget {
       style: const TextStyle(fontSize: 24, letterSpacing: 8.0, fontWeight: FontWeight.bold),
       decoration: InputDecoration(
         hintText: '000000',
-        hintStyle: const TextStyle(color: Color(0xFFE0E0E0)),
+        hintStyle: const TextStyle(color: AppColors.border),
         filled: true,
-        fillColor: const Color(0xFFF3F3F3),
+        fillColor: AppColors.divider,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
           borderSide: BorderSide.none,

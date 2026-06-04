@@ -1,14 +1,15 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 // ─────────────────────────────────────────
 // 공통 색상 상수
 // ─────────────────────────────────────────
-const Color kNotifGreen      = Color(0xFF5C8C5A);
-const Color kNotifGreenLight = Color(0xFFEAF3EA);
-const Color kNotifBorder     = Color(0xFFD4D4D4);
-const Color kNotifTextDark   = Color(0xFF3F3F3F);
-const Color kNotifTextMid    = Color(0xFF5F5F5F);
-const Color kNotifTextGrey   = Color(0xFF9E9E9E);
+final Color kNotifGreen      = AppColors.primaryLight;
+final Color kNotifGreenLight = AppColors.primarySurface;
+final Color kNotifBorder     = AppColors.borderMedium;
+final Color kNotifTextDark   = AppColors.textDark;
+final Color kNotifTextMid    = AppColors.textDark;
+final Color kNotifTextGrey   = AppColors.textHint;
 
 class NotificationItem {
   final int notificationId;

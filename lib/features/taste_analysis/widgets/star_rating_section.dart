@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/taste_analysis_controller.dart';
@@ -18,7 +19,7 @@ class StarRatingSection extends GetView<TasteAnalysisController> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF3F3F3F),
+              color: AppColors.textDark,
             ),
           ),
           const SizedBox(height: 10),
@@ -33,9 +34,9 @@ class StarRatingSection extends GetView<TasteAnalysisController> {
           Obx(() => Row(
             children: [
               Expanded(child: _buildBottomStatItem(controller.averageRating.value, "별점 평균")),
-              Container(width: 1, height: 30, color: const Color(0xFFEEEEEE)),
+              Container(width: 1, height: 30, color: AppColors.divider),
               Expanded(child: _buildBottomStatItem(controller.totalReviews.value, "별점 개수")),
-              Container(width: 1, height: 30, color: const Color(0xFFEEEEEE)),
+              Container(width: 1, height: 30, color: AppColors.divider),
               Expanded(child: _buildBottomStatItem(controller.mostGivenRating.value, "많이 준 별점")),
             ],
           )),
@@ -52,7 +53,7 @@ class StarRatingSection extends GetView<TasteAnalysisController> {
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600, // w500 -> w600
-            color: Color(0xFF3F3F3F),
+            color: AppColors.textDark,
           ),
         ),
         const SizedBox(height: 4),

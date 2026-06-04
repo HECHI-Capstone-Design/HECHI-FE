@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/reading_detail_controller.dart';
@@ -20,7 +21,7 @@ class ReadingStatusCard extends GetView<ReadingDetailController> {
             height: 35,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
             decoration: ShapeDecoration(
-              color: const Color(0x4CD1ECD9),
+              color: AppColors.primarySurface,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
             child: Row(
@@ -29,7 +30,7 @@ class ReadingStatusCard extends GetView<ReadingDetailController> {
                 const Text(
                   '읽고 있는 중',
                   style: TextStyle(
-                    color: Color(0xFF3F3F3F),
+                    color: AppColors.textDark,
                     fontSize: 15,
                     fontFamily: 'Roboto',
                   ),
@@ -51,7 +52,7 @@ class ReadingStatusCard extends GetView<ReadingDetailController> {
             width: double.infinity,
             padding: const EdgeInsets.all(10),
             decoration: ShapeDecoration(
-              color: const Color(0x4CD1ECD9),
+              color: AppColors.primarySurface,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
             child: Row(
@@ -108,7 +109,7 @@ class ReadingStatusCard extends GetView<ReadingDetailController> {
     return Text(
       text,
       style: const TextStyle(
-        color: Color(0xFF3F3F3F),
+        color: AppColors.textDark,
         fontSize: 15,
         fontFamily: 'Roboto',
         letterSpacing: 0.25,

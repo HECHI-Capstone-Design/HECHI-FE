@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class InstructionBanner extends StatelessWidget {
@@ -10,7 +11,7 @@ class InstructionBanner extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-      color: const Color(0xFFABABAB),
+      color: AppColors.textHint,
       child: Text(
           text,
           style: const TextStyle(color: Colors.white, fontSize: 14)

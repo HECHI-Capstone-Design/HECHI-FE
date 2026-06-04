@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -37,12 +38,33 @@ void handleNotificationClick(RemoteMessage message) {
 
     final String type = message.data['type']?.toString() ?? '';
     final String? reminderType = info['reminderType']?.toString();
+    final String? groupId = info['groupId']?.toString();
+    final String? bookId = info['bookId']?.toString();
 
-    // 2. 통합 라우팅 정책 (누락된 리워드/공지/뱃지 모두 복원)
-    if (info['groupId'] != null) {
-      Get.toNamed(Routes.groupMain, arguments: info['groupId'].toString());
-    } else if (info['bookId'] != null) {
-      final bId = int.tryParse(info['bookId'].toString());
+    // 2. type 기반 우선 분기 + targetInfo 보조
+    if (type == 'GROUP_JOIN' || type == 'GROUP_COMMENT' || type == 'GROUP_NOTICE') {
+      // 그룹 관련 알림 → groupId 있으면 그룹 메인, 없으면 알림함
+      if (groupId != null) {
+        Get.toNamed(Routes.groupMain, arguments: groupId);
+      } else {
+        Get.toNamed(Routes.notification);
+      }
+    } else if (type == 'REVIEW_REACTION') {
+      // 리뷰 좋아요 → bookId 있으면 책 상세, 없으면 알림함
+      if (bookId != null) {
+        final bId = int.tryParse(bookId);
+        if (bId != null) {
+          Get.toNamed(Routes.bookDetailPage, arguments: bId);
+        } else {
+          Get.toNamed(Routes.notification);
+        }
+      } else {
+        Get.toNamed(Routes.notification);
+      }
+    } else if (groupId != null) {
+      Get.toNamed(Routes.groupMain, arguments: groupId);
+    } else if (bookId != null) {
+      final bId = int.tryParse(bookId);
       if (bId != null) Get.toNamed(Routes.bookDetailPage, arguments: bId);
     } else if (info['badgeCode'] != null || info['rewardId'] != null || type.contains('REWARD')) {
       Get.toNamed(Routes.reward);
@@ -99,7 +121,7 @@ Future<void> setupFirebaseMessaging() async {
           backgroundColor: Colors.white,
           colorText: Colors.black,
           margin: const EdgeInsets.all(16),
-          icon: const Icon(Icons.notifications_active, color: Color(0xFF4DB56C)),
+          icon: const Icon(Icons.notifications_active, color: AppColors.primary),
           duration: const Duration(seconds: 4),
           onTap: (snack) => handleNotificationClick(message),
           boxShadows: [const BoxShadow(color: Colors.black12, blurRadius: 4, spreadRadius: 1)]

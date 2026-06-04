@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/book_detail_controller.dart';
@@ -61,13 +62,13 @@ class MoreMenuOverlay extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
         decoration: const BoxDecoration(
           border:
-          Border(bottom: BorderSide(color: Color(0xFFD4D4D4), width: 1)),
+          Border(bottom: BorderSide(color: AppColors.borderMedium, width: 1)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(label, style: const TextStyle(fontSize: 16)),
-            Icon(icon, size: 22, color: Color(0xFFDADADA)),
+            Icon(icon, size: 22, color: AppColors.border),
           ],
         ),
       ),

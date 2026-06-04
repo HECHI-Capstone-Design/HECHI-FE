@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -6,12 +7,12 @@ import '../controllers/notification_controller.dart';
 import 'package:hechi/app/routes.dart';
 
 // UI 상단 공통 색상 상수 (기본 유지)
-const Color kNotifGreen = Color(0xFF5C8C5A);
-const Color kNotifGreenLight = Color(0xFFEAF3EA);
-const Color kNotifBorder = Color(0xFFD4D4D4);
-const Color kNotifTextDark = Color(0xFF3F3F3F);
-const Color kNotifTextMid = Color(0xFF5F5F5F);
-const Color kNotifTextGrey = Color(0xFF9E9E9E);
+final Color kNotifGreen = AppColors.primaryLight;
+final Color kNotifGreenLight = AppColors.primarySurface;
+final Color kNotifBorder = AppColors.borderMedium;
+final Color kNotifTextDark = AppColors.textDark;
+final Color kNotifTextMid = AppColors.textDark;
+final Color kNotifTextGrey = AppColors.textHint;
 
 class GeneralNotificationTile extends StatelessWidget {
   final NotificationItem item;
@@ -56,7 +57,7 @@ class GeneralNotificationTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         decoration: BoxDecoration(
           color: item.isRead ? Colors.white : kNotifGreenLight.withOpacity(0.5),
-          border: const Border(bottom: BorderSide(width: 0.5, color: kNotifBorder)),
+          border: Border(bottom: BorderSide(width: 0.5, color: kNotifBorder)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -73,11 +74,11 @@ class GeneralNotificationTile extends StatelessWidget {
                       Expanded(
                         child: Text(item.title, style: TextStyle(color: kNotifTextDark, fontSize: 14, fontWeight: item.isRead ? FontWeight.w500 : FontWeight.bold)),
                       ),
-                      Text(item.timeAgo, style: const TextStyle(color: kNotifTextGrey, fontSize: 11)),
+                      Text(item.timeAgo, style: TextStyle(color: kNotifTextGrey, fontSize: 11)),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  Text(item.description, style: const TextStyle(color: kNotifTextMid, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Text(item.description, style: TextStyle(color: kNotifTextMid, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
                 ],
               ),
             ),
@@ -119,7 +120,7 @@ class _BookThumbnail extends StatelessWidget {
   final String? imageUrl;
   const _BookThumbnail({this.imageUrl});
   @override
-  Widget build(BuildContext context) => ClipRRect(borderRadius: BorderRadius.circular(4), child: Container(width: 60, height: 80, color: const Color(0xFFF3F3F3), child: imageUrl != null ? Image.network(imageUrl!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.book, color: kNotifBorder, size: 28)) : const Icon(Icons.book, color: kNotifBorder, size: 28)));
+  Widget build(BuildContext context) => ClipRRect(borderRadius: BorderRadius.circular(4), child: Container(width: 60, height: 80, color: AppColors.divider, child: imageUrl != null ? Image.network(imageUrl!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Icon(Icons.book, color: kNotifBorder, size: 28)) : Icon(Icons.book, color: kNotifBorder, size: 28)));
 }
 
 class _RewardThumbnail extends StatelessWidget {

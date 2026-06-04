@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import '../models/library_book_model.dart';
 
@@ -17,7 +18,7 @@ class BookGridItem extends StatelessWidget {
             width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: const Color(0xFFE0E0E0), width: 0.5),
+              border: Border.all(color: AppColors.border, width: 0.5),
               image: DecorationImage(
                 image: NetworkImage(book.thumbnail),
                 fit: BoxFit.cover,

@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 // 상단 메뉴 버튼 (문의내역 / 문의등록)
@@ -20,14 +21,14 @@ class CsMenuButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isFilled ? const Color(0xFF4DB56C) : Colors.white,
-          border: Border.all(color: const Color(0xFF4DB56C)),
+          color: isFilled ? AppColors.primary : Colors.white,
+          border: Border.all(color: AppColors.primary),
           borderRadius: BorderRadius.circular(5),
         ),
         child: Text(
           text,
           style: TextStyle(
-            color: isFilled ? Colors.white : const Color(0xFF4DB56C),
+            color: isFilled ? Colors.white : AppColors.primary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -47,7 +48,7 @@ class CsSearchBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       height: 45,
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F3F3),
+        color: AppColors.divider,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(

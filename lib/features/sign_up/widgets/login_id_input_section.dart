@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/sign_up_controller.dart';
@@ -27,8 +28,8 @@ class LoginIdInputSection extends StatelessWidget {
                 margin: const EdgeInsets.only(right: 16),
                 decoration: BoxDecoration(
                   color: controller.isLoginIdFilled.value
-                      ? const Color(0xFF4DB56C)
-                      : const Color(0xFFC4E1CD),
+                      ? AppColors.primary
+                      : AppColors.primarySurface,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Text(
@@ -50,8 +51,8 @@ class LoginIdInputSection extends StatelessWidget {
               controller.loginIdStatusMessage.value,
               style: TextStyle(
                 color: controller.isLoginIdAvailable.value!
-                    ? const Color(0xFF4DB56C)
-                    : const Color(0xFFEA1717),
+                    ? AppColors.primary
+                    : AppColors.error,
                 fontSize: 12,
               ),
             ),

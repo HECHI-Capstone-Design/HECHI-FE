@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -31,14 +32,14 @@ class CommentDeleteDialog extends StatelessWidget {
                   '댓글을 삭제하시겠습니까',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Color(0xFF3F3F3F),
+                    color: AppColors.textDark,
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
               ),
             ),
-            Container(height: 1, color: const Color(0xFFF3F3F3)),
+            Container(height: 1, color: AppColors.divider),
             SizedBox(
               height: 36,
               child: Row(
@@ -58,7 +59,7 @@ class CommentDeleteDialog extends StatelessWidget {
                           child: Text(
                             '네',
                             style: TextStyle(
-                              color: Color(0xFF4DB56C),
+                              color: AppColors.primary,
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
                             ),
@@ -67,7 +68,7 @@ class CommentDeleteDialog extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Container(width: 1, color: const Color(0xFFF3F3F3)),
+                  Container(width: 1, color: AppColors.divider),
                   Expanded(
                     child: Material(
                       color: Colors.transparent,
@@ -80,7 +81,7 @@ class CommentDeleteDialog extends StatelessWidget {
                           child: Text(
                             '아니오',
                             style: TextStyle(
-                              color: Color(0xFF4DB56C),
+                              color: AppColors.primary,
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
                             ),

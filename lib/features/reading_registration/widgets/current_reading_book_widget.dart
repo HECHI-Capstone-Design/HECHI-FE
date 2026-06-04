@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 // D:\HECHI\lib\features\reading_registration\widgets\current_reading_book_widget.dart 전면 교체
 
 import 'package:flutter/material.dart';
@@ -9,7 +10,7 @@ class CurrentReadingBookWidget extends StatelessWidget {
   // 🎯 [완치 핵심 1]: 외부에서 주입받아 0초로 강제 오염시키던 불필요한 'final item' 인자를 전면 삭제합니다!
   const CurrentReadingBookWidget({Key? key}) : super(key: key);
 
-  static const Color mainColor = Color(0xFF4DB56C);
+  static final Color mainColor = AppColors.primary;
 
   String _formatTime(int seconds) {
     if (seconds <= 0) return "00:00";

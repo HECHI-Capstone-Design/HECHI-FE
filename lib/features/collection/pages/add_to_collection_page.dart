@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/add_to_collection_controller.dart';
@@ -20,7 +21,7 @@ class AddToCollectionPage extends GetView<AddToCollectionController> {
           '내 컬렉션에 추가',
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: Color(0xFF3F3F3F),
+            color: AppColors.textDark,
             fontSize: 16,
             fontFamily: 'Roboto',
             fontWeight: FontWeight.w500,
@@ -33,7 +34,7 @@ class AddToCollectionPage extends GetView<AddToCollectionController> {
             child: Text(
               '취소',
               style: TextStyle(
-                color: Color(0xFF3F3F3F),
+                color: AppColors.textDark,
                 fontSize: 15,
                 fontFamily: 'Roboto',
                 fontWeight: FontWeight.w400,
@@ -51,7 +52,7 @@ class AddToCollectionPage extends GetView<AddToCollectionController> {
                 child: Text(
                   '확인',
                   style: TextStyle(
-                    color: Color(0xFF3F3F3F),
+                    color: AppColors.textDark,
                     fontSize: 15,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w400,
@@ -64,13 +65,13 @@ class AddToCollectionPage extends GetView<AddToCollectionController> {
         ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+          child: Divider(height: 1, thickness: 0.5, color: AppColors.border),
         ),
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(
-            child: CircularProgressIndicator(color: Color(0xFF4DB56C)),
+            child: CircularProgressIndicator(color: AppColors.primary),
           );
         }
         return ListView(
@@ -81,7 +82,7 @@ class AddToCollectionPage extends GetView<AddToCollectionController> {
               thickness: 0.5,
               indent: 20,
               endIndent: 20,
-              color: Color(0xFFDADADA),
+              color: AppColors.border,
             ),
             ...controller.collections.map((collection) {
               return Column(
@@ -92,7 +93,7 @@ class AddToCollectionPage extends GetView<AddToCollectionController> {
                     thickness: 0.5,
                     indent: 20,
                     endIndent: 20,
-                    color: Color(0xFFDADADA),
+                    color: AppColors.border,
                   ),
                 ],
               );
@@ -119,7 +120,7 @@ class AddToCollectionPage extends GetView<AddToCollectionController> {
                 shape: RoundedRectangleBorder(
                   side: const BorderSide(
                     width: 1,
-                    color: Color(0xFFABABAB),
+                    color: AppColors.textHint,
                   ),
                   borderRadius: BorderRadius.circular(2),
                 ),
@@ -127,7 +128,7 @@ class AddToCollectionPage extends GetView<AddToCollectionController> {
               child: const Icon(
                 Icons.add,
                 size: 30,
-                color: Color(0xFFABABAB),
+                color: AppColors.textHint,
               ),
             ),
             const SizedBox(width: 20),
@@ -188,12 +189,12 @@ class AddToCollectionPage extends GetView<AddToCollectionController> {
                   ? const Icon(
                 Icons.check_circle,
                 size: 23,
-                color: Color(0xFF4EB56D),
+                color: AppColors.primary,
               )
                   : const Icon(
                 Icons.check_circle_outline,
                 size: 23,
-                color: Color(0xFFDADADA),
+                color: AppColors.border,
               ),
             ],
           ),

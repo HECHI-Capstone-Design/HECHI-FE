@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/taste_analysis_controller.dart';
@@ -17,7 +18,7 @@ class PreferredGenreList extends GetView<TasteAnalysisController> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF3F3F3F),
+              color: AppColors.textDark,
             ),
           ),
           const SizedBox(height: 20),
@@ -32,7 +33,7 @@ class PreferredGenreList extends GetView<TasteAnalysisController> {
                       const Icon(
                           Icons.menu_book_rounded,
                           size: 50,
-                          color: Color(0xFFAAD2B6) // 연한 초록색 테마
+                          color: AppColors.primaryLight // 연한 초록색 테마
                       ),
                       const SizedBox(height: 16),
                       const Text(
@@ -40,7 +41,7 @@ class PreferredGenreList extends GetView<TasteAnalysisController> {
                         style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF3F3F3F)
+                            color: AppColors.textDark
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -70,7 +71,7 @@ class PreferredGenreList extends GetView<TasteAnalysisController> {
                   child: Text(
                     "인생은 역시 한 편의 책!",
                     style: TextStyle(
-                      color: Color(0xFF4DB56C),
+                      color: AppColors.primary,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -89,7 +90,7 @@ class PreferredGenreList extends GetView<TasteAnalysisController> {
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF3F3F3F),
+                          color: AppColors.textDark,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -112,7 +113,7 @@ class PreferredGenreList extends GetView<TasteAnalysisController> {
                         e.name,
                         style: const TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF3F3F3F),
+                          color: AppColors.textDark,
                         ),
                       ),
                       Text(

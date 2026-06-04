@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/book_note_controller.dart';
@@ -27,7 +28,7 @@ class SortBottomSheet extends StatelessWidget {
                 border: Border(
                   bottom: BorderSide(
                     width: 0.5,
-                    color: Color(0xFFD4D4D4),
+                    color: AppColors.borderMedium,
                   ),
                 ),
               ),
@@ -49,7 +50,7 @@ class SortBottomSheet extends StatelessWidget {
                       child: const Text(
                         '취소',
                         style: TextStyle(
-                          color: Color(0xFF4DB56C),
+                          color: AppColors.primary,
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                         ),
@@ -200,7 +201,7 @@ class SortBottomSheet extends StatelessWidget {
           border: Border(
             bottom: BorderSide(
               width: 0.5,
-              color: Color(0xFFD4D4D4),
+              color: AppColors.borderMedium,
             ),
           ),
         ),
@@ -219,7 +220,7 @@ class SortBottomSheet extends StatelessWidget {
               const Icon(
                 Icons.check,
                 size: 22,
-                color: Color(0xFF4DB56C),
+                color: AppColors.primary,
               ),
           ],
         ),

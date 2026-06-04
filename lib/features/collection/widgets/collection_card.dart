@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import '../models/collection_list_model.dart';
 
@@ -22,7 +23,7 @@ class CollectionCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         decoration: ShapeDecoration(
           shape: RoundedRectangleBorder(
-            side: const BorderSide(width: 1, color: Color(0xFFDADADA)),
+            side: const BorderSide(width: 1, color: AppColors.border),
             borderRadius: BorderRadius.circular(10),
           ),
         ),
@@ -34,7 +35,7 @@ class CollectionCard extends StatelessWidget {
             if (collection.tags.isNotEmpty) _buildTagSection(),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 17),
-              child: Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+              child: Divider(height: 1, thickness: 0.5, color: AppColors.border),
             ),
             _buildFooter(),
           ],
@@ -96,7 +97,7 @@ class CollectionCard extends StatelessWidget {
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [Color(0x00D9D9D9), Color(0xFF737373)],
+                      colors: [Color(0x00D9D9D9), AppColors.textMedium],
                     ),
                   ),
                 ),
@@ -122,7 +123,7 @@ class CollectionCard extends StatelessWidget {
                         child: const Icon(
                           Icons.person,
                           size: 25,
-                          color: Color(0xFF717171),
+                          color: AppColors.textMedium,
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -157,7 +158,7 @@ class CollectionCard extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: const Color(0xFFDDDDDD),
+        color: AppColors.border,
         image: coverUrl.isNotEmpty
             ? DecorationImage(
           image: NetworkImage(coverUrl),
@@ -193,7 +194,7 @@ class CollectionCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                color: Color(0xFF3F3F3F),
+                color: AppColors.textDark,
                 fontSize: 15,
                 fontFamily: 'Roboto',
                 fontWeight: FontWeight.w400,
@@ -218,7 +219,7 @@ class CollectionCard extends StatelessWidget {
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             decoration: ShapeDecoration(
-              color: const Color(0x7FDADADA),
+              color: AppColors.border.withOpacity(0.5),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(7),
               ),
@@ -226,7 +227,7 @@ class CollectionCard extends StatelessWidget {
             child: Text(
               '#$tag',
               style: const TextStyle(
-                color: Color(0xFF3F3F3F),
+                color: AppColors.textDark,
                 fontSize: 14,
                 fontFamily: 'Roboto',
                 fontWeight: FontWeight.w400,
@@ -255,8 +256,8 @@ class CollectionCard extends StatelessWidget {
                   '좋아요',
                   style: TextStyle(
                     color: collection.isLiked
-                        ? const Color(0xFF4EB56D)
-                        : const Color(0xFF717171),
+                        ? AppColors.primary
+                        : AppColors.textMedium,
                     fontSize: 13,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w400,
@@ -269,8 +270,8 @@ class CollectionCard extends StatelessWidget {
                   '${collection.likeCount}',
                   style: TextStyle(
                     color: collection.isLiked
-                        ? const Color(0xFF4EB56D)
-                        : const Color(0xFF717171),
+                        ? AppColors.primary
+                        : AppColors.textMedium,
                     fontSize: 13,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w400,
@@ -287,7 +288,7 @@ class CollectionCard extends StatelessWidget {
             width: 1,
             height: 16,
             margin: const EdgeInsets.symmetric(horizontal: 15),
-            color: const Color(0xFFDADADA),
+            color: AppColors.border,
           ),
 
           // 도서 수
@@ -296,7 +297,7 @@ class CollectionCard extends StatelessWidget {
               const Text(
                 '도서',
                 style: TextStyle(
-                  color: Color(0xFF717171),
+                  color: AppColors.textMedium,
                   fontSize: 13,
                   fontFamily: 'Roboto',
                   fontWeight: FontWeight.w400,
@@ -308,7 +309,7 @@ class CollectionCard extends StatelessWidget {
               Text(
                 '${collection.bookCount}',
                 style: const TextStyle(
-                  color: Color(0xFF717171),
+                  color: AppColors.textMedium,
                   fontSize: 13,
                   fontFamily: 'Roboto',
                   fontWeight: FontWeight.w400,

@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class PreferenceTitle extends StatelessWidget {
@@ -20,7 +21,7 @@ class PreferenceTitle extends StatelessWidget {
               const TextSpan(text: '내가 좋아하는 ', style: TextStyle(color: Colors.black, fontSize: 20)),
               TextSpan(
                 text: highlight,
-                style: const TextStyle(color: Color(0xFF4DB56C), fontSize: 24, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: AppColors.primary, fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const TextSpan(text: '는?', style: TextStyle(color: Colors.black, fontSize: 20)),
             ],

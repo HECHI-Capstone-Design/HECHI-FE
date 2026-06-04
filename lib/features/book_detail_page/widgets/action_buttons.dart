@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/book_detail_controller.dart';
@@ -66,9 +67,9 @@ class ActionButtons extends GetView<BookDetailController> {
     required bool isActive,
     required VoidCallback onTap,
   }) {
-    final Color activeColor = const Color(0xFF4EB56D);
-    final Color disabledColor = const Color(0xFFABABAB);
-    final Color disabledTextColor = const Color(0xFF717171);
+    final Color activeColor = AppColors.primary;
+    final Color disabledColor = AppColors.textHint;
+    final Color disabledTextColor = AppColors.textMedium;
 
     return InkWell(
       onTap: onTap,

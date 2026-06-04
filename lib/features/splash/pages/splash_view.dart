@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../app/controllers/app_controller.dart';
@@ -38,7 +39,7 @@ class _SplashViewState extends State<SplashView> {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF4DB56C),
+      backgroundColor: AppColors.primary,
       body: Center(
         child: AnimatedOpacity(
           opacity: _animate ? 1.0 : 0.0,

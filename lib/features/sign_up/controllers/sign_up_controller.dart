@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -128,7 +129,7 @@ class SignUpController extends GetxController {
                       Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF4DB56C),
+                          color: AppColors.primary,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Icon(Icons.check, color: Colors.white, size: 16),
@@ -139,7 +140,7 @@ class SignUpController extends GetxController {
                         style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF3F3F3F),
+                            color: AppColors.textDark,
                             fontFamily: 'Roboto'
                         ),
                       ),
@@ -149,7 +150,7 @@ class SignUpController extends GetxController {
                   const Text(
                     '환영합니다.\n이메일 인증을 진행해주세요.', // ✅ 텍스트 변경
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, color: Color(0xFF3F3F3F), fontFamily: 'Roboto', height: 1.5),
+                    style: TextStyle(fontSize: 14, color: AppColors.textDark, fontFamily: 'Roboto', height: 1.5),
                   ),
                   const SizedBox(height: 24),
 
@@ -162,7 +163,7 @@ class SignUpController extends GetxController {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF4DB56C),
+                        color: AppColors.primary,
                         borderRadius: BorderRadius.circular(25),
                       ),
                       child: const Text(

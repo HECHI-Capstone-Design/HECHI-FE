@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -90,21 +91,21 @@ class _BookDetailPageState extends State<BookDetailPage> {
             children: [
               const BookCoverHeader(),
               const BookInfoSection(),
-              const Divider(thickness: 1, color: Color(0xFFF5F5F5)),
+              const Divider(thickness: 1, color: AppColors.backgroundGrey),
               const ActionButtons(),
               _buildReadingStatusDropdown(controller),
               const SizedBox(height: 12),
               _buildInteractiveRatingBar(),
               const SizedBox(height: 12),
-              Container(height: 8, color: const Color(0xFFF5F5F5)),
+              Container(height: 8, color: AppColors.backgroundGrey),
               const MetaInfoSection(),
-              Container(height: 8, color: const Color(0xFFF5F5F5)),
+              Container(height: 8, color: AppColors.backgroundGrey),
               const AuthorSection(),
-              Container(height: 8, color: const Color(0xFFF5F5F5)),
+              Container(height: 8, color: AppColors.backgroundGrey),
               const CommentSection(),
-              Container(height: 8, color: const Color(0xFFF5F5F5)),
+              Container(height: 8, color: AppColors.backgroundGrey),
               const BookCollectionSection(),
-              Container(height: 8, color: const Color(0xFFF5F5F5)),
+              Container(height: 8, color: AppColors.backgroundGrey),
             ],
           ),
         );
@@ -142,8 +143,8 @@ class _BookDetailPageState extends State<BookDetailPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                 decoration: ShapeDecoration(
                   color: (status == 'READING' || status == 'COMPLETED')
-                      ? const Color(0x4CD1ECD9)
-                      : const Color(0x4CD4D4D4),
+                      ? AppColors.primarySurface
+                      : AppColors.borderMedium.withOpacity(0.3),
                   shape: RoundedRectangleBorder(
                     borderRadius: _isStatusDropdownOpen
                         ? const BorderRadius.vertical(top: Radius.circular(4))
@@ -156,7 +157,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                     Text(
                       label,
                       style: const TextStyle(
-                        color: Color(0xFF717171),
+                        color: AppColors.textMedium,
                         fontSize: 15,
                         fontFamily: 'Roboto',
                         fontWeight: FontWeight.w500,
@@ -168,7 +169,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                       _isStatusDropdownOpen
                           ? Icons.keyboard_arrow_up
                           : Icons.keyboard_arrow_down,
-                      color: const Color(0xFF717171),
+                      color: AppColors.textMedium,
                       size: 24,
                     ),
                   ],
@@ -181,9 +182,9 @@ class _BookDetailPageState extends State<BookDetailPage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border(
-                    left: BorderSide(width: 1, color: Color(0xFFD4D4D4)),
-                    right: BorderSide(width: 1, color: Color(0xFFD4D4D4)),
-                    bottom: BorderSide(width: 1, color: Color(0xFFD4D4D4)),
+                    left: BorderSide(width: 1, color: AppColors.borderMedium),
+                    right: BorderSide(width: 1, color: AppColors.borderMedium),
+                    bottom: BorderSide(width: 1, color: AppColors.borderMedium),
                   ),
                   borderRadius: BorderRadius.circular(4),
                 ),
@@ -224,14 +225,14 @@ class _BookDetailPageState extends State<BookDetailPage> {
             Text(
               label,
               style: TextStyle(
-                color: const Color(0xFF3F3F3F),
+                color: AppColors.textDark,
                 fontSize: 15,
                 fontFamily: 'Roboto',
                 fontWeight: FontWeight.w400,
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check, size: 18, color: Color(0xFF4DB56C)),
+              const Icon(Icons.check, size: 18, color: AppColors.primary),
           ],
         ),
       ),
@@ -251,9 +252,9 @@ class _BookDetailPageState extends State<BookDetailPage> {
         itemCount: 5,
         itemPadding: const EdgeInsets.symmetric(horizontal: 2),
         ratingWidget: RatingWidget(
-          full: const Icon(Icons.star, color: Color(0xFFFFD700)),
-          half: const Icon(Icons.star_half, color: Color(0xFFFFD700)),
-          empty: const Icon(Icons.star, color: Color(0xFFD4D4D4)),
+          full: const Icon(Icons.star, color: AppColors.star),
+          half: const Icon(Icons.star_half, color: AppColors.star),
+          empty: const Icon(Icons.star, color: AppColors.borderMedium),
         ),
         glow: false,
         onRatingUpdate: (rating) {

@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import '../models/collection_book_model.dart';
 
@@ -19,7 +20,7 @@ class CollectionBookThumbnail extends StatelessWidget {
       children: [
         Container(
           decoration: ShapeDecoration(
-            color: const Color(0xFFEEEEEE),
+            color: AppColors.divider,
             image: book.coverUrl != null
                 ? DecorationImage(
               image: NetworkImage(book.coverUrl!),
@@ -27,7 +28,7 @@ class CollectionBookThumbnail extends StatelessWidget {
             )
                 : null,
             shape: RoundedRectangleBorder(
-              side: const BorderSide(width: 0.5, color: Color(0xFFD4D4D4)),
+              side: const BorderSide(width: 0.5, color: AppColors.borderMedium),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -38,7 +39,7 @@ class CollectionBookThumbnail extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.book,
-                    size: 24, color: Color(0xFFABABAB)),
+                    size: 24, color: AppColors.textHint),
                 const SizedBox(height: 4),
                 Text(
                   book.title,
@@ -46,7 +47,7 @@ class CollectionBookThumbnail extends StatelessWidget {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    color: Color(0xFF717171),
+                    color: AppColors.textMedium,
                     fontSize: 10,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w400,
@@ -95,20 +96,20 @@ class AddBookButton extends StatelessWidget {
       child: Container(
         decoration: ShapeDecoration(
           shape: RoundedRectangleBorder(
-            side: const BorderSide(width: 1, color: Color(0xFFABABAB)),
+            side: const BorderSide(width: 1, color: AppColors.textHint),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
         child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add, size: 24, color: Color(0xFF717171)),
+            Icon(Icons.add, size: 24, color: AppColors.textMedium),
             SizedBox(height: 4),
             Text(
               '작품 추가',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Color(0xFF717171),
+                color: AppColors.textMedium,
                 fontSize: 13,
                 fontFamily: 'Roboto',
                 fontWeight: FontWeight.w400,

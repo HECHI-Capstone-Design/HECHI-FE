@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import '../models/collection_tag_model.dart';
 
@@ -23,11 +24,11 @@ class TagChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
         decoration: ShapeDecoration(
           color: isSelected
-              ? const Color(0x7FD1ECD9)
-              : const Color(0x7FDADADA),
+              ? AppColors.primarySurface
+              : AppColors.border.withOpacity(0.5),
           shape: RoundedRectangleBorder(
             side: isSelected
-                ? const BorderSide(width: 0.5, color: Color(0xFF4DB56C))
+                ? const BorderSide(width: 0.5, color: AppColors.primary)
                 : BorderSide.none,
             borderRadius: BorderRadius.circular(15),
           ),
@@ -47,7 +48,7 @@ class TagChip extends StatelessWidget {
             ),
             if (showRemove && isSelected) ...[
               const SizedBox(width: 4),
-              const Icon(Icons.close, size: 14, color: Color(0xFF4DB56C)),
+              const Icon(Icons.close, size: 14, color: AppColors.primary),
             ],
           ],
         ),

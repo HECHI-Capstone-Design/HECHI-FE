@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/app/routes.dart';
@@ -72,7 +73,7 @@ class MiniCalendarSection extends StatelessWidget {
               return const SizedBox(
                 height: 300,
                 child: Center(
-                  child: CircularProgressIndicator(color: Color(0xFF4DB56C)),
+                  child: CircularProgressIndicator(color: AppColors.primary),
                 ),
               );
             }
@@ -89,7 +90,7 @@ class MiniCalendarSection extends StatelessWidget {
               // ✅ [수정] 상하 패딩 축소 (14 -> 11)
               padding: const EdgeInsets.symmetric(vertical: 11),
               decoration: BoxDecoration(
-                color: const Color(0xFFF7F7F7),
+                color: AppColors.backgroundGrey,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(

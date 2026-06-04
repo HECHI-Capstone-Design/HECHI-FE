@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/collection_detail_controller.dart';
@@ -28,7 +29,7 @@ class CollectionMoreMenu {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF3F3F3F),
+                        color: AppColors.textDark,
                       ),
                     ),
                     GestureDetector(
@@ -38,14 +39,14 @@ class CollectionMoreMenu {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w400,
-                          color: Color(0xFF4DB56C),
+                          color: AppColors.primary,
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              const Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+              const Divider(height: 1, thickness: 0.5, color: AppColors.border),
 
               // ── 삭제하기
               InkWell(
@@ -58,7 +59,7 @@ class CollectionMoreMenu {
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                   decoration: const BoxDecoration(
                     border: Border(
-                      bottom: BorderSide(width: 0.5, color: Color(0xFFDADADA)),
+                      bottom: BorderSide(width: 0.5, color: AppColors.border),
                     ),
                   ),
                   child: Text(
@@ -98,7 +99,7 @@ class CollectionMoreMenu {
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                   decoration: const BoxDecoration(
                     border: Border(
-                      bottom: BorderSide(width: 0.5, color: Color(0xFFDADADA)),
+                      bottom: BorderSide(width: 0.5, color: AppColors.border),
                     ),
                   ),
                   child: const Text(
@@ -140,7 +141,7 @@ class CollectionMoreMenu {
                     '컬렉션을 삭제하시겠습니까',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Color(0xFF3F3F3F),
+                      color: AppColors.textDark,
                       fontSize: 15,
                       fontFamily: 'Roboto',
                       fontWeight: FontWeight.w400,
@@ -148,7 +149,7 @@ class CollectionMoreMenu {
                   ),
                 ),
               ),
-              Container(height: 1, color: const Color(0xFFF3F3F3)),
+              Container(height: 1, color: AppColors.divider),
               SizedBox(
                 height: 36,
                 child: Row(
@@ -168,7 +169,7 @@ class CollectionMoreMenu {
                             child: Text(
                               '네',
                               style: TextStyle(
-                                color: Color(0xFF4DB56C),
+                                color: AppColors.primary,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -177,7 +178,7 @@ class CollectionMoreMenu {
                         ),
                       ),
                     ),
-                    Container(width: 1, color: const Color(0xFFF3F3F3)),
+                    Container(width: 1, color: AppColors.divider),
                     Expanded(
                       child: Material(
                         color: Colors.transparent,
@@ -190,7 +191,7 @@ class CollectionMoreMenu {
                             child: Text(
                               '아니오',
                               style: TextStyle(
-                                color: Color(0xFF4DB56C),
+                                color: AppColors.primary,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
                               ),

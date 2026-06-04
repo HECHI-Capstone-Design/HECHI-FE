@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/taste_analysis_controller.dart';
@@ -18,7 +19,7 @@ class TasteAnalysisView extends GetView<TasteAnalysisController> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF4DB56C),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         centerTitle: true,
         title: Obx(() => Text(
@@ -41,11 +42,11 @@ class TasteAnalysisView extends GetView<TasteAnalysisController> {
       bottomNavigationBar: const BottomBar(),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator(color: Color(0xFF4DB56C)));
+          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
         }
 
         return RefreshIndicator(
-          color: const Color(0xFF4DB56C),
+          color: AppColors.primary,
           onRefresh: () async {
             await controller.fetchData();
           },
@@ -56,13 +57,13 @@ class TasteAnalysisView extends GetView<TasteAnalysisController> {
               children: [
                 TasteHeader(),
                 EvaluationCountCard(),
-                Divider(height: 8, thickness: 8, color: Color(0xFFF5F5F5)), // 두꺼운 구분선
+                Divider(height: 8, thickness: 8, color: AppColors.backgroundGrey), // 두꺼운 구분선
                 StarRatingSection(),
-                Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)), // 얇은 구분선
+                Divider(height: 1, thickness: 1, color: AppColors.divider), // 얇은 구분선
                 ReadingTimeSection(),
-                Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+                Divider(height: 1, thickness: 1, color: AppColors.divider),
                 PreferredTagCloud(),
-                Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+                Divider(height: 1, thickness: 1, color: AppColors.divider),
                 PreferredGenreList(),
                 SizedBox(height: 40),
               ],

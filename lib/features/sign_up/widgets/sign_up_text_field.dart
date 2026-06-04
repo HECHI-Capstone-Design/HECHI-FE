@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class SignUpTextField extends StatelessWidget {
@@ -28,15 +29,15 @@ class SignUpTextField extends StatelessWidget {
         Row(
           children: [
             if (showAsterisk)
-              const Text('* ', style: TextStyle(color: Color(0xFF4DB56C), fontSize: 14, fontWeight: FontWeight.bold)),
-            Text(label, style: const TextStyle(color: Color(0xFF3F3F3F), fontSize: 14, fontFamily: 'Roboto', fontWeight: FontWeight.w500)),
+              const Text('* ', style: TextStyle(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.bold)),
+            Text(label, style: const TextStyle(color: AppColors.textDark, fontSize: 14, fontFamily: 'Roboto', fontWeight: FontWeight.w500)),
           ],
         ),
         const SizedBox(height: 8),
         Container(
           height: 45,
           decoration: BoxDecoration(
-            color: const Color(0xFFF3F3F3),
+            color: AppColors.divider,
             borderRadius: BorderRadius.circular(25),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -49,7 +50,7 @@ class SignUpTextField extends StatelessWidget {
                   readOnly: readOnly,
                   decoration: InputDecoration(
                     hintText: hintText,
-                    hintStyle: const TextStyle(color: Color(0xFF9E9E9E), fontSize: 13),
+                    hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 13),
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
