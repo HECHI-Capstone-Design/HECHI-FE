@@ -36,17 +36,7 @@ class AiSummaryController extends GetxController {
         await api.post("/books/$bookId/reading-summary/generate", {});
         final isReady = await _pollUntilReadyOrTimeout();
         if (!isReady) {
-          Get.back();
-          Get.snackbar(
-            'AI 요약 생성 중',
-            '요약을 생성하고 있습니다. 완료되면 알림을 드릴게요.',
-            snackPosition: SnackPosition.TOP,
-            margin: const EdgeInsets.all(16),
-            borderRadius: 8,
-          );
-          if (Get.isRegistered<BookNoteController>()) {
-            Get.find<BookNoteController>().pollUntilReadyInBackground();
-          }
+          _showGeneratingDialog();
         }
       }
     } catch (e) {
@@ -57,11 +47,11 @@ class AiSummaryController extends GetxController {
   }
 
   /// ===================== 폴링 =====================
-  Future<bool> _pollUntilReadyOrTimeout({int maxRetries = 3}) async {
+  Future<bool> _pollUntilReadyOrTimeout({int maxRetries = 1}) async {
     isGenerating.value = true;
     try {
       for (int i = 0; i < maxRetries; i++) {
-        await Future.delayed(const Duration(seconds: 5));
+        await Future.delayed(const Duration(seconds: 3));
         try {
           final data = await api.get("/books/$bookId/reading-summary");
           final currentStatus = data['status'] ?? '';
@@ -102,6 +92,90 @@ class AiSummaryController extends GetxController {
     }
   }
 
+  /// ===================== 생성 중 다이얼로그 =====================
+  void _showGeneratingDialog() {
+    if (Get.isDialogOpen ?? false) Get.back();
+
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        contentPadding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F5EC),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.auto_awesome,
+                color: Color(0xFF4DB56C),
+                size: 24,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'AI 요약 생성 중',
+              style: TextStyle(
+                color: Color(0xFF3F3F3F),
+                fontSize: 16,
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '요약을 생성하고 있습니다.\n완료되면 알림을 드릴게요.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Color(0xFF717171),
+                fontSize: 14,
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.w400,
+                height: 1.6,
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () {
+                  Get.back();
+                  Get.back();
+                },
+                style: TextButton.styleFrom(
+                  backgroundColor: const Color(0xFF4DB56C),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  '확인',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      barrierDismissible: false,
+    );
+
+    if (Get.isRegistered<BookNoteController>()) {
+      Get.find<BookNoteController>().pollUntilReadyInBackground();
+    }
+  }
+
   /// ===================== 다시 생성 =====================
   Future<void> fetchSummary() async {
     summaryText.value = '';
@@ -113,17 +187,7 @@ class AiSummaryController extends GetxController {
       await api.post("/books/$bookId/reading-summary/generate", {});
       final isReady = await _pollUntilReadyOrTimeout();
       if (!isReady) {
-        Get.back();
-        Get.snackbar(
-          'AI 요약 생성 중',
-          '요약을 생성하고 있습니다. 완료되면 알림을 드릴게요.',
-          snackPosition: SnackPosition.TOP,
-          margin: const EdgeInsets.all(16),
-          borderRadius: 8,
-        );
-        if (Get.isRegistered<BookNoteController>()) {
-          Get.find<BookNoteController>().pollUntilReadyInBackground();
-        }
+        _showGeneratingDialog();
       }
     } catch (e) {
       print("❌ Fetch Summary Error: $e");
