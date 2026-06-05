@@ -125,7 +125,9 @@ class GroupNotificationTile extends StatelessWidget {
     if (isMission) {
       return _BookThumbnail(imageUrl: groupImageUrl);
     } else if (isJoinOrLeave) {
-      final String? userProfileUrl = (info['profileUrl'] ?? info['actorProfileUrl'] ?? info['userImageUrl'])?.toString();
+      final String? userProfileUrl = item.senderProfileImageUrl?.isNotEmpty == true
+          ? item.senderProfileImageUrl
+          : (info['profileUrl'] ?? info['actorProfileUrl'] ?? info['userImageUrl'])?.toString();
       return _ProfileThumbnail(imageUrl: userProfileUrl);
     } else if (isDelete) {
       // 삭제된 그룹은 회색 그룹 오프 아이콘 띄우기

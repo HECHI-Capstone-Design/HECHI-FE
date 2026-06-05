@@ -2,6 +2,7 @@ import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/collection_detail_controller.dart';
+import '../../book_detail_page/controllers/book_detail_controller.dart';
 
 class CollectionBookGrid extends StatefulWidget {
   final CollectionDetailController controller;
@@ -92,7 +93,10 @@ class _CollectionBookGridState extends State<CollectionBookGrid> {
 
                     return GestureDetector(
                       onTap: bookId != null
-                          ? () => Get.toNamed('/book_detail_page', arguments: bookId)
+                          ? () {
+                              Get.delete<BookDetailController>(force: true);
+                              Get.toNamed('/book_detail_page', arguments: bookId);
+                            }
                           : null,
                       child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

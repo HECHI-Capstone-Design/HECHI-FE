@@ -12,6 +12,7 @@ import 'app/routes.dart';
 import 'app/bindings/app_binding.dart';
 import 'firebase_options.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'features/notification/controllers/notification_controller.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -115,6 +116,12 @@ Future<void> setupFirebaseMessaging() async {
   // 포그라운드 수신 (예쁜 스낵바 유지)
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     if (message.notification != null) {
+      // 포그라운드 알림 수신 시 뱃지 카운트 즉시 증가
+      try {
+        final notifController = Get.find<NotificationController>();
+        notifController.unreadCount.value += 1;
+      } catch (_) {}
+
       Get.snackbar(
           message.notification!.title ?? '새로운 알림',
           message.notification!.body ?? '',

@@ -34,6 +34,12 @@ class _BookDetailPageState extends State<BookDetailPage> {
   }
 
   @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final controller = Get.find<BookDetailController>();
 

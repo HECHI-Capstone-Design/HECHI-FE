@@ -24,14 +24,14 @@ class GroupMainView extends GetView<GroupController> {
           onPressed: () => Get.back(),
         ),
         title: Obx(() => Text(
-              controller.groupName.value.isEmpty ? "로딩 중..." : controller.groupName.value,
-              style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
-            )),
+          controller.groupName.value.isEmpty ? "로딩 중..." : controller.groupName.value,
+          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+        )),
         centerTitle: true,
         actions: [
           Obx(() {
-            final bool hasBook = controller.currentMissionBookTitle.value.isNotEmpty && 
-                                 controller.currentMissionBookTitle.value != "미설정";
+            final bool hasBook = controller.currentMissionBookTitle.value.isNotEmpty &&
+                controller.currentMissionBookTitle.value != "미설정";
             return IconButton(
               icon: Icon(
                 hasBook ? Icons.menu_book_rounded : Icons.bookmark_border_rounded,
@@ -96,8 +96,8 @@ class GroupMainView extends GetView<GroupController> {
                               ),
                               Positioned.fill(
                                 child: BackdropFilter(
-                                  filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0), 
-                                  child: Container(color: Colors.black.withOpacity(0.3)), 
+                                  filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+                                  child: Container(color: Colors.black.withOpacity(0.3)),
                                 ),
                               ),
                               Padding(
@@ -110,7 +110,7 @@ class GroupMainView extends GetView<GroupController> {
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(6),
                                         color: Colors.grey.shade800,
-                                        border: Border.all(color: AppColors.border, width: 0.5), 
+                                        border: Border.all(color: AppColors.border, width: 0.5),
                                         image: hasBook ? DecorationImage(
                                           image: NetworkImage(controller.currentMissionBookCover.value),
                                           fit: BoxFit.cover,
@@ -133,7 +133,7 @@ class GroupMainView extends GetView<GroupController> {
                                           const SizedBox(height: 6),
                                           Text(
                                             hasBook ? controller.currentMissionBookAuthor.value : "미설정 상태",
-                                            style: const TextStyle(fontSize: 13, color: Colors.white70), 
+                                            style: const TextStyle(fontSize: 13, color: Colors.white70),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -164,17 +164,17 @@ class GroupMainView extends GetView<GroupController> {
                               TextSpan(
                                 text: name,
                                 style: const TextStyle(
-                                  fontSize: 13, 
-                                  color: Colors.black87, 
-                                  fontWeight: FontWeight.bold, 
+                                  fontSize: 13,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                               const TextSpan(
                                 text: " 미션 독서 진행률",
                                 style: TextStyle(
-                                  fontSize: 13, 
-                                  color: Colors.black87, 
-                                  fontWeight: FontWeight.w500, 
+                                  fontSize: 13,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
@@ -192,7 +192,7 @@ class GroupMainView extends GetView<GroupController> {
                                 child: LinearProgressIndicator(
                                   value: controller.groupAverageProgress.value,
                                   backgroundColor: Colors.grey.shade100,
-                                  valueColor: const AlwaysStoppedAnimation<Color>(unifiedGreen), 
+                                  valueColor: const AlwaysStoppedAnimation<Color>(unifiedGreen),
                                   minHeight: 10,
                                 ),
                               ),
@@ -222,7 +222,7 @@ class GroupMainView extends GetView<GroupController> {
                                 child: LinearProgressIndicator(
                                   value: controller.myProgress.value,
                                   backgroundColor: Colors.grey.shade100,
-                                  valueColor: const AlwaysStoppedAnimation<Color>(unifiedGreen), 
+                                  valueColor: const AlwaysStoppedAnimation<Color>(unifiedGreen),
                                   minHeight: 10,
                                 ),
                               ),
@@ -261,8 +261,8 @@ class GroupMainView extends GetView<GroupController> {
                           child: Padding(
                             padding: EdgeInsets.symmetric(vertical: 12.0),
                             child: Text(
-                              "그룹에 참여 중인 멤버가 없습니다.", 
-                              style: TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.w500)
+                                "그룹에 참여 중인 멤버가 없습니다.",
+                                style: TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.w500)
                             ),
                           ),
                         );
@@ -286,7 +286,7 @@ class GroupMainView extends GetView<GroupController> {
                               children: [
                                 const CircleAvatar(
                                   radius: 18,
-                                  backgroundColor: unifiedGreen, 
+                                  backgroundColor: unifiedGreen,
                                   child: Icon(Icons.person, color: Colors.white, size: 20),
                                 ),
                                 const SizedBox(height: 4),
@@ -307,7 +307,7 @@ class GroupMainView extends GetView<GroupController> {
                   padding: const EdgeInsets.all(16.0),
                   child: Obx(() {
                     final bool hasAnn = controller.announcements.isNotEmpty;
-                    final String displayContent = hasAnn 
+                    final String displayContent = hasAnn
                         ? (controller.announcements.first["content"]?.toString() ?? "새로운 공지사항이 있습니다.")
                         : "등록된 공지사항이 없습니다. 새로운 소식을 확인해보세요!";
 
@@ -326,9 +326,9 @@ class GroupMainView extends GetView<GroupController> {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  fontSize: 13, 
-                                  color: hasAnn ? Colors.black87 : Colors.grey,
-                                  fontWeight: hasAnn ? FontWeight.normal : FontWeight.w500
+                                    fontSize: 13,
+                                    color: hasAnn ? Colors.black87 : Colors.grey,
+                                    fontWeight: hasAnn ? FontWeight.normal : FontWeight.w500
                                 ),
                               ),
                             ),
@@ -351,41 +351,41 @@ class GroupMainView extends GetView<GroupController> {
                         return Padding(
                           padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
                           child: Text(
-                            isSet ? "[$title] 게시판" : "[미션책 제목] 게시판", 
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87)
+                              isSet ? "[$title] 게시판" : "[미션책 제목] 게시판",
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87)
                           ),
                         );
                       }),
-                      
+
                       Obx(() {
                         final title = controller.currentMissionBookTitle.value;
                         if (title.isEmpty || title == "미설정") {
                           return _buildOpenBoardTile("미션책을 선정해주세요", () {});
                         }
-                        
+
                         return _buildOpenBoardTile(
-                          "신간부터 읽어보자 하고 도전했는데요...", 
-                          () async {
-                            final String currentBookIdStr = controller.currentMissionBookId.value.toString();
-                            await controller.fetchFilteredBookBoard(currentBookIdStr, true);
-                            Get.to(() => const GroupPostListView(isMissionBoard: true));
-                          }
+                            "신간부터 읽어보자 하고 도전했는데요...",
+                                () async {
+                              final String currentBookIdStr = controller.currentMissionBookId.value.toString();
+                              await controller.fetchFilteredBookBoard(currentBookIdStr, true);
+                              Get.to(() => const GroupPostListView(isMissionBoard: true));
+                            }
                         );
                       }),
-                      
+
                       const SizedBox(height: 20),
-                      
+
                       const Padding(
                         padding: EdgeInsets.only(left: 4.0, bottom: 8.0),
                         child: Text("자유게시판", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87)),
                       ),
-                      
+
                       _buildOpenBoardTile(
-                        "여러분들이 자유롭게 글을 쓰고 공유하는 공간입니다.", 
-                        () async {
-                          await controller.fetchAllDataFromAPI(); 
-                          Get.to(() => const GroupPostListView(isMissionBoard: false));
-                        }
+                          "여러분들이 자유롭게 글을 쓰고 공유하는 공간입니다.",
+                              () async {
+                            await controller.fetchAllDataFromAPI();
+                            Get.to(() => const GroupPostListView(isMissionBoard: false));
+                          }
                       ),
                     ],
                   ),
@@ -402,10 +402,10 @@ class GroupMainView extends GetView<GroupController> {
   Widget _buildOpenBoardTile(String subtitle, VoidCallback onTap) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.backgroundGrey, 
-        borderRadius: BorderRadius.circular(12)
+          color: AppColors.backgroundGrey,
+          borderRadius: BorderRadius.circular(12)
       ),
-      clipBehavior: Clip.antiAlias, 
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Padding(
@@ -415,10 +415,10 @@ class GroupMainView extends GetView<GroupController> {
             children: [
               Expanded(
                 child: Text(
-                  subtitle, 
-                  style: const TextStyle(fontSize: 13, color: Colors.grey), 
-                  maxLines: 1, 
-                  overflow: TextOverflow.ellipsis
+                    subtitle,
+                    style: const TextStyle(fontSize: 13, color: Colors.grey),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis
                 ),
               ),
               const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
@@ -519,7 +519,7 @@ class GroupAnnouncementListView extends GetView<GroupController> {
                 leading: Icon(isPinned ? Icons.push_pin_outlined : Icons.push_pin, color: Colors.blue),
                 title: Text(isPinned ? "상단 고정 해제 (글 밑으로 내리기)" : "가장 상단에 올리기 (핀 고정)"),
                 onTap: () async {
-                  Get.back(); 
+                  Get.back();
 
                   await controller.togglePinAnnouncement(ann);
                   Get.snackbar("알림", isPinned ? "공지 고정이 해제되었습니다." : "공지가 최상단에 고정되었습니다.");

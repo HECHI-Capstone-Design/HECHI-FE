@@ -18,7 +18,7 @@ class NotificationPage extends StatefulWidget {
 
 class _NotificationPageState extends State<NotificationPage> {
   int _selectedTab = 0;
-  final NotificationController controller = Get.put(NotificationController());
+  final NotificationController controller = Get.find<NotificationController>();
 
   @override
   Widget build(BuildContext context) {
@@ -44,21 +44,29 @@ class _NotificationPageState extends State<NotificationPage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          NotificationTabBar(
-            selectedTab: _selectedTab,
-            onTabChanged: (i) => setState(() => _selectedTab = i),
-          ),
-          Expanded(
-            child: Obx(() {
-              if (controller.isLoading.value) {
-                return const Center(child: CircularProgressIndicator(color: AppColors.primary));
-              }
-              return _selectedTab == 0 ? const _GeneralListView() : const _GroupListView();
-            }),
-          ),
-        ],
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () async {
+          final category = _selectedTab == 0 ? 'GENERAL' : 'GROUP';
+          await controller.fetchNotifications(category: category);
+          await controller.fetchUnreadCount();
+        },
+        child: Column(
+          children: [
+            NotificationTabBar(
+              selectedTab: _selectedTab,
+              onTabChanged: (i) => setState(() => _selectedTab = i),
+            ),
+            Expanded(
+              child: Obx(() {
+                if (controller.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+                }
+                return _selectedTab == 0 ? const _GeneralListView() : const _GroupListView();
+              }),
+            ),
+          ],
+        ),
       ),
     );
   }

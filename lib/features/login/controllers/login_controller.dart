@@ -8,6 +8,7 @@ import 'package:firebase_messaging/firebase_messaging.dart'; // FCM 사용을 �
 import 'package:hechi/app/routes.dart';
 import 'package:hechi/app/controllers/app_controller.dart';
 import '../../my_read/controllers/my_read_controller.dart';
+import '../../notification/controllers/notification_controller.dart';
 import 'package:hechi/features/mainpage/controllers/mainpage_controller.dart';
 import 'package:hechi/features/myGroup/controllers/my_group_controller.dart';
 
@@ -127,6 +128,9 @@ class LoginController extends GetxController {
         if (Get.isRegistered<MyReadController>()) {
           Get.delete<MyReadController>();
         }
+        // 로그인 성공 후 알림 카운트 갱신
+        try { Get.find<NotificationController>().fetchUnreadCount(); } catch (_) {}
+
         final profile = appController.userProfile;
         bool isAnalyzed = profile['taste_analyzed'] ?? false;
 

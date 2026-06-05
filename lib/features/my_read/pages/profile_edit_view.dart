@@ -1,6 +1,9 @@
 import 'package:hechi/app/colors.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import '../../../app/controllers/app_controller.dart';
 import '../controllers/my_read_controller.dart';
 
 class ProfileEditView extends StatefulWidget {
@@ -12,6 +15,7 @@ class ProfileEditView extends StatefulWidget {
 
 class _ProfileEditViewState extends State<ProfileEditView> {
   final MyReadController controller = Get.find<MyReadController>();
+  final AppController appController = Get.find<AppController>();
   late TextEditingController nameController;
   late TextEditingController descController;
 
@@ -35,8 +39,63 @@ class _ProfileEditViewState extends State<ProfileEditView> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final safeBottom = MediaQuery.of(context).padding.bottom;
+
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.fromLTRB(0, 20, 0, 20 + safeBottom),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined, color: AppColors.primary),
+              title: const Text('갤러리에서 선택'),
+              onTap: () async {
+                Navigator.pop(ctx);
+                final picked = await picker.pickImage(
+                  source: ImageSource.gallery,
+                  imageQuality: 80,
+                  maxWidth: 800,
+                );
+                if (picked != null) {
+                  await appController.uploadProfileImage(File(picked.path));
+                  setState(() {});
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined, color: AppColors.primary),
+              title: const Text('카메라로 촬영'),
+              onTap: () async {
+                Navigator.pop(ctx);
+                final picked = await picker.pickImage(
+                  source: ImageSource.camera,
+                  imageQuality: 80,
+                  maxWidth: 800,
+                );
+                if (picked != null) {
+                  await appController.uploadProfileImage(File(picked.path));
+                  setState(() {});
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final profileImageUrl = appController.userProfile['profileImageUrl'] as String?;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -53,32 +112,48 @@ class _ProfileEditViewState extends State<ProfileEditView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 프로필 이미지 (탭하면 갤러리/카메라)
             Center(
-              child: Stack(
-                children: [
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      shape: BoxShape.circle,
+              child: GestureDetector(
+                onTap: _pickImage,
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.grey[300],
+                      backgroundImage: profileImageUrl != null && profileImageUrl.isNotEmpty
+                          ? NetworkImage(profileImageUrl)
+                          : null,
+                      child: profileImageUrl == null || profileImageUrl.isEmpty
+                          ? Icon(Icons.person, color: Colors.white.withValues(alpha: 0.8), size: 60)
+                          : null,
                     ),
-                  ),
-                  Positioned.fill(
-                    child: Align(
-                      alignment: Alignment.center,
-                      // ✅ [수정 완료] withOpacity 대신 withValues 사용 (경고 해결)
-                      child: Icon(
-                          Icons.person,
-                          color: Colors.white.withValues(alpha: 0.8),
-                          size: 60
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: const Icon(Icons.camera_alt, size: 14, color: Colors.white),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 8),
+            const Center(
+              child: Text(
+                '프로필 변경',
+                style: TextStyle(fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.w500),
+              ),
+            ),
+            const SizedBox(height: 32),
 
             const Text("이름(닉네임)", style: TextStyle(fontSize: 14, color: AppColors.textDark)),
             const SizedBox(height: 8),

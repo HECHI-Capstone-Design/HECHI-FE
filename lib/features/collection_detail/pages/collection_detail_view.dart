@@ -9,18 +9,35 @@ import '../widgets/collection_book_grid.dart';
 import '../widgets/more_menu.dart';
 import '../../../core/widgets/bottom_bar.dart';
 
-class CollectionDetailView extends GetView<CollectionDetailController> {
+class CollectionDetailView extends StatefulWidget {
   const CollectionDetailView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final scrollController = ScrollController();
-    final opacity = 0.0.obs;
+  State<CollectionDetailView> createState() => _CollectionDetailViewState();
+}
 
+class _CollectionDetailViewState extends State<CollectionDetailView> {
+  final scrollController = ScrollController();
+  final opacity = 0.0.obs;
+
+  @override
+  void initState() {
+    super.initState();
     scrollController.addListener(() {
-      double offset = scrollController.offset;
+      final offset = scrollController.offset;
       opacity.value = ((offset - 200) / 100).clamp(0.0, 1.0);
     });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.find<CollectionDetailController>();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -77,6 +94,7 @@ class CollectionDetailView extends GetView<CollectionDetailController> {
           return const Center(child: CircularProgressIndicator(color: AppColors.primary));
         }
         return SingleChildScrollView(
+          controller: scrollController,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

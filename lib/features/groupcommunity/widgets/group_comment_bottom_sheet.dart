@@ -2,6 +2,7 @@ import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
+import 'package:hechi/core/utils/time_ago.dart';
 
 class GroupCommentBottomSheet extends StatefulWidget {
   final Map<String, dynamic> post;
@@ -148,11 +149,22 @@ class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
                                 crossAxisAlignment:
                                 CrossAxisAlignment.start,
                                 children: [
-                                  Text(comment["author"] ?? "익명",
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
-                                          color: Colors.black87)),
+                                  Row(
+                                    children: [
+                                      Text(comment["author"] ?? "익명",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13,
+                                              color: Colors.black87)),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        timeAgo(comment["createdAt"]?.toString() ?? comment["created_at"]?.toString()),
+                                        style: const TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.grey),
+                                      ),
+                                    ],
+                                  ),
                                   const SizedBox(height: 4),
                                   Text(comment["content"] ?? "",
                                       style: const TextStyle(
@@ -234,13 +246,22 @@ class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
                                         crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                         children: [
-                                          Text(reply["author"] ?? "익명",
-                                              style: const TextStyle(
-                                                  fontWeight:
-                                                  FontWeight.bold,
-                                                  fontSize: 12,
-                                                  color:
-                                                  Colors.black87)),
+                                          Row(
+                                            children: [
+                                              Text(reply["author"] ?? "익명",
+                                                  style: const TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 12,
+                                                      color: Colors.black87)),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                timeAgo(reply["createdAt"]?.toString() ?? reply["created_at"]?.toString()),
+                                                style: const TextStyle(
+                                                    fontSize: 10,
+                                                    color: Colors.grey),
+                                              ),
+                                            ],
+                                          ),
                                           const SizedBox(height: 2),
                                           Text(reply["content"] ?? "",
                                               style: const TextStyle(

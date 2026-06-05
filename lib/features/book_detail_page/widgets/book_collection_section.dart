@@ -130,17 +130,20 @@ class _BookCollectionSectionState extends State<BookCollectionSection> {
                         height: 150,
                       ),
                       const SizedBox(height: 10),
-                      Text(
-                        collection.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 14,
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.w400,
-                          height: 1.29,
-                          letterSpacing: 0.25,
+                      SizedBox(
+                        height: 36,
+                        child: Text(
+                          collection.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 14,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.w400,
+                            height: 1.29,
+                            letterSpacing: 0.25,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 4),

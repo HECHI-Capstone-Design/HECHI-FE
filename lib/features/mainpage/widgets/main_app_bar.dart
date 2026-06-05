@@ -2,6 +2,7 @@ import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/mainpage_controller.dart';
+import '../../notification/controllers/notification_controller.dart';
 import '../../notification/pages/notification_page.dart';
 
 class MainAppBar extends GetView<MainpageController> implements PreferredSizeWidget {
@@ -9,6 +10,8 @@ class MainAppBar extends GetView<MainpageController> implements PreferredSizeWid
 
   @override
   Widget build(BuildContext context) {
+    final notifController = Get.find<NotificationController>();
+
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
@@ -25,10 +28,38 @@ class MainAppBar extends GetView<MainpageController> implements PreferredSizeWid
       actions: [
         Row(
           children: [
-            IconButton(
-              icon: const Icon(Icons.notifications, color: AppColors.primary),
-              onPressed: () => Get.to(() => const NotificationPage()),
-            ),
+            // 알림 아이콘 + 뱃지
+            Obx(() {
+              final hasUnread = notifController.unreadCount.value > 0;
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      hasUnread ? Icons.notifications : Icons.notifications_none,
+                      color: AppColors.primary,
+                    ),
+                    onPressed: () async {
+                      await Get.to(() => const NotificationPage());
+                      notifController.fetchUnreadCount();
+                    },
+                  ),
+                  if (hasUnread)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            }),
             const SizedBox(width: 5),
             const Icon(Icons.bluetooth, color: AppColors.primary),
             const SizedBox(width: 20),

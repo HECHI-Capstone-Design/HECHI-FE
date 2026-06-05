@@ -18,6 +18,7 @@ class NotificationItem {
   final String title;
   final String message;
   final String? thumbnailUrl;
+  final String? senderProfileImageUrl;
   final bool isRead;
   final DateTime createdAt;
   final Map<String, dynamic> targetInfo;
@@ -29,6 +30,7 @@ class NotificationItem {
     required this.title,
     required this.message,
     this.thumbnailUrl,
+    this.senderProfileImageUrl,
     required this.isRead,
     required this.createdAt,
     required this.targetInfo,
@@ -62,6 +64,7 @@ class NotificationItem {
       title: json['title'] ?? '',
       message: json['message'] ?? '',
       thumbnailUrl: json['thumbnailUrl'] ?? json['thumbnail_url'],
+      senderProfileImageUrl: json['senderProfileImageUrl'] ?? json['sender_profile_image_url'],
       isRead: json['isRead'] ?? false,
       createdAt: parsedDate,
       targetInfo: json['targetInfo'] ?? {},

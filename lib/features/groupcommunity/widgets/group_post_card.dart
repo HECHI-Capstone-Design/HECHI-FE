@@ -46,17 +46,17 @@ class _GroupPostCardState extends State<GroupPostCard> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> detailData = jsonDecode(utf8.decode(response.bodyBytes));
         final dynamic discussionObj = detailData["discussion"];
-        
+
         if (discussionObj is Map && discussionObj.isNotEmpty) {
           rxDiscussion.value = Map<String, dynamic>.from(discussionObj);
           hasPoll.value = true;
-          
+
           final dynamic existingComments = widget.post["comments"];
-          
+
           widget.post["discussion"] = discussionObj;
           widget.post["hasPoll"] = true;
           widget.post["isDiscussion"] = true;
-          
+
           if (existingComments != null) {
             widget.post["comments"] = existingComments;
           }
@@ -106,7 +106,7 @@ class _GroupPostCardState extends State<GroupPostCard> {
             widget.post["content"] ?? "",
             style: const TextStyle(fontSize: 14, height: 1.5, color: Colors.black87),
           ),
-          
+
           Obx(() {
             if (!hasPoll.value || rxDiscussion.value == null) return const SizedBox.shrink();
             return _buildPollSection(rxDiscussion.value!);
@@ -130,12 +130,12 @@ class _GroupPostCardState extends State<GroupPostCard> {
                       borderRadius: BorderRadius.circular(4),
                       child: (widget.post["bookCover"] != null && widget.post["bookCover"].toString().startsWith('http'))
                           ? Image.network(
-                              widget.post["bookCover"],
-                              width: 46,
-                              height: 64,
-                              fit: BoxFit.cover,
-                              errorBuilder: (c, e, s) => Container(width: 46, height: 64, color: Colors.grey, child: const Icon(Icons.book, color: Colors.white24)),
-                            )
+                        widget.post["bookCover"],
+                        width: 46,
+                        height: 64,
+                        fit: BoxFit.cover,
+                        errorBuilder: (c, e, s) => Container(width: 46, height: 64, color: Colors.grey, child: const Icon(Icons.book, color: Colors.white24)),
+                      )
                           : Container(width: 46, height: 64, color: Colors.grey, child: const Icon(Icons.book, color: Colors.white24)),
                     ),
                     const SizedBox(width: 12),
@@ -189,15 +189,15 @@ class _GroupPostCardState extends State<GroupPostCard> {
 
               Obx(() {
                 final livePost = controller.missionPosts.firstWhere(
-                  (p) => p["id"].toString() == currentPostId,
+                      (p) => p["id"].toString() == currentPostId,
                   orElse: () => controller.freePosts.firstWhere(
-                    (p) => p["id"].toString() == currentPostId,
+                        (p) => p["id"].toString() == currentPostId,
                     orElse: () => widget.post,
                   ),
                 );
-                
-                final List<dynamic> currentCommentsList = livePost["comments"] is RxList 
-                    ? livePost["comments"] 
+
+                final List<dynamic> currentCommentsList = livePost["comments"] is RxList
+                    ? livePost["comments"]
                     : (livePost["comments"] ?? []);
 
                 return GestureDetector(
@@ -237,7 +237,7 @@ class _GroupPostCardState extends State<GroupPostCard> {
     final String pollQuestion = discussion["question"] ?? "투표에 참여해주세요";
     final List<dynamic> options = discussion["options"] ?? [];
     final int totalVotes = discussion["totalVotes"] ?? 0;
-    final int? myVoteOptionId = discussion["myVoteOptionId"]; 
+    final int? myVoteOptionId = discussion["myVoteOptionId"];
     final bool isVoted = myVoteOptionId != null;
 
     return Container(
@@ -304,8 +304,8 @@ class _GroupPostCardState extends State<GroupPostCard> {
                               widthFactor: percent,
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: isMyVote 
-                                      ? AppColors.primary.withOpacity(0.18) 
+                                  color: isMyVote
+                                      ? AppColors.primary.withOpacity(0.18)
                                       : AppColors.border,
                                 ),
                               ),
@@ -330,9 +330,9 @@ class _GroupPostCardState extends State<GroupPostCard> {
                               Text(
                                 "${(percent * 100).toInt()}% ($voteCount명)",
                                 style: TextStyle(
-                                  fontSize: 12, 
-                                  fontWeight: FontWeight.bold, 
-                                  color: isMyVote ? AppColors.primary : Colors.black54
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: isMyVote ? AppColors.primary : Colors.black54
                                 ),
                               ),
                           ],
@@ -480,7 +480,7 @@ class _GroupPostCardState extends State<GroupPostCard> {
       ),
       barrierDismissible: true,
     );
-    
+
     Future.delayed(const Duration(seconds: 2), () {
       if (Get.isDialogOpen!) Get.back();
     });

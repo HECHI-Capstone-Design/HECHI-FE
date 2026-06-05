@@ -125,7 +125,17 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
           isDense: true,
           contentPadding: EdgeInsets.symmetric(vertical: 10),
         ),
-        maxLines: 1,
+        maxLines: 2,
+        maxLength: 40,
+        buildCounter: (_, {required currentLength, required isFocused, maxLength}) {
+          return Text(
+            '$currentLength/$maxLength',
+            style: TextStyle(
+              fontSize: 11,
+              color: currentLength >= maxLength! ? AppColors.error : AppColors.textHint,
+            ),
+          );
+        },
       ),
     );
   }
