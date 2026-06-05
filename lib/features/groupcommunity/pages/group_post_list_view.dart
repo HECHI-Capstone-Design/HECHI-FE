@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:ui';
@@ -17,7 +18,7 @@ class GroupPostListView extends GetView<GroupController> {
 
   @override
   Widget build(BuildContext context) {
-    const unifiedGreen = Color(0xFF4EB56D);
+    const unifiedGreen = AppColors.primary;
 
     // ✅ 네비게이션바 높이를 build()에서 한 번만 가져옴
     final double safeBottom = MediaQuery.of(context).padding.bottom;
@@ -103,8 +104,8 @@ class GroupPostListView extends GetView<GroupController> {
                                   ? Image.network(cover,
                                   fit: BoxFit.cover,
                                   errorBuilder: (_, __, ___) => Container(
-                                      color: const Color(0xFF3A3A3C)))
-                                  : Container(color: const Color(0xFF3A3A3C));
+                                      color: AppColors.textDark))
+                                  : Container(color: AppColors.textDark);
                             }),
                           ),
                           Positioned.fill(
@@ -132,7 +133,7 @@ class GroupPostListView extends GetView<GroupController> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(6),
                                       border: Border.all(
-                                          color: const Color(0xFFEAEAEA),
+                                          color: AppColors.border,
                                           width: 0.5),
                                       image: cover.isNotEmpty
                                           ? DecorationImage(
@@ -252,7 +253,7 @@ class GroupPostListView extends GetView<GroupController> {
                   onPressed: () =>
                       Get.to(() => GroupPostCreateView(isMission: isMissionBoard)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF5F5F5),
+                    backgroundColor: AppColors.backgroundGrey,
                     foregroundColor: Colors.black87,
                     elevation: 3,
                     padding: const EdgeInsets.symmetric(

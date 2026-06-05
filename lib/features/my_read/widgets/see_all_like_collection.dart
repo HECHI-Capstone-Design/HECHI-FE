@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -64,13 +65,13 @@ class _SeeAllLikeCollectionPageState extends State<SeeAllLikeCollectionPage> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF3F3F3F)),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
           onPressed: () => Get.back(),
         ),
         title: const Text(
           '좋아요한 컬렉션',
           style: TextStyle(
-            color: Color(0xFF3F3F3F),
+            color: AppColors.textDark,
             fontSize: 16,
             fontFamily: 'Roboto',
             fontWeight: FontWeight.w500,
@@ -78,16 +79,16 @@ class _SeeAllLikeCollectionPageState extends State<SeeAllLikeCollectionPage> {
         ),
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+          child: Divider(height: 1, thickness: 0.5, color: AppColors.border),
         ),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF4DB56C)))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : collections.isEmpty
           ? const Center(
         child: Text(
           '좋아요한 컬렉션이 없습니다.',
-          style: TextStyle(color: Color(0xFF717171), fontSize: 15),
+          style: TextStyle(color: AppColors.textMedium, fontSize: 15),
         ),
       )
           : LayoutBuilder(
@@ -128,7 +129,7 @@ class _SeeAllLikeCollectionPageState extends State<SeeAllLikeCollectionPage> {
                 child: Container(
                   padding: const EdgeInsets.all(itemPadding),
                   decoration: ShapeDecoration(
-                    color: const Color(0x4CDADADA),
+                    color: AppColors.border.withOpacity(0.3),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(3),
                     ),
@@ -159,7 +160,7 @@ class _SeeAllLikeCollectionPageState extends State<SeeAllLikeCollectionPage> {
                       Text(
                         '좋아요 ${collection.likeCount}',
                         style: const TextStyle(
-                          color: Color(0xFF717171),
+                          color: AppColors.textMedium,
                           fontSize: 13,
                           fontFamily: 'Roboto',
                           fontWeight: FontWeight.w400,

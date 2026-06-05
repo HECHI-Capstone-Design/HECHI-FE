@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import '../models/notification_item.dart';
 
@@ -18,7 +19,7 @@ class NotificationTabBar extends StatelessWidget {
       child: Container(
         height: 40,
         decoration: BoxDecoration(
-          color: const Color(0xFFF3F3F3),
+          color: AppColors.divider,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(

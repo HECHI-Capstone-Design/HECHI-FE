@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/notification_settings_controller.dart';
@@ -8,7 +9,7 @@ class NotificationSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(NotificationSettingsController());
-    const brandColor = Color(0xFF4DB56C); // 앱 메인 색상
+    const brandColor = AppColors.primary; // 앱 메인 색상
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -38,7 +39,7 @@ class NotificationSettingsPage extends StatelessWidget {
               value: controller.pushEnabled.value,
               onChanged: (val) => controller.updateSettings(push: val),
             ),
-            const Divider(height: 1, thickness: 1, color: Color(0xFFF0F0F0)),
+            const Divider(height: 1, thickness: 1, color: AppColors.backgroundGrey),
 
             _buildSectionTitle('세부 알림 설정'),
             SwitchListTile(

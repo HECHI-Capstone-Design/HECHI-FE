@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/forget_password_controller.dart';
@@ -39,7 +40,7 @@ class StepOneEmailView extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 5, bottom: 15, left: 5),
                   child: Text(
                       controller.emailError.value,
-                      style: const TextStyle(color: Color(0xFFEA1717), fontSize: 13)
+                      style: const TextStyle(color: AppColors.error, fontSize: 13)
                   ),
                 )
                 ),

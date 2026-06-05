@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -67,7 +68,7 @@ class EmailVerifyController extends GetxController {
 
       if (response.statusCode == 200) {
         Get.snackbar("알림", "인증 코드가 재발송되었습니다.",
-            backgroundColor: const Color(0xFF4DB56C), colorText: Colors.white);
+            backgroundColor: AppColors.primary, colorText: Colors.white);
       } else {
         Get.snackbar("오류", "재발송에 실패했습니다. (${response.statusCode})");
       }

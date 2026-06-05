@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
@@ -8,7 +9,7 @@ class GroupReportListView extends GetView<GroupController> {
 
   @override
   Widget build(BuildContext context) {
-    const brandColor = Color(0xFF4EB56D);
+    const brandColor = AppColors.primary;
 
     return Scaffold(
       backgroundColor: Colors.white,

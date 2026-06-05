@@ -1,6 +1,8 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/collection_detail_controller.dart';
+import '../../book_detail_page/controllers/book_detail_controller.dart';
 
 class CollectionBookGrid extends StatefulWidget {
   final CollectionDetailController controller;
@@ -27,7 +29,7 @@ class _CollectionBookGridState extends State<CollectionBookGrid> {
               const Text(
                 '작품들',
                 style: TextStyle(
-                  color: Color(0xFF3F3F3F),
+                  color: AppColors.textDark,
                   fontSize: 17,
                   fontFamily: 'Roboto',
                   fontWeight: FontWeight.w600,
@@ -38,7 +40,7 @@ class _CollectionBookGridState extends State<CollectionBookGrid> {
               Text(
                 '${widget.controller.books.length}',
                 style: const TextStyle(
-                  color: Color(0xFF717171),
+                  color: AppColors.textMedium,
                   fontSize: 15,
                   fontFamily: 'Roboto',
                   fontWeight: FontWeight.w400,
@@ -57,7 +59,7 @@ class _CollectionBookGridState extends State<CollectionBookGrid> {
                   padding: EdgeInsets.all(40),
                   child: Text(
                     '담긴 작품이 없습니다.',
-                    style: TextStyle(color: Color(0xFFABABAB), fontSize: 15),
+                    style: TextStyle(color: AppColors.textHint, fontSize: 15),
                   ),
                 ),
               );
@@ -87,8 +89,16 @@ class _CollectionBookGridState extends State<CollectionBookGrid> {
                     final author = (authors is List && authors.isNotEmpty)
                         ? authors.join(', ')
                         : '';
+                    final bookId = int.tryParse(book['bookId']?.toString() ?? '');
 
-                    return Column(
+                    return GestureDetector(
+                      onTap: bookId != null
+                          ? () {
+                              Get.delete<BookDetailController>(force: true);
+                              Get.toNamed('/book_detail_page', arguments: bookId);
+                            }
+                          : null,
+                      child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -97,7 +107,7 @@ class _CollectionBookGridState extends State<CollectionBookGrid> {
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: const Color(0xFFE0E0E0), width: 0.5),
+                              border: Border.all(color: AppColors.border, width: 0.5),
                               image: coverUrl.isNotEmpty
                                   ? DecorationImage(
                                 image: NetworkImage(coverUrl),
@@ -127,13 +137,13 @@ class _CollectionBookGridState extends State<CollectionBookGrid> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            color: Color(0xFF717171),
+                            color: AppColors.textMedium,
                             fontSize: 12,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
                       ],
-                    );
+                    ));
                   },
                 ),
 
@@ -147,7 +157,7 @@ class _CollectionBookGridState extends State<CollectionBookGrid> {
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 11),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF7F7F7),
+                        color: AppColors.backgroundGrey,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Row(

@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/collection_detail_controller.dart';
@@ -25,11 +26,11 @@ class CollectionInfoSection extends StatelessWidget {
                     padding: const EdgeInsets.all(3),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: const Color(0xFF4DB56C), width: 2),
+                      border: Border.all(color: AppColors.primary, width: 2),
                     ),
                     child: CircleAvatar(
                       radius: 18,
-                      backgroundColor: const Color(0xFFA5D6A7),
+                      backgroundColor: AppColors.primaryLight,
                       child: const Icon(Icons.person, color: Colors.white, size: 25),
                     ),
                   ),
@@ -39,7 +40,7 @@ class CollectionInfoSection extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF3F3F3F),
+                      color: AppColors.textDark,
                     ),
                   ),
                 ],
@@ -67,12 +68,12 @@ class CollectionInfoSection extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                     minimumSize: const Size(0, 32),
-                    side: const BorderSide(color: Color(0xFF89C99C)),
+                    side: const BorderSide(color: AppColors.primaryLight),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                   ),
                   child: const Text(
                     '수정하기',
-                    style: TextStyle(color: Color(0xFF4DB56C), fontSize: 13),
+                    style: TextStyle(color: AppColors.primary, fontSize: 13),
                   ),
                 ),
             ],
@@ -96,7 +97,7 @@ class CollectionInfoSection extends StatelessWidget {
               controller.collectionDesc.value,
               style: const TextStyle(
                 fontSize: 15,
-                color: Color(0xFF555555),
+                color: AppColors.textDark,
                 height: 1.4,
               ),
             ),
@@ -111,7 +112,7 @@ class CollectionInfoSection extends StatelessWidget {
               children: controller.tags.map((tag) => Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 decoration: ShapeDecoration(
-                  color: const Color(0x7FDADADA),
+                  color: AppColors.border.withOpacity(0.5),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(7),
                   ),
@@ -119,7 +120,7 @@ class CollectionInfoSection extends StatelessWidget {
                 child: Text(
                   '#$tag',
                   style: const TextStyle(
-                    color: Color(0xFF3F3F3F),
+                    color: AppColors.textDark,
                     fontSize: 14,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w400,

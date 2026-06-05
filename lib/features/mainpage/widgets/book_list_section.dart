@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -69,7 +70,7 @@ class BookListSection extends StatelessWidget {
             width: 118,
             height: 177,
             decoration: BoxDecoration(
-              border: Border.all(width: 0.5, color: const Color(0xFFD4D4D4)),
+              border: Border.all(width: 0.5, color: AppColors.borderMedium),
               borderRadius: BorderRadius.circular(2),
               image: DecorationImage(
                 image: NetworkImage(book['imageUrl']),

@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/taste_analysis_controller.dart';
@@ -17,7 +18,7 @@ class EvaluationCountCard extends GetView<TasteAnalysisController> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF3F3F3F),
+              color: AppColors.textDark,
             ),
           ),
           const SizedBox(height: 20),
@@ -29,7 +30,7 @@ class EvaluationCountCard extends GetView<TasteAnalysisController> {
               gradient: const LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Color(0xFFF0FDF0), Color(0xFFE8F5E9)],
+                colors: [AppColors.primarySurface, AppColors.primarySurface],
               ),
             ),
             child: Column(
@@ -44,7 +45,7 @@ class EvaluationCountCard extends GetView<TasteAnalysisController> {
                       style: const TextStyle(
                         fontSize: 32, // 숫자 강조
                         fontWeight: FontWeight.w800, // 더 굵게
-                        color: Color(0xFF4DB56C),
+                        color: AppColors.primary,
                       ),
                     )),
                     const SizedBox(width: 4),
@@ -52,7 +53,7 @@ class EvaluationCountCard extends GetView<TasteAnalysisController> {
                       "권",
                       style: TextStyle(
                         fontSize: 18,
-                        color: Color(0xFF4DB56C),
+                        color: AppColors.primary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -63,7 +64,7 @@ class EvaluationCountCard extends GetView<TasteAnalysisController> {
                   '지금까지 ${controller.userProfile['nickname'] ?? 'HECHI'}님이 읽고 평가한 책',
                   style: TextStyle(
                     fontSize: 13, // 14 -> 13 (설명글은 작게)
-                    color: const Color(0xFF4DB56C).withOpacity(0.8),
+                    color: AppColors.primary.withOpacity(0.8),
                     fontWeight: FontWeight.w500,
                   ),
                 )),

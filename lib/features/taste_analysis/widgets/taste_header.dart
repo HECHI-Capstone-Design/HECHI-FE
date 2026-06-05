@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/taste_analysis_controller.dart';
@@ -10,7 +11,7 @@ class TasteHeader extends GetView<TasteAnalysisController> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 30),
-      color: const Color(0xFF4DB56C),
+      color: AppColors.primary,
       child: Obx(() {
         final nickname = controller.userProfile['nickname'] ?? 'HECHI';
         return Column(
@@ -39,7 +40,7 @@ class TasteHeader extends GetView<TasteAnalysisController> {
                 const CircleAvatar(
                   radius: 12, // 크기 살짝 축소
                   backgroundColor: Colors.white,
-                  child: Icon(Icons.person, color: Color(0xFF4DB56C), size: 18),
+                  child: Icon(Icons.person, color: AppColors.primary, size: 18),
                 ),
                 const SizedBox(width: 8),
                 Text(

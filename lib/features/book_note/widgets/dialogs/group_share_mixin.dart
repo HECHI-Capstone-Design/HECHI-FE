@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -253,7 +254,7 @@ class _SelectBottomSheet extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF3F3F3F),
+                      color: AppColors.textDark,
                     ),
                   ),
                   GestureDetector(
@@ -263,14 +264,14 @@ class _SelectBottomSheet extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w400,
-                        color: Color(0xFF4DB56C),
+                        color: AppColors.primary,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+            const Divider(height: 1, thickness: 0.5, color: AppColors.border),
             ...items.asMap().entries.map((entry) => InkWell(
               onTap: () => onSelect(entry.key),
               child: Container(
@@ -278,7 +279,7 @@ class _SelectBottomSheet extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 decoration: const BoxDecoration(
                   border: Border(
-                    bottom: BorderSide(width: 0.5, color: Color(0xFFDADADA)),
+                    bottom: BorderSide(width: 0.5, color: AppColors.border),
                   ),
                 ),
                 child: Text(
@@ -286,7 +287,7 @@ class _SelectBottomSheet extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
-                    color: itemColors?[entry.key] ?? const Color(0xFF3F3F3F),
+                    color: itemColors?[entry.key] ?? AppColors.textDark,
                   ),
                 ),
               ),

@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class AutoLoginCheckbox extends StatelessWidget {
@@ -20,7 +21,7 @@ class AutoLoginCheckbox extends StatelessWidget {
           child: Checkbox(
             value: isChecked,
             onChanged: (value) => onTap(),
-            activeColor: const Color(0xFF4DB56C),
+            activeColor: AppColors.primary,
             side: const BorderSide(color: Colors.grey),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           ),

@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:convert';
+import 'dart:io';
 import '../routes.dart';
+import '../../features/notification/controllers/notification_controller.dart';
 
 class AppController extends GetxController {
   final box = GetStorage();
@@ -140,6 +143,14 @@ class AppController extends GetxController {
           description.value = serverDesc;
         }
 
+        // 자동 로그인 시 FCM 토큰 등록
+        _registerFcmToken(accessToken);
+
+        // 로그인 성공 후 알림 카운트 갱신
+        try {
+          Get.find<NotificationController>().fetchUnreadCount();
+        } catch (_) {}
+
         bool isAnalyzed = meData['taste_analyzed'] ?? false;
         if (isAnalyzed) {
           Get.offAllNamed(Routes.initial);
@@ -152,6 +163,60 @@ class AppController extends GetxController {
       }
     } catch (e) {
       Get.offAllNamed(Routes.login);
+    }
+  }
+
+  // 프로필 이미지 업로드 (POST /users/me/profile-image)
+  Future<bool> uploadProfileImage(File imageFile) async {
+    String? token = box.read('access_token');
+    if (token == null) return false;
+
+    try {
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$baseUrl/users/me/profile-image'),
+      );
+      request.headers['Authorization'] = 'Bearer $token';
+      request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
+        final imageUrl = data['profileImageUrl'];
+        userProfile['profileImageUrl'] = imageUrl;
+        userProfile.refresh();
+        print("✅ 프로필 이미지 업로드 성공: $imageUrl");
+        return true;
+      } else {
+        print("❌ 프로필 이미지 업로드 실패: ${response.statusCode}");
+        print("❌ 응답 바디: ${response.body}");
+        Get.snackbar("오류", "이미지 업로드에 실패했습니다.");
+        return false;
+      }
+    } catch (e) {
+      print("🚨 이미지 업로드 오류: $e");
+      Get.snackbar("오류", "서버와 연결할 수 없습니다.");
+      return false;
+    }
+  }
+
+  Future<void> _registerFcmToken(String accessToken) async {
+    try {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      if (fcmToken == null) return;
+      await http.post(
+        Uri.parse('$baseUrl/notifications/register-token'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode({"fcm_token": fcmToken}),
+      );
+      print("🚀 자동 로그인 FCM 토큰 등록 완료");
+    } catch (e) {
+      print("❌ 자동 로그인 FCM 토큰 등록 실패: $e");
     }
   }
 }

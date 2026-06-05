@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/ai_summary_controller.dart';
@@ -15,13 +16,13 @@ class AiSummaryPage extends GetView<AiSummaryController> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF3F3F3F)),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
           onPressed: () => Get.back(),
         ),
         title: const Text(
           'AI 메모 요약',
           style: TextStyle(
-            color: Color(0xFF3F3F3F),
+            color: AppColors.textDark,
             fontSize: 16,
             fontFamily: 'Roboto',
             fontWeight: FontWeight.w600,
@@ -32,7 +33,7 @@ class AiSummaryPage extends GetView<AiSummaryController> {
           Padding(
             padding: const EdgeInsets.only(right: 17),
             child: IconButton(
-              icon: const Icon(Icons.more_horiz, color: Color(0xFF3F3F3F)),
+              icon: const Icon(Icons.more_horiz, color: AppColors.textDark),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
               onPressed: () {
@@ -48,7 +49,7 @@ class AiSummaryPage extends GetView<AiSummaryController> {
         ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+          child: Divider(height: 1, thickness: 0.5, color: AppColors.border),
         ),
       ),
       body: _buildBody(),
@@ -59,7 +60,7 @@ class AiSummaryPage extends GetView<AiSummaryController> {
     return Obx(() {
       if (controller.isLoading.value) {
         return const Center(
-          child: CircularProgressIndicator(color: Color(0xFF4DB56C)),
+          child: CircularProgressIndicator(color: AppColors.primary),
         );
       }
 
@@ -69,12 +70,12 @@ class AiSummaryPage extends GetView<AiSummaryController> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircularProgressIndicator(color: Color(0xFF4DB56C)),
+              CircularProgressIndicator(color: AppColors.primary),
               SizedBox(height: 16),
               Text(
                 'AI가 요약을 생성 중입니다...',
                 style: TextStyle(
-                  color: Color(0xFF717171),
+                  color: AppColors.textMedium,
                   fontSize: 15,
                   fontFamily: 'Roboto',
                   fontWeight: FontWeight.w400,
@@ -109,7 +110,7 @@ class AiSummaryPage extends GetView<AiSummaryController> {
               width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.white,
-                border: Border.all(color: const Color(0xFFE5E5E5), width: 0.5),
+                border: Border.all(color: AppColors.border, width: 0.5),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -123,12 +124,12 @@ class AiSummaryPage extends GetView<AiSummaryController> {
                       children: [
                         Row(
                           children: const [
-                            Icon(Icons.auto_awesome, size: 16, color: Color(0xFF4DB56C)),
+                            Icon(Icons.auto_awesome, size: 16, color: AppColors.primary),
                             SizedBox(width: 6),
                             Text(
                               'AI 요약',
                               style: TextStyle(
-                                color: Color(0xFF4DB56C),
+                                color: AppColors.primary,
                                 fontSize: 13,
                                 fontFamily: 'Roboto',
                                 fontWeight: FontWeight.w500,
@@ -141,7 +142,7 @@ class AiSummaryPage extends GetView<AiSummaryController> {
                           content,
                           style: const TextStyle(
                             fontSize: 14,
-                            color: Color(0xFF3F3F3F),
+                            color: AppColors.textDark,
                             fontFamily: 'Roboto',
                             fontWeight: FontWeight.w400,
                             height: 1.75,
@@ -153,7 +154,7 @@ class AiSummaryPage extends GetView<AiSummaryController> {
 
                   // ── 주요 내용
                   if (keyPoints.isNotEmpty) ...[
-                    const Divider(height: 1, thickness: 0.5, color: Color(0xFFE5E5E5)),
+                    const Divider(height: 1, thickness: 0.5, color: AppColors.border),
                     Padding(
                       padding: const EdgeInsets.all(20),
                       child: Column(
@@ -165,7 +166,7 @@ class AiSummaryPage extends GetView<AiSummaryController> {
                                 width: 3,
                                 height: 16,
                                 decoration: BoxDecoration(
-                                  color: Color(0xFF4DB56C),
+                                  color: AppColors.primary,
                                   borderRadius: BorderRadius.all(Radius.circular(2)),
                                 ),
                               ),
@@ -175,7 +176,7 @@ class AiSummaryPage extends GetView<AiSummaryController> {
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
-                                  color: Color(0xFF3F3F3F),
+                                  color: AppColors.textDark,
                                   fontFamily: 'Roboto',
                                 ),
                               ),
@@ -192,7 +193,7 @@ class AiSummaryPage extends GetView<AiSummaryController> {
                                   height: 4,
                                   margin: const EdgeInsets.only(top: 8, right: 8),
                                   decoration: const BoxDecoration(
-                                    color: Color(0xFFBDBDBD),
+                                    color: AppColors.border,
                                     shape: BoxShape.circle,
                                   ),
                                 ),
@@ -201,7 +202,7 @@ class AiSummaryPage extends GetView<AiSummaryController> {
                                     point,
                                     style: const TextStyle(
                                       fontSize: 14,
-                                      color: Color(0xFF3F3F3F),
+                                      color: AppColors.textDark,
                                       fontFamily: 'Roboto',
                                       fontWeight: FontWeight.w400,
                                       height: 1.6,
@@ -218,7 +219,7 @@ class AiSummaryPage extends GetView<AiSummaryController> {
 
                   // ── 내가 남긴 메모
                   if (notesDigest.isNotEmpty) ...[
-                    const Divider(height: 1, thickness: 0.5, color: Color(0xFFE5E5E5)),
+                    const Divider(height: 1, thickness: 0.5, color: AppColors.border),
                     Padding(
                       padding: const EdgeInsets.all(20),
                       child: Column(
@@ -230,7 +231,7 @@ class AiSummaryPage extends GetView<AiSummaryController> {
                                 width: 3,
                                 height: 16,
                                 decoration: BoxDecoration(
-                                  color: Color(0xFF4DB56C),
+                                  color: AppColors.primary,
                                   borderRadius: BorderRadius.all(Radius.circular(2)),
                                 ),
                               ),
@@ -240,7 +241,7 @@ class AiSummaryPage extends GetView<AiSummaryController> {
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
-                                  color: Color(0xFF3F3F3F),
+                                  color: AppColors.textDark,
                                   fontFamily: 'Roboto',
                                 ),
                               ),
@@ -254,14 +255,14 @@ class AiSummaryPage extends GetView<AiSummaryController> {
                               padding: const EdgeInsets.only(left: 12, top: 2, bottom: 2),
                               decoration: const BoxDecoration(
                                 border: Border(
-                                  left: BorderSide(color: Color(0xFFBDBDBD), width: 2),
+                                  left: BorderSide(color: AppColors.border, width: 2),
                                 ),
                               ),
                               child: Text(
                                 note,
                                 style: const TextStyle(
                                   fontSize: 14,
-                                  color: Color(0xFF3F3F3F),
+                                  color: AppColors.textDark,
                                   fontFamily: 'Roboto',
                                   fontWeight: FontWeight.w400,
                                   height: 1.65,
@@ -275,7 +276,7 @@ class AiSummaryPage extends GetView<AiSummaryController> {
                   ],
 
                   // ── 다시 생성
-                  const Divider(height: 1, thickness: 0.5, color: Color(0xFFE5E5E5)),
+                  const Divider(height: 1, thickness: 0.5, color: AppColors.border),
                   GestureDetector(
                     onTap: () => controller.fetchSummary(),
                     child: Container(
@@ -285,13 +286,13 @@ class AiSummaryPage extends GetView<AiSummaryController> {
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.refresh, size: 14, color: Color(0xFFBDBDBD)),
+                          Icon(Icons.refresh, size: 14, color: AppColors.border),
                           SizedBox(width: 6),
                           Text(
                             '다시 생성',
                             style: TextStyle(
                               fontSize: 13,
-                              color: Color(0xFFBDBDBD),
+                              color: AppColors.border,
                               fontFamily: 'Roboto',
                               fontWeight: FontWeight.w400,
                             ),
@@ -316,12 +317,12 @@ class AiSummaryPage extends GetView<AiSummaryController> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.auto_awesome_outlined,
-              size: 60, color: Color(0xFFDADADA)),
+              size: 60, color: AppColors.border),
           const SizedBox(height: 16),
           const Text(
             '요약할 메모가 없습니다.',
             style: TextStyle(
-              color: Color(0xFF717171),
+              color: AppColors.textMedium,
               fontSize: 15,
               fontFamily: 'Roboto',
               fontWeight: FontWeight.w400,

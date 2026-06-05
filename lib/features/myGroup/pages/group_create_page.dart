@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -72,7 +73,7 @@ class GroupCreatePage extends GetView<GroupCreateController> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFC8E6C9), // 연한 초록색
+                                  color: AppColors.primaryLight, // 연한 초록색
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: const Text(
@@ -112,7 +113,7 @@ class GroupCreatePage extends GetView<GroupCreateController> {
                                 width: 100, // 네모 칸의 너비 유지
                                 padding: const EdgeInsets.symmetric(vertical: 14),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF5F5F5),
+                                  color: AppColors.backgroundGrey,
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 alignment: Alignment.center,
@@ -143,7 +144,7 @@ class GroupCreatePage extends GetView<GroupCreateController> {
                             _buildLabel('그룹 비공개 설정'),
                             Obx(() => CupertinoSwitch(
                               value: controller.isPrivate.value,
-                              activeColor: const Color(0xFF4DB56C),
+                              activeColor: AppColors.primary,
                               onChanged: controller.togglePrivate,
                             )),
                           ],
@@ -197,7 +198,7 @@ class GroupCreatePage extends GetView<GroupCreateController> {
               child: ElevatedButton(
                 onPressed: () => controller.createGroup(),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4DB56C), // HECHI 앱 메인 초록색
+                  backgroundColor: AppColors.primary, // HECHI 앱 메인 초록색
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(26),
@@ -235,7 +236,7 @@ class GroupCreatePage extends GetView<GroupCreateController> {
         hintText: hint,
         hintStyle: const TextStyle(color: Colors.black38, fontSize: 14),
         filled: true,
-        fillColor: const Color(0xFFF5F5F5), // 연한 회색 배경
+        fillColor: AppColors.backgroundGrey, // 연한 회색 배경
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -269,7 +270,7 @@ class GroupCreatePage extends GetView<GroupCreateController> {
                       controller.setMaxMembers(tempSelected);
                       Get.back();
                     },
-                    child: const Text('완료', style: TextStyle(color: Color(0xFF4DB56C), fontWeight: FontWeight.bold)),
+                    child: const Text('완료', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
                   )
                 ],
               ),

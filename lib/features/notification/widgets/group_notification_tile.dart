@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -6,12 +7,12 @@ import '../controllers/notification_controller.dart';
 import 'package:hechi/app/routes.dart'; // ✅ 라우트 임포트 유지
 
 // UI 상단 공통 색상 상수
-const Color kNotifGreen = Color(0xFF5C8C5A);
-const Color kNotifGreenLight = Color(0xFFEAF3EA);
-const Color kNotifBorder = Color(0xFFD4D4D4);
-const Color kNotifTextDark = Color(0xFF3F3F3F);
-const Color kNotifTextMid = Color(0xFF5F5F5F);
-const Color kNotifTextGrey = Color(0xFF9E9E9E);
+final Color kNotifGreen = AppColors.primaryLight;
+final Color kNotifGreenLight = AppColors.primarySurface;
+final Color kNotifBorder = AppColors.borderMedium;
+final Color kNotifTextDark = AppColors.textDark;
+final Color kNotifTextMid = AppColors.textDark;
+final Color kNotifTextGrey = AppColors.textHint;
 
 class GroupNotificationTile extends StatelessWidget {
   final NotificationItem item;
@@ -56,7 +57,7 @@ class GroupNotificationTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         decoration: BoxDecoration(
           color: item.isRead ? Colors.white : kNotifGreenLight.withOpacity(0.5),
-          border: const Border(bottom: BorderSide(width: 0.5, color: kNotifBorder)),
+          border: Border(bottom: BorderSide(width: 0.5, color: kNotifBorder)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -82,13 +83,13 @@ class GroupNotificationTile extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Text(item.timeAgo, style: const TextStyle(color: kNotifTextGrey, fontSize: 11)),
+                      Text(item.timeAgo, style: TextStyle(color: kNotifTextGrey, fontSize: 11)),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '· ${item.description}',
-                    style: const TextStyle(color: kNotifTextMid, fontSize: 13, height: 1.4),
+                    style: TextStyle(color: kNotifTextMid, fontSize: 13, height: 1.4),
                     maxLines: 2, overflow: TextOverflow.ellipsis,
                   ),
                 ],
@@ -124,14 +125,16 @@ class GroupNotificationTile extends StatelessWidget {
     if (isMission) {
       return _BookThumbnail(imageUrl: groupImageUrl);
     } else if (isJoinOrLeave) {
-      final String? userProfileUrl = (info['profileUrl'] ?? info['actorProfileUrl'] ?? info['userImageUrl'])?.toString();
+      final String? userProfileUrl = item.senderProfileImageUrl?.isNotEmpty == true
+          ? item.senderProfileImageUrl
+          : (info['profileUrl'] ?? info['actorProfileUrl'] ?? info['userImageUrl'])?.toString();
       return _ProfileThumbnail(imageUrl: userProfileUrl);
     } else if (isDelete) {
       // 삭제된 그룹은 회색 그룹 오프 아이콘 띄우기
       return Container(
         width: 60, height: 60,
-        decoration: const BoxDecoration(color: Color(0xFFF5F5F5), shape: BoxShape.circle),
-        child: const Icon(Icons.group_off, color: Color(0xFF9E9E9E), size: 28),
+        decoration: const BoxDecoration(color: AppColors.backgroundGrey, shape: BoxShape.circle),
+        child: const Icon(Icons.group_off, color: AppColors.textHint, size: 28),
       );
     } else {
       return _GroupAvatar(imageUrl: groupImageUrl, type: item.type);
@@ -149,10 +152,10 @@ class _BookThumbnail extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(4),
       child: Container(
-        width: 60, height: 80, color: const Color(0xFFF3F3F3),
+        width: 60, height: 80, color: AppColors.divider,
         child: imageUrl != null && imageUrl!.isNotEmpty
-            ? Image.network(imageUrl!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.book, color: kNotifBorder, size: 28))
-            : const Icon(Icons.book, color: kNotifBorder, size: 28),
+            ? Image.network(imageUrl!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Icon(Icons.book, color: kNotifBorder, size: 28))
+            : Icon(Icons.book, color: kNotifBorder, size: 28),
       ),
     );
   }
@@ -168,7 +171,7 @@ class _ProfileThumbnail extends StatelessWidget {
     return Container(
       width: 60, height: 60,
       decoration: const BoxDecoration(
-        color: Color(0xFFE0E0E0),
+        color: AppColors.border,
         shape: BoxShape.circle,
       ),
       child: imageUrl != null && imageUrl!.isNotEmpty

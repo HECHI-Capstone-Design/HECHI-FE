@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/book_note_controller.dart';
@@ -83,10 +84,10 @@ class BookInfoHeader extends GetView<BookNoteController> {
                         width: 70,
                         height: 23,
                         decoration: ShapeDecoration(
-                          color: active ? const Color(0xFFD1EDD9) : Colors.transparent,
+                          color: active ? AppColors.primarySurface : Colors.transparent,
                           shape: RoundedRectangleBorder(
                             side: BorderSide(
-                              color: active ? const Color(0xFF4DB56C) : const Color(0xFFABABAB),
+                              color: active ? AppColors.primary : AppColors.textHint,
                               width: 1,
                             ),
                             borderRadius: BorderRadius.circular(20),
@@ -97,7 +98,7 @@ class BookInfoHeader extends GetView<BookNoteController> {
                           'AI 요약',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: active ? const Color(0xFF4DB56C) : const Color(0xFFABABAB),
+                            color: active ? AppColors.primary : AppColors.textHint,
                             fontSize: 12,
                             fontFamily: 'Roboto',
                             fontWeight: FontWeight.w400,
@@ -166,7 +167,7 @@ void _showNoContentDialog() {
                   'AI 요약이 불가합니다.\n독서기록을 남겨주세요.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Color(0xFF3F3F3F),
+                    color: AppColors.textDark,
                     fontSize: 14,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w400,
@@ -175,7 +176,7 @@ void _showNoContentDialog() {
                 ),
               ),
             ),
-            Container(height: 1, color: const Color(0xFFF3F3F3)),
+            Container(height: 1, color: AppColors.divider),
             SizedBox(
               height: 36,
               child: Material(
@@ -190,7 +191,7 @@ void _showNoContentDialog() {
                     child: Text(
                       '닫기',
                       style: TextStyle(
-                        color: Color(0xFF4DB56C),
+                        color: AppColors.primary,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),
@@ -226,7 +227,7 @@ void _showIneligibleDialog() {
                   '메모 3개 이상 또는\n500자 이상 작성해주세요.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Color(0xFF3F3F3F),
+                    color: AppColors.textDark,
                     fontSize: 14,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w400,
@@ -235,7 +236,7 @@ void _showIneligibleDialog() {
                 ),
               ),
             ),
-            Container(height: 1, color: const Color(0xFFF3F3F3)),
+            Container(height: 1, color: AppColors.divider),
             SizedBox(
               height: 36,
               child: Material(
@@ -250,7 +251,7 @@ void _showIneligibleDialog() {
                     child: Text(
                       '닫기',
                       style: TextStyle(
-                        color: Color(0xFF4DB56C),
+                        color: AppColors.primary,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),

@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class StarRatingChart extends StatelessWidget {
@@ -31,9 +32,9 @@ class StarRatingChart extends StatelessWidget {
     }
 
     // ✅ 색상 정의
-    const Color activeColor = Color(0xFF4EB56D); // 가장 높은 바 (진한 초록)
-    const Color inactiveColor = Color(0xFFAAD2B6); // 나머지 바 (연한 초록)
-    const Color emptyColor = Color(0xFFF5F5F5);    // 데이터 0
+    final Color activeColor = AppColors.primary; // 가장 높은 바 (진한 초록)
+    final Color inactiveColor = AppColors.primaryLight; // 나머지 바 (연한 초록)
+    final Color emptyColor = AppColors.backgroundGrey;    // 데이터 0
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,7 +83,7 @@ class StarRatingChart extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: Color(0xFF757575),
+                              color: AppColors.textMedium,
                             ),
                           ),
                           const SizedBox(height: 4),

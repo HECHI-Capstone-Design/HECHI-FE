@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 // lib/features/search/controllers/search_controller.dart
 
 import 'dart:convert';
@@ -348,7 +349,7 @@ class BookSearchController extends GetxController {
               child: Text(
                 '\'${book.title}\'를 등록하시겠습니까?',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF3F3F3F)),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textDark),
               ),
             ),
             const SizedBox(height: 10),
@@ -357,11 +358,11 @@ class BookSearchController extends GetxController {
               child: Text(
                 '해당 도서는 도서 보관함 \'읽는 중\'에 포함되고,\n북스토퍼에 등록됩니다.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Color(0xFF888888), height: 1.4),
+                style: TextStyle(fontSize: 14, color: AppColors.textHint, height: 1.4),
               ),
             ),
             const SizedBox(height: 30),
-            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+            const Divider(height: 1, color: AppColors.divider),
             SizedBox(
               height: 50,
               child: Row(
@@ -386,10 +387,10 @@ class BookSearchController extends GetxController {
                         }
                       },
                       borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(16)),
-                      child: const Center(child: Text('예', style: TextStyle(fontSize: 16, color: Color(0xFF4CAF50), fontWeight: FontWeight.w500))),
+                      child: const Center(child: Text('예', style: TextStyle(fontSize: 16, color: AppColors.primary, fontWeight: FontWeight.w500))),
                     ),
                   ),
-                  const VerticalDivider(width: 1, color: Color(0xFFEEEEEE)),
+                  const VerticalDivider(width: 1, color: AppColors.divider),
                   Expanded(
                     child: InkWell(
                       onTap: () async {
@@ -399,7 +400,7 @@ class BookSearchController extends GetxController {
                         refreshSearch();
                       },
                       borderRadius: const BorderRadius.only(bottomRight: Radius.circular(16)),
-                      child: const Center(child: Text('도서 상세', style: TextStyle(fontSize: 16, color: Color(0xFF4CAF50), fontWeight: FontWeight.w500))),
+                      child: const Center(child: Text('도서 상세', style: TextStyle(fontSize: 16, color: AppColors.primary, fontWeight: FontWeight.w500))),
                     ),
                   ),
                 ],

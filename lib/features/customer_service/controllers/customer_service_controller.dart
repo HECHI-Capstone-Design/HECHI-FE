@@ -43,7 +43,15 @@ class CustomerServiceController extends GetxController {
   Future<void> fetchFaqs() async {
     final response = await _provider.getFaqs();
     if (!response.status.hasError && response.body != null) {
-      List<dynamic> data = response.body;
+      final raw = response.body;
+      List<dynamic> data;
+      if (raw is List) {
+        data = raw;
+      } else if (raw is Map && raw['items'] != null) {
+        data = raw['items'] as List<dynamic>;
+      } else {
+        return;
+      }
       faqList.value = data.map((json) => FaqModel.fromJson(json)).toList();
     }
   }
@@ -51,7 +59,15 @@ class CustomerServiceController extends GetxController {
   Future<void> fetchMyTickets() async {
     final response = await _provider.getMyTickets();
     if (!response.status.hasError && response.body != null) {
-      List<dynamic> data = response.body;
+      final raw = response.body;
+      List<dynamic> data;
+      if (raw is List) {
+        data = raw;
+      } else if (raw is Map && raw['items'] != null) {
+        data = raw['items'] as List<dynamic>;
+      } else {
+        return;
+      }
       var list = data.map((json) => TicketModel.fromJson(json)).toList();
       list.sort((a, b) => b.id.compareTo(a.id));
       myInquiries.value = list;
@@ -61,7 +77,15 @@ class CustomerServiceController extends GetxController {
   Future<void> fetchAdminTickets() async {
     final response = await _provider.getAdminTickets();
     if (!response.status.hasError && response.body != null) {
-      List<dynamic> data = response.body;
+      final raw = response.body;
+      List<dynamic> data;
+      if (raw is List) {
+        data = raw;
+      } else if (raw is Map && raw['items'] != null) {
+        data = raw['items'] as List<dynamic>;
+      } else {
+        return;
+      }
       adminInquiries.value = data.map((json) => TicketModel.fromJson(json)).toList();
     }
   }

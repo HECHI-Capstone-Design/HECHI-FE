@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class GroupInfoSection extends StatelessWidget {
@@ -23,11 +24,11 @@ class GroupInfoSection extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(memberCount, style: const TextStyle(fontSize: 15, color: Color(0xff333333), fontWeight: FontWeight.w500)),
+              Text(memberCount, style: const TextStyle(fontSize: 15, color: AppColors.textDark, fontWeight: FontWeight.w500)),
               const Text('  ·  ', style: TextStyle(color: Colors.grey)),
-              Text('개설일: $createdDate', style: const TextStyle(fontSize: 15, color: Color(0xff333333), fontWeight: FontWeight.w500)),
+              Text('개설일: $createdDate', style: const TextStyle(fontSize: 15, color: AppColors.textDark, fontWeight: FontWeight.w500)),
               const Text('  ·  ', style: TextStyle(color: Colors.grey)),
-              Text(masterNickname, style: const TextStyle(fontSize: 15, color: Color(0xff333333), fontWeight: FontWeight.w500)),
+              Text(masterNickname, style: const TextStyle(fontSize: 15, color: AppColors.textDark, fontWeight: FontWeight.w500)),
             ],
           ),
           const SizedBox(height: 8),
@@ -36,7 +37,7 @@ class GroupInfoSection extends StatelessWidget {
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: Color(0xff333333),
+              color: AppColors.textDark,
             ),
           ),
         ],

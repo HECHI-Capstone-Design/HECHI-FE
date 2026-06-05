@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/app/routes.dart';
@@ -31,7 +32,7 @@ class MyReadView extends GetView<MyReadController> {
         ],
       ),
       body: RefreshIndicator(
-        color: const Color(0xFF4DB56C),
+        color: AppColors.primary,
         onRefresh: () async => await controller.fetchMyReadData(),
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -47,19 +48,19 @@ class MyReadView extends GetView<MyReadController> {
               const SizedBox(height: 20),
 
               // 얇은 구분선
-              const Divider(color: Color(0xFFF5F5F5), thickness: 1, height: 1),
+              const Divider(color: AppColors.backgroundGrey, thickness: 1, height: 1),
 
               // 3. 보관함 링크 섹션 (내부 패딩 있음)
               const BookStorageLink(),
 
               // 두꺼운 구분선 (섹션 분리)
-              Container(height: 8, color: const Color(0xFFF5F5F5)),
+              Container(height: 8, color: AppColors.backgroundGrey),
 
               // 4. 캘린더 섹션
               MiniCalendarSection(controller: controller),
 
               // 두꺼운 구분선
-              Container(height: 8, color: const Color(0xFFF5F5F5)),
+              Container(height: 8, color: AppColors.backgroundGrey),
 
               // 5. 취향 분석
               //const SizedBox(height: 20),
@@ -71,7 +72,7 @@ class MyReadView extends GetView<MyReadController> {
               const SeeAllTasteButton(),
 
               // 두꺼운 구분선
-              Container(height: 8, color: const Color(0xFFF5F5F5)),
+              Container(height: 8, color: AppColors.backgroundGrey),
 
               // 컬렉션 UI
               Obx(() {
@@ -80,7 +81,7 @@ class MyReadView extends GetView<MyReadController> {
                 );
               }),
 
-              Container(height: 8, color: const Color(0xFFF5F5F5)),
+              Container(height: 8, color: AppColors.backgroundGrey),
 
               const SizedBox(height: 40),
             ],

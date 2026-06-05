@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -79,7 +80,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                       const Divider(
                           thickness: 1,
                           height: 1,
-                          color: Color(0xFFF3F3F3)),
+                          color: AppColors.divider),
                       _buildCommentList(),
                     ],
                   ),
@@ -143,7 +144,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                         CircleAvatar(
                           radius: 12,
                           backgroundColor:
-                          const Color(0xFF4DB56C).withOpacity(0.5),
+                          AppColors.primary.withOpacity(0.5),
                           child: const Icon(Icons.person,
                               color: Colors.white, size: 20),
                         ),
@@ -151,7 +152,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                         Text(
                           "$nickname $date",
                           style: const TextStyle(
-                              color: Color(0xFF717171), fontSize: 13),
+                              color: AppColors.textMedium, fontSize: 13),
                         ),
                       ],
                     ),
@@ -161,7 +162,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                         rating: rating,
                         itemBuilder: (context, index) => const Icon(
                             Icons.star_rounded,
-                            color: Color(0xFFFFD700)),
+                            color: AppColors.star),
                         itemCount: 5,
                         itemSize: 16.0,
                         direction: Axis.horizontal,
@@ -178,7 +179,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                     Text(
                       bookAuthor,
                       style: const TextStyle(
-                          color: Color(0xFF717171), fontSize: 14),
+                          color: AppColors.textMedium, fontSize: 14),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -218,7 +219,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
   Widget _buildActionButtons() {
     return Column(
       children: [
-        const Divider(thickness: 1, height: 1, color: Color(0xFFF3F3F3)),
+        const Divider(thickness: 1, height: 1, color: AppColors.divider),
         SizedBox(
           height: 48,
           child: Row(
@@ -237,7 +238,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                               : Icons.thumb_up_alt_outlined,
                           size: 18,
                           color: isLiked
-                              ? const Color(0xFF4DB56C)
+                              ? AppColors.primary
                               : Colors.grey,
                         ),
                         const SizedBox(width: 6),
@@ -245,7 +246,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                           "좋아요",
                           style: TextStyle(
                               color: isLiked
-                                  ? const Color(0xFF4DB56C)
+                                  ? AppColors.primary
                                   : Colors.grey,
                               fontWeight: FontWeight.w500),
                         ),
@@ -255,7 +256,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                 }),
               ),
               Container(
-                  width: 1, height: 20, color: const Color(0xFFF3F3F3)),
+                  width: 1, height: 20, color: AppColors.divider),
               Expanded(
                 child: InkWell(
                   onTap: () {},
@@ -276,7 +277,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
             ],
           ),
         ),
-        const Divider(thickness: 1, height: 1, color: Color(0xFFF3F3F3)),
+        const Divider(thickness: 1, height: 1, color: AppColors.divider),
       ],
     );
   }
@@ -291,7 +292,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
       child: Obx(() => Text(
         "좋아요 ${controller.review['like_count'] ?? 0}   "
             "댓글 ${controller.review['comment_count'] ?? 0}",
-        style: const TextStyle(color: Color(0xFF717171), fontSize: 13),
+        style: const TextStyle(color: AppColors.textMedium, fontSize: 13),
       )),
     );
   }
@@ -333,7 +334,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
               CircleAvatar(
                 radius: 18,
                 backgroundColor:
-                const Color(0xFF4DB56C).withOpacity(0.5),
+                AppColors.primary.withOpacity(0.5),
                 child: const Icon(Icons.person,
                     color: Colors.white, size: 20),
               ),
@@ -361,7 +362,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                                   .split('T')[0],
                               style: const TextStyle(
                                   fontSize: 11,
-                                  color: Color(0xFFABABAB)),
+                                  color: AppColors.textHint),
                             ),
                           ],
                         ),
@@ -371,7 +372,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                             child: const Icon(
                               Icons.more_horiz,
                               size: 18,
-                              color: Color(0xFFBDBDBD),
+                              color: AppColors.border,
                             ),
                           ),
                       ],
@@ -382,7 +383,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                       style: const TextStyle(
                           fontSize: 13,
                           height: 1.4,
-                          color: Color(0xFF3F3F3F)),
+                          color: AppColors.textDark),
                     ),
                   ],
                 ),
@@ -408,7 +409,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
       padding: EdgeInsets.fromLTRB(16, 10, 16, safeBottom > 0 ? safeBottom : 10),
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFF3F3F3))),
+        border: Border(top: BorderSide(color: AppColors.divider)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -417,7 +418,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
             padding: const EdgeInsets.only(bottom: 8.0),
             child: CircleAvatar(
               radius: 16,
-              backgroundColor: const Color(0xFF4DB56C).withOpacity(0.5),
+              backgroundColor: AppColors.primary.withOpacity(0.5),
               child: const Icon(Icons.person, color: Colors.white, size: 20),
             ),
           ),
@@ -427,7 +428,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
               padding: const EdgeInsets.symmetric(horizontal: 15),
               constraints: const BoxConstraints(maxHeight: 120),
               decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F5),
+                color: AppColors.backgroundGrey,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: TextField(
@@ -438,7 +439,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                   hintText: "코멘트에 댓글을 남겨보세요",
                   border: InputBorder.none,
                   hintStyle:
-                  TextStyle(fontSize: 13, color: Color(0xFFBDBDBD)),
+                  TextStyle(fontSize: 13, color: AppColors.border),
                   isDense: true,
                   contentPadding: EdgeInsets.symmetric(vertical: 10),
                 ),
@@ -451,7 +452,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
             onTap: controller.postComment,
             child: const Text("등록",
                 style: TextStyle(
-                    color: Color(0xFF4DB56C),
+                    color: AppColors.primary,
                     fontWeight: FontWeight.bold)),
           ),
         ],

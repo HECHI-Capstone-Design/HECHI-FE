@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/forget_password_controller.dart';
@@ -45,7 +46,7 @@ class StepTwoResetView extends StatelessWidget {
                       controller.isConfirmHidden.value
                           ? Icons.visibility_off_outlined
                           : Icons.visibility_outlined,
-                      color: const Color(0xFF717171),
+                      color: AppColors.textMedium,
                     ),
                   ),
                 )),

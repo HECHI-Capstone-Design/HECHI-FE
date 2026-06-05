@@ -25,7 +25,7 @@ class SearchView extends GetView<BookSearchController> {
           backgroundColor: Colors.white,
           body: Center(
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 412),
+              constraints: const BoxConstraints(maxWidth: double.infinity),
               color: Colors.white,
               child: Obx(() {
                 // 현재 상태가 검색 결과(result) 상태인지 확인

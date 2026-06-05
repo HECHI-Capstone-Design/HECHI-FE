@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/widgets/bottom_bar.dart';
@@ -42,7 +43,7 @@ class BookStorageView extends GetView<BookStorageController> {
     final labels = ['읽는 중', '완독한', '평가한', '위시리스트'];
     return Container(
       height: 50,
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFFDADADA), width: 1))),
+      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.border, width: 1))),
       child: Obx(() => Row(
         children: List.generate(4, (index) {
           bool isSelected = controller.currentTabIndex.value == index;
@@ -53,7 +54,7 @@ class BookStorageView extends GetView<BookStorageController> {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(border: isSelected ? const Border(bottom: BorderSide(color: Colors.black, width: 2)) : null),
                 child: Text(labels[index], style: TextStyle(
-                  color: isSelected ? Colors.black : const Color(0xFF888888),
+                  color: isSelected ? Colors.black : AppColors.textHint,
                   fontSize: 15,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 )),
@@ -68,20 +69,20 @@ class BookStorageView extends GetView<BookStorageController> {
   Widget _buildFilterSection() {
     return Container(
       height: 50,
-      color: const Color(0xFFF3F3F3),
+      color: AppColors.divider,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
           const Spacer(),
-          Obx(() => Text('${controller.books.length} 개', style: const TextStyle(fontSize: 14, color: Color(0xFF555555)))),
+          Obx(() => Text('${controller.books.length} 개', style: const TextStyle(fontSize: 14, color: AppColors.textDark))),
           const SizedBox(width: 16),
           GestureDetector(
             onTap: controller.showSortBottomSheet,
             child: Row(
               children: [
-                const Icon(Icons.sort, size: 18, color: Color(0xFF555555)),
+                const Icon(Icons.sort, size: 18, color: AppColors.textDark),
                 const SizedBox(width: 4),
-                Obx(() => Text(controller.currentSort.value, style: const TextStyle(fontSize: 14, color: Color(0xFF555555)))),
+                Obx(() => Text(controller.currentSort.value, style: const TextStyle(fontSize: 14, color: AppColors.textDark))),
               ],
             ),
           ),
@@ -93,7 +94,7 @@ class BookStorageView extends GetView<BookStorageController> {
   Widget _buildBookList() {
     return Expanded(
       child: Obx(() {
-        if (controller.isLoading.value) return const Center(child: CircularProgressIndicator(color: Color(0xFF4DB56C)));
+        if (controller.isLoading.value) return const Center(child: CircularProgressIndicator(color: AppColors.primary));
         if (controller.books.isEmpty) return const Center(child: Text('보관된 도서가 없습니다.'));
         return GridView.builder(
           padding: const EdgeInsets.all(16),
@@ -135,7 +136,7 @@ class _BookGridItem extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: const Color(0xFFE0E0E0), width: 0.5),
+                border: Border.all(color: AppColors.border, width: 0.5),
                 image: book.thumbnail.isNotEmpty
                     ? DecorationImage(
                     image: NetworkImage(book.thumbnail), fit: BoxFit.cover)
@@ -194,11 +195,11 @@ class _BookGridItem extends StatelessWidget {
         0.0);
     final Color ratingColor = hasMyRating
         ? const Color(0xFFFF7F00)
-        : const Color(0xFFAAAAAA);
+        : AppColors.textHint;
 
     if (rating == 0 && !hasMyRating) {
       return const Text(
-          '평가 없음', style: TextStyle(color: Color(0xFFBBBBBB), fontSize: 11));
+          '평가 없음', style: TextStyle(color: AppColors.border, fontSize: 11));
     }
 
     return Row(

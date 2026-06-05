@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -75,8 +76,8 @@ class ReviewCard extends StatelessWidget {
     final int likeCount = review["like_count"] ?? 0;
     final int commentCount = review["comment_count"] ?? 0;
 
-    final Color activeColor = const Color(0xFF4DB56C);
-    final Color inactiveColor = const Color(0xFF9E9E9E);
+    final Color activeColor = AppColors.primary;
+    final Color inactiveColor = AppColors.textHint;
 
     final Color likeColor = isLiked ? activeColor : inactiveColor;
     final IconData likeIcon =
@@ -111,7 +112,7 @@ class ReviewCard extends StatelessWidget {
             border: type == ReviewCardType.simple
                 ? null
                 : const Border(
-              bottom: BorderSide(color: Color(0xFFF3F3F3)),
+              bottom: BorderSide(color: AppColors.divider),
             ),
           ),
           child: Column(
@@ -142,7 +143,7 @@ class ReviewCard extends StatelessWidget {
                       const Text(
                         "스포일러가 포함되어 있습니다.",
                         style: TextStyle(
-                          color: Color(0xFF717171),
+                          color: AppColors.textMedium,
                           fontSize: 13,
                         ),
                       ),
@@ -152,7 +153,7 @@ class ReviewCard extends StatelessWidget {
                         child: const Text(
                           "보기",
                           style: TextStyle(
-                            color: Color(0xFF4DB56C),
+                            color: AppColors.primary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -197,7 +198,7 @@ class ReviewCard extends StatelessWidget {
                               child: Text(
                                 "더보기",
                                 style: TextStyle(
-                                  color: Color(0xFF9E9E9E),
+                                  color: AppColors.textHint,
                                   decoration: TextDecoration.underline,
                                 ),
                               ),
@@ -224,7 +225,7 @@ class ReviewCard extends StatelessWidget {
                               child: Text(
                                 "전체보기",
                                 style: TextStyle(
-                                  color: Color(0xFF9E9E9E),
+                                  color: AppColors.textHint,
                                   decoration: TextDecoration.underline,
                                 ),
                               ),
@@ -265,7 +266,7 @@ class ReviewCard extends StatelessWidget {
         if (rating > 0)
           RatingBarIndicator(
             rating: rating,
-            itemBuilder: (context, index) => const Icon(Icons.star_rounded, color: Color(0xFFFFD700)),
+            itemBuilder: (context, index) => const Icon(Icons.star_rounded, color: AppColors.star),
             itemCount: 5,
             itemSize: 14.0,
             direction: Axis.horizontal,
@@ -277,7 +278,7 @@ class ReviewCard extends StatelessWidget {
             Text(
                 review['nickname'] ?? "User ${review['user_id']}",
                 style: const TextStyle(
-                    color: Color(0xFF717171),
+                    color: AppColors.textMedium,
                     fontSize: 13,
                     fontWeight: FontWeight.w500
                 )
@@ -285,7 +286,7 @@ class ReviewCard extends StatelessWidget {
             const SizedBox(width: 8),
             CircleAvatar(
               radius: 14,
-              backgroundColor: Color(0xFF4DB56C).withOpacity(0.5),
+              backgroundColor: AppColors.primary.withOpacity(0.5),
               child: const Icon(Icons.person, color: Colors.white, size: 18),
             ),
           ],
@@ -303,7 +304,7 @@ class ReviewCard extends StatelessWidget {
         // 프로필 이미지
         CircleAvatar(
           radius: 18,
-          backgroundColor: Color(0xFF4DB56C).withOpacity(0.5),
+          backgroundColor: AppColors.primary.withOpacity(0.5),
           child: const Icon(Icons.person, color: Colors.white, size: 24),
         ),
         const SizedBox(width: 10),
@@ -328,7 +329,7 @@ class ReviewCard extends StatelessWidget {
                   Text(
                     date,
                     style: const TextStyle(
-                        color: Color(0xFF9E9E9E),
+                        color: AppColors.textHint,
                         fontSize: 12
                     ),
                   ),
@@ -339,7 +340,7 @@ class ReviewCard extends StatelessWidget {
               if (rating > 0)
                 RatingBarIndicator(
                   rating: rating,
-                  itemBuilder: (context, index) => const Icon(Icons.star_rounded, color: Color(0xFFFFD700)),
+                  itemBuilder: (context, index) => const Icon(Icons.star_rounded, color: AppColors.star),
                   itemCount: 5,
                   itemSize: 14.0,
                   direction: Axis.horizontal,
@@ -361,7 +362,7 @@ class ReviewCard extends StatelessWidget {
                 backgroundColor: Colors.transparent,
               );
             },
-            child: const Icon(Icons.more_horiz, size: 20, color: Color(0xFFBDBDBD)),
+            child: const Icon(Icons.more_horiz, size: 20, color: AppColors.border),
           ),
       ],
     );
@@ -392,12 +393,12 @@ class ReviewCard extends StatelessWidget {
         Row(
           children: [
             const Icon(Icons.chat_bubble_outline,
-                size: 16, color: Color(0xFF9E9E9E)),
+                size: 16, color: AppColors.textHint),
             const SizedBox(width: 4),
             Text(
               "$commentCount",
               style: const TextStyle(
-                color: Color(0xFF9E9E9E),
+                color: AppColors.textHint,
                 fontSize: 13,
               ),
             ),
@@ -436,7 +437,7 @@ class ReviewCard extends StatelessWidget {
         Text(
           "댓글 $commentCount",
           style: const TextStyle(
-            color: Color(0xFF717171),
+            color: AppColors.textMedium,
             fontSize: 13,
           ),
         ),

@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/preference_controller.dart';
@@ -24,7 +25,7 @@ class PreferenceUnifiedStep extends StatelessWidget {
                     Get.snackbar(
                       "알림",
                       "장르를 최소 1개 이상 선택해주세요.",
-                      backgroundColor: const Color(0xFF4DB56C), // ✅ 까만색에서 앱 메인 컬러(초록색)로 변경!
+                      backgroundColor: AppColors.primary, // ✅ 까만색에서 앱 메인 컬러(초록색)로 변경!
                       colorText: Colors.white,
                       snackPosition: SnackPosition.BOTTOM,
                       duration: const Duration(seconds: 2),
@@ -80,13 +81,13 @@ class PreferenceUnifiedStep extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12), // 알약 모양 패딩
             decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFF4DB56C) : const Color(0xFFF3F3F3),
+              color: isSelected ? AppColors.primary : AppColors.divider,
               borderRadius: BorderRadius.circular(30), // 둥근 모양
             ),
             child: Text(
                 item,
                 style: TextStyle(
-                    color: isSelected ? Colors.white : const Color(0xFF3F3F3F),
+                    color: isSelected ? Colors.white : AppColors.textDark,
                     fontSize: 15,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w500
                 )

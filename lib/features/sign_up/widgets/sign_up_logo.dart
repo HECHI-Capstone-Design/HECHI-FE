@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class SignUpLogo extends StatelessWidget {
@@ -11,7 +12,7 @@ class SignUpLogo extends StatelessWidget {
 
         fontSize: 40,
         fontWeight: FontWeight.w700,
-        color: Color(0xFF4DB56C),
+        color: AppColors.primary,
         letterSpacing: 0.25,
       ),
     );

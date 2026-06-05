@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class CollectionThumbnail extends StatelessWidget {
@@ -30,7 +31,7 @@ class CollectionThumbnail extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(
         shape: RoundedRectangleBorder(
-          side: const BorderSide(width: 1.5, color: Color(0xFFDADADA)),
+          side: const BorderSide(width: 1.5, color: AppColors.border),
           borderRadius: BorderRadius.circular(3),
         ),
       ),
@@ -58,7 +59,7 @@ class CollectionThumbnail extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: const Color(0xFFEEEEEE),
+        color: AppColors.divider,
         image: url.isNotEmpty
             ? DecorationImage(
           image: NetworkImage(url),

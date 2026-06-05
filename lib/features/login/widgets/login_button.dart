@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class LoginButton extends StatelessWidget {
@@ -18,7 +19,7 @@ class LoginButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed, // 로딩 중 클릭 방지
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF4DB56C),
+          backgroundColor: AppColors.primary,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
           elevation: 0,
         ),

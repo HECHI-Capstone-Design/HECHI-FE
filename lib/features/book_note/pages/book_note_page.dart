@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/book_note_controller.dart';
@@ -31,7 +32,7 @@ class BookNotePage extends GetView<BookNoteController> {
           // 2. 책 정보 헤더
           const BookInfoHeader(),
 
-          const Divider(height: 10, color: Color(0xFFEEEEEE)),
+          const Divider(height: 10, color: AppColors.divider),
 
           // 3. 탭 바
           TabBar(

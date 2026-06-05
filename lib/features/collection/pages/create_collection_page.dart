@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/create_collection_controller.dart';
@@ -22,7 +23,7 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
           controller.isEditMode.value ? '컬렉션 수정' : '새 컬렉션',
           textAlign: TextAlign.center,
           style: const TextStyle(
-            color: Color(0xFF3F3F3F),
+            color: AppColors.textDark,
             fontSize: 16,
             fontFamily: 'Roboto',
             fontWeight: FontWeight.w500,
@@ -35,7 +36,7 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
             child: Text(
               '취소',
               style: TextStyle(
-                color: Color(0xFF3F3F3F),
+                color: AppColors.textDark,
                 fontSize: 15,
                 fontFamily: 'Roboto',
                 fontWeight: FontWeight.w400,
@@ -53,7 +54,7 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
                 child: Text(
                   '확인',
                   style: TextStyle(
-                    color: Color(0xFF4DB56C),
+                    color: AppColors.primary,
                     fontSize: 15,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w500,
@@ -66,7 +67,7 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
         ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+          child: Divider(height: 1, thickness: 0.5, color: AppColors.border),
         ),
       ),
       body: SingleChildScrollView(
@@ -94,7 +95,7 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
   Widget _buildDivider() {
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Divider(height: 1, thickness: 1, color: Color(0xFFDADADA)),
+      child: Divider(height: 1, thickness: 1, color: AppColors.border),
     );
   }
 
@@ -105,7 +106,7 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
       child: TextField(
         controller: controller.titleController,
         style: const TextStyle(
-          color: Color(0xFF3F3F3F),
+          color: AppColors.textDark,
           fontSize: 15,
           fontFamily: 'Roboto',
           fontWeight: FontWeight.w400,
@@ -114,7 +115,7 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
         decoration: const InputDecoration(
           hintText: '컬렉션 제목',
           hintStyle: TextStyle(
-            color: Color(0xFF717171),
+            color: AppColors.textMedium,
             fontSize: 15,
             fontFamily: 'Roboto',
             fontWeight: FontWeight.w400,
@@ -124,7 +125,17 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
           isDense: true,
           contentPadding: EdgeInsets.symmetric(vertical: 10),
         ),
-        maxLines: 1,
+        maxLines: 2,
+        maxLength: 40,
+        buildCounter: (_, {required currentLength, required isFocused, maxLength}) {
+          return Text(
+            '$currentLength/$maxLength',
+            style: TextStyle(
+              fontSize: 11,
+              color: currentLength >= maxLength! ? AppColors.error : AppColors.textHint,
+            ),
+          );
+        },
       ),
     );
   }
@@ -164,8 +175,8 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
                   overflow: TextOverflow.clip,
                   style: TextStyle(
                     color: isEmpty
-                        ? const Color(0xFF717171)
-                        : const Color(0xFF3F3F3F),
+                        ? AppColors.textMedium
+                        : AppColors.textDark,
                     fontSize: fontSize,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w400,
@@ -190,7 +201,7 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
           const Text(
             '컬렉션 비공개 설정',
             style: TextStyle(
-              color: Color(0xFF717171),
+              color: AppColors.textMedium,
               fontSize: 14,
               fontFamily: 'Roboto',
               fontWeight: FontWeight.w400,
@@ -216,7 +227,7 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
           const Text(
             '태그',
             style: TextStyle(
-              color: Color(0xFF3F3F3F),
+              color: AppColors.textDark,
               fontSize: 17,
               fontFamily: 'Roboto',
               fontWeight: FontWeight.w600,
@@ -234,7 +245,7 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
                 const Text(
                   '선택된 태그',
                   style: TextStyle(
-                    color: Color(0xFF717171),
+                    color: AppColors.textMedium,
                     fontSize: 14,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w400,
@@ -274,7 +285,7 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
               const Text(
                 '작품들',
                 style: TextStyle(
-                  color: Color(0xFF3F3F3F),
+                  color: AppColors.textDark,
                   fontSize: 17,
                   fontFamily: 'Roboto',
                   fontWeight: FontWeight.w600,
@@ -285,7 +296,7 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
               Text(
                 '${controller.selectedBooks.length}',
                 style: const TextStyle(
-                  color: Color(0xFF717171),
+                  color: AppColors.textMedium,
                   fontSize: 15,
                   fontFamily: 'Roboto',
                   fontWeight: FontWeight.w400,
@@ -298,7 +309,7 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
                 child: const Text(
                   '수정하기',
                   style: TextStyle(
-                    color: Color(0xFF4DB56C),
+                    color: AppColors.primary,
                     fontSize: 15,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w400,
@@ -359,7 +370,7 @@ class _CustomSwitch extends StatelessWidget {
         width: 49,
         height: 22,
         decoration: BoxDecoration(
-          color: value ? const Color(0xFF4DB56C) : const Color(0xFFEEEEEE),
+          color: value ? AppColors.primary : AppColors.divider,
           borderRadius: BorderRadius.circular(50),
         ),
         child: AnimatedAlign(
@@ -374,7 +385,7 @@ class _CustomSwitch extends StatelessWidget {
               gradient: const LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Colors.white, Color(0xFFE8E9E9)],
+                colors: [Colors.white, AppColors.border],
               ),
               boxShadow: [
                 BoxShadow(

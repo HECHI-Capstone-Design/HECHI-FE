@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:hechi/features/search/data/search_repository.dart';
 import 'package:hechi/features/search/data/book_model.dart';
 import '../../myGroup/models/group_model.dart';
-import '../../book_detail_page/controllers/book_detail_controller.dart';
 
 class GroupController extends GetxController {
   final String baseUrl = "https://api.43-202-101-63.sslip.io";

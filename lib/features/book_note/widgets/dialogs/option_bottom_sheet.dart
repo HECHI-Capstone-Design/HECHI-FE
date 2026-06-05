@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/book_note_controller.dart';
@@ -29,7 +30,7 @@ class OptionBottomSheet extends StatelessWidget with GroupShareMixin {
           : "메모",
       items: [
         "삭제",
-        type == "memo" ? "메모 수정" : (hasMemo ? "메모 수정" : "메모 작성"),
+        "수정",
         "그룹 공유",
       ],
       itemColors: [
@@ -126,7 +127,7 @@ class OptionBottomSheet extends StatelessWidget with GroupShareMixin {
                     '$label를 삭제하시겠습니까',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      color: Color(0xFF3F3F3F),
+                      color: AppColors.textDark,
                       fontSize: 15,
                       fontFamily: 'Roboto',
                       fontWeight: FontWeight.w400,
@@ -134,7 +135,7 @@ class OptionBottomSheet extends StatelessWidget with GroupShareMixin {
                   ),
                 ),
               ),
-              Container(height: 1, color: const Color(0xFFF3F3F3)),
+              Container(height: 1, color: AppColors.divider),
               SizedBox(
                 height: 36,
                 child: Row(
@@ -156,7 +157,7 @@ class OptionBottomSheet extends StatelessWidget with GroupShareMixin {
                             child: Text(
                               '네',
                               style: TextStyle(
-                                color: Color(0xFF4DB56C),
+                                color: AppColors.primary,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -165,7 +166,7 @@ class OptionBottomSheet extends StatelessWidget with GroupShareMixin {
                         ),
                       ),
                     ),
-                    Container(width: 1, color: const Color(0xFFF3F3F3)),
+                    Container(width: 1, color: AppColors.divider),
                     Expanded(
                       child: Material(
                         color: Colors.transparent,
@@ -178,7 +179,7 @@ class OptionBottomSheet extends StatelessWidget with GroupShareMixin {
                             child: Text(
                               '아니오',
                               style: TextStyle(
-                                color: Color(0xFF4DB56C),
+                                color: AppColors.primary,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -223,7 +224,7 @@ class OptionBottomSheet extends StatelessWidget with GroupShareMixin {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF3F3F3F),
+                      color: AppColors.textDark,
                     ),
                   ),
                   GestureDetector(
@@ -233,14 +234,14 @@ class OptionBottomSheet extends StatelessWidget with GroupShareMixin {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w400,
-                        color: Color(0xFF4DB56C),
+                        color: AppColors.primary,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+            const Divider(height: 1, thickness: 0.5, color: AppColors.border),
             ...items.asMap().entries.map((entry) => InkWell(
               onTap: () => onSelect(entry.key),
               child: Container(
@@ -248,7 +249,7 @@ class OptionBottomSheet extends StatelessWidget with GroupShareMixin {
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 decoration: const BoxDecoration(
                   border: Border(
-                    bottom: BorderSide(width: 0.5, color: Color(0xFFDADADA)),
+                    bottom: BorderSide(width: 0.5, color: AppColors.border),
                   ),
                 ),
                 child: Text(
@@ -256,7 +257,7 @@ class OptionBottomSheet extends StatelessWidget with GroupShareMixin {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
-                    color: itemColors?[entry.key] ?? const Color(0xFF3F3F3F),
+                    color: itemColors?[entry.key] ?? AppColors.textDark,
                   ),
                 ),
               ),

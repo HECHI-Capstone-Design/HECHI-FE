@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/reading_detail_controller.dart';
@@ -14,8 +15,8 @@ class ActionButtonsRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 18),
       decoration: const BoxDecoration(
         border: Border(
-          top: BorderSide(width: 1, color: Color(0xFFD4D4D4)),
-          bottom: BorderSide(width: 1, color: Color(0xFFD4D4D4)),
+          top: BorderSide(width: 1, color: AppColors.borderMedium),
+          bottom: BorderSide(width: 1, color: AppColors.borderMedium),
         ),
       ),
       child: Row(
@@ -24,24 +25,24 @@ class ActionButtonsRow extends StatelessWidget {
           _buildActionButton(
             '북마크',
             Icons.bookmark_border,
-            const Color(0xFFE8F5E9), // BookmarkItem 배경색
-            const Color(0xFF4DB56C), // BookmarkItem 아이콘색
+            AppColors.primarySurface, // BookmarkItem 배경색
+            AppColors.primary, // BookmarkItem 아이콘색
             onTap: () => _navigateToNote(detailController.bookId.value, 0),
           ),
           _buildDivider(),
           _buildActionButton(
             '하이라이트',
             Icons.push_pin_outlined,
-            const Color(0xFFFFF9C4), // HighlightItem 배경색
-            const Color(0xFFFBC02D), // HighlightItem 아이콘색
+            AppColors.highlightBackground, // HighlightItem 배경색
+            AppColors.star, // HighlightItem 아이콘색
             onTap: () => _navigateToNote(detailController.bookId.value, 1),
           ),
           _buildDivider(),
           _buildActionButton(
             '메모',
             Icons.description_outlined,
-            const Color(0xFFFFEBEE), // MemoItem 배경색
-            const Color(0xFFEF5350), // MemoItem 아이콘색
+            AppColors.memoBackground, // MemoItem 배경색
+            AppColors.error, // MemoItem 아이콘색
             onTap: () => _navigateToNote(detailController.bookId.value, 2),
           ),
         ],
@@ -62,7 +63,7 @@ class ActionButtonsRow extends StatelessWidget {
   Widget _buildDivider() {
     return const SizedBox(
       height: 60,
-      child: VerticalDivider(color: Color(0xFFD4D4D4), width: 15),
+      child: VerticalDivider(color: AppColors.borderMedium, width: 15),
     );
   }
 
@@ -85,7 +86,7 @@ class ActionButtonsRow extends StatelessWidget {
               label,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                color: Color(0xFF3F3F3F),
+                color: AppColors.textDark,
                 fontSize: 18,
                 fontFamily: 'Roboto',
                 letterSpacing: 0.25,
