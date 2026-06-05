@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 // D:\HECHI\lib\features\groupcommunity\pages\group_announcement_write_view.dart 전체 수정
 
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ class GroupAnnouncementWriteView extends StatelessWidget {
     final titleController = TextEditingController();
     final contentController = TextEditingController();
     final controller = Get.find<GroupController>();
-    const brandColor = Color(0xFF4EB56D);
+    const brandColor = AppColors.primary;
 
     return Scaffold(
       backgroundColor: Colors.white,

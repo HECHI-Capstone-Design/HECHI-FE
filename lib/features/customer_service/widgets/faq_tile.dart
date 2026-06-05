@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class FaqTile extends StatelessWidget {
@@ -17,11 +18,11 @@ class FaqTile extends StatelessWidget {
       title: Text(
         title,
         style: const TextStyle(
-          color: Color(0xFF3F3F3F),
+          color: AppColors.textDark,
           fontSize: 16,
         ),
       ),
-      trailing: const Icon(Icons.chevron_right, color: Color(0xFFABABAB)),
+      trailing: const Icon(Icons.chevron_right, color: AppColors.textHint),
     );
   }
 }

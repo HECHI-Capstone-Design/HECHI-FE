@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/my_read_controller.dart';
@@ -32,7 +33,7 @@ class TasteAnalysisPreview extends StatelessWidget {
                 ),
 
                 // 구분선
-                Container(width: 1, height: 30, color: const Color(0xFFEEEEEE)),
+                Container(width: 1, height: 30, color: AppColors.divider),
 
                 // 2. 별점 개수 (1/3 공간 차지)
                 Expanded(
@@ -40,7 +41,7 @@ class TasteAnalysisPreview extends StatelessWidget {
                 ),
 
                 // 구분선
-                Container(width: 1, height: 30, color: const Color(0xFFEEEEEE)),
+                Container(width: 1, height: 30, color: AppColors.divider),
 
                 // 3. 많이 준 별점 (1/3 공간 차지)
                 Expanded(
@@ -62,7 +63,7 @@ class TasteAnalysisPreview extends StatelessWidget {
             style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF3F3F3F)
+                color: AppColors.textDark
             )
         ),
         const SizedBox(height: 6),

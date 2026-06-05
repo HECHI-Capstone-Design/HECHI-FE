@@ -327,15 +327,22 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
   }
 
   /// ===================== MEMO SORT =====================
+  DateTime _parseDate(String? raw) {
+    if (raw == null) return DateTime(0);
+    try {
+      return DateTime.parse(raw);
+    } catch (_) {
+      return DateTime(0);
+    }
+  }
+
   void sortMemos() {
     if (sortTypeMemo.value == "date") {
       notes.sort((a, b) =>
-          DateTime.parse(b["created_date"])
-              .compareTo(DateTime.parse(a["created_date"])));
+          _parseDate(b["created_date"]).compareTo(_parseDate(a["created_date"])));
     } else {
       notes.sort((a, b) =>
-          DateTime.parse(a["created_date"])
-              .compareTo(DateTime.parse(b["created_date"])));
+          _parseDate(a["created_date"]).compareTo(_parseDate(b["created_date"])));
     }
     notes.refresh();
   }

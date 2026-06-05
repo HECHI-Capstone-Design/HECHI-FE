@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
@@ -8,7 +9,7 @@ class MemberProfileDialog extends GetView<GroupController> {
 
   @override
   Widget build(BuildContext context) {
-    const brandColor = Color(0xFF4EB56D);
+    const brandColor = AppColors.primary;
 
     // 소수점을 떼고 0~100 정수로 변환하는 로직은 일회성 계산이므로 
     // Obx 내부가 아니라 빌드 시점에 미리 계산해두는 것이 가독성과 성능에 훨씬 좋습니다.
@@ -44,7 +45,7 @@ class MemberProfileDialog extends GetView<GroupController> {
                   ),
                 ],
               ),
-              const Divider(height: 24, color: Color(0xFFEAEAEA)),
+              const Divider(height: 24, color: AppColors.border),
               
               // 이제 controller.isLeader의 Rx 변수가 변경되면 
               // 이 버튼의 노출 여부가 실시간으로 UI에 업데이트됩니다.

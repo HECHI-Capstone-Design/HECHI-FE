@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class PreferenceTopBar extends StatelessWidget {
@@ -20,7 +21,7 @@ class PreferenceTopBar extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
             decoration: BoxDecoration(
-              color: const Color(0xFF4DB56C),
+              color: AppColors.primary,
               borderRadius: BorderRadius.circular(25),
             ),
             child: Text(

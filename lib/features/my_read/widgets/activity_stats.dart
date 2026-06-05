@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/my_read_controller.dart';
@@ -14,9 +15,9 @@ class ActivityStats extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: _buildStatItem(controller.totalReviews.value, "평가")),
-          Container(width: 1, height: 24, color: const Color(0xFFEEEEEE)),
+          Container(width: 1, height: 24, color: AppColors.divider),
           Expanded(child: _buildStatItem(controller.totalComments.value, "코멘트")),
-          Container(width: 1, height: 24, color: const Color(0xFFEEEEEE)),
+          Container(width: 1, height: 24, color: AppColors.divider),
           Expanded(
             child: GestureDetector(
               onTap: () async {
@@ -39,7 +40,7 @@ class ActivityStats extends StatelessWidget {
             style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF3F3F3F)
+                color: AppColors.textDark
             )
         ),
         const SizedBox(height: 4),

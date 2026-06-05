@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/library_book_model.dart';
@@ -79,7 +80,7 @@ class BookStorageController extends GetxController {
                   const Text('정렬', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   GestureDetector(
                     onTap: () => Get.back(),
-                    child: const Text('취소', style: TextStyle(color: Color(0xFF4DB56C), fontWeight: FontWeight.bold)),
+                    child: const Text('취소', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -112,7 +113,7 @@ class BookStorageController extends GetxController {
               fontWeight: currentSortKey.value == key ? FontWeight.bold : FontWeight.normal,
             )),
             if (currentSortKey.value == key)
-              const Icon(Icons.check, color: Color(0xFF4DB56C), size: 20),
+              const Icon(Icons.check, color: AppColors.primary, size: 20),
           ],
         ),
       ),

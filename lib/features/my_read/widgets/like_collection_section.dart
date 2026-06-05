@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -61,7 +62,6 @@ class _MyCollectionSectionState extends State<LikeCollectionSection> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) return const SizedBox.shrink();
-    if (collections.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,12 +74,49 @@ class _MyCollectionSectionState extends State<LikeCollectionSection> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF3F3F3F),
+              color: AppColors.textDark,
             ),
           ),
         ),
 
+        // ── 빈 상태
+        if (collections.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              decoration: BoxDecoration(
+                color: AppColors.backgroundGrey,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Icon(Icons.favorite_border, size: 36, color: AppColors.textHint),
+                  const SizedBox(height: 12),
+                  const Text(
+                    '좋아요한 컬렉션이 없습니다.',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textMedium,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    '마음에 드는 컬렉션에 좋아요를 눌러보세요.',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textHint,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
         // ── 가로 스크롤 카드
+        if (collections.isNotEmpty)
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -99,7 +136,7 @@ class _MyCollectionSectionState extends State<LikeCollectionSection> {
                   ),
                   padding: const EdgeInsets.all(10),
                   decoration: ShapeDecoration(
-                    color: const Color(0x4CDADADA),
+                    color: AppColors.border.withOpacity(0.3),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(3),
                     ),
@@ -130,7 +167,7 @@ class _MyCollectionSectionState extends State<LikeCollectionSection> {
                       Text(
                         '좋아요 ${collection.likeCount}',
                         style: const TextStyle(
-                          color: Color(0xFF717171),
+                          color: AppColors.textMedium,
                           fontSize: 13,
                           fontFamily: 'Roboto',
                           fontWeight: FontWeight.w400,
@@ -148,7 +185,8 @@ class _MyCollectionSectionState extends State<LikeCollectionSection> {
 
         const SizedBox(height: 20),
 
-        // ── 좋아요한 컬렉션 모두보기 버튼
+        // ── 좋아요한 컬렉션 모두보기 버튼 (컬렉션 있을 때만)
+        if (collections.isNotEmpty)
         Padding(
           padding: const EdgeInsets.only(
             left: 24.0,
@@ -162,7 +200,7 @@ class _MyCollectionSectionState extends State<LikeCollectionSection> {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 11),
               decoration: BoxDecoration(
-                color: const Color(0xFFF7F7F7),
+                color: AppColors.backgroundGrey,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Row(

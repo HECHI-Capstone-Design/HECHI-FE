@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../widgets/dialogs/option_bottom_sheet.dart';
@@ -36,16 +37,16 @@ class _BookmarkItemState extends State<BookmarkItem> {
               width: 28,
               height: 28,
               decoration: const BoxDecoration(
-                color: Color(0xFFE8F5E9),
+                color: AppColors.primarySurface,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.bookmark_border, size: 16, color: Color(0xFF4DB56C)),
+              child: const Icon(Icons.bookmark_border, size: 16, color: AppColors.primary),
             ),
             if (!_expanded)
               Expanded(
                 child: Container(
                   width: 1,
-                  color: const Color(0xFFF3F3F3),
+                  color: AppColors.divider,
                 ),
               ),
           ],
@@ -75,7 +76,7 @@ class _BookmarkItemState extends State<BookmarkItem> {
                           OptionBottomSheet(type: "bookmark", data: widget.data),
                           backgroundColor: Colors.transparent,
                         ),
-                        child: const Icon(Icons.more_horiz, size: 20, color: Color(0xFFBDBDBD)),
+                        child: const Icon(Icons.more_horiz, size: 20, color: AppColors.border),
                       ),
                   ],
                 ),
@@ -84,7 +85,7 @@ class _BookmarkItemState extends State<BookmarkItem> {
 
                 Text(
                   _formatDate(widget.data["created_date"]),
-                  style: const TextStyle(fontSize: 12, color: Color(0xFF9E9E9E)),
+                  style: const TextStyle(fontSize: 12, color: AppColors.textHint),
                 ),
 
                 if (hasMemo) ...[
@@ -112,10 +113,10 @@ class _BookmarkItemState extends State<BookmarkItem> {
                       width: double.infinity,
                       padding: const EdgeInsets.only(left: 16, top: 4, bottom: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF9F9F9),
+                        color: AppColors.backgroundGrey,
                         border: Border(
                           left: BorderSide(
-                            color: const Color(0xFF4DB56C).withOpacity(0.5),
+                            color: AppColors.primary.withOpacity(0.5),
                             width: 3,
                           ),
                         ),
@@ -134,7 +135,7 @@ class _BookmarkItemState extends State<BookmarkItem> {
                             : TextOverflow.clip,
                         style: const TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF3F3F3F),
+                          color: AppColors.textDark,
                           height: 1.6,
                         ),
                       ),

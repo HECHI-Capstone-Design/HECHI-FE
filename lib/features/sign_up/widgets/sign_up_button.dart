@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/sign_up_controller.dart';
@@ -16,7 +17,7 @@ class SignUpButton extends StatelessWidget {
         // 로딩 중이면 버튼 비활성화 (null)
         onPressed: controller.isLoading.value ? null : controller.submitSignUp,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF4DB56C),
+          backgroundColor: AppColors.primary,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           elevation: 0,
         ),

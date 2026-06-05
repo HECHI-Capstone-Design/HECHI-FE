@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -74,10 +75,10 @@ class BadgeItemWidget extends StatelessWidget {
               aspectRatio: 1.0,
               child: Container(
                 decoration: BoxDecoration(
-                  color: isEarned ? const Color(0xFFF6FBF7) : const Color(0xFFF5F5F5),
+                  color: isEarned ? AppColors.primarySurface : AppColors.backgroundGrey,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: isEarned ? const Color(0xFFE2F3E7) : const Color(0xFFEAEAEA),
+                    color: isEarned ? AppColors.primarySurface : AppColors.border,
                     width: 1,
                   ),
                 ),
@@ -86,12 +87,12 @@ class BadgeItemWidget extends StatelessWidget {
                     ? Center(
                   child: Icon(
                     _getBadgeIcon(badge.code),
-                    color: const Color(0xFF5CBA74),
+                    color: AppColors.primary,
                     size: 32, // 🚀 아이콘 크기 살짝 줄임
                   ),
                 )
                     : const Center(
-                  child: Text('?', style: TextStyle(fontSize: 24, color: Color(0xFFD2D2D2), fontWeight: FontWeight.bold)),
+                  child: Text('?', style: TextStyle(fontSize: 24, color: AppColors.borderMedium, fontWeight: FontWeight.bold)),
                 ),
               ),
             ),
@@ -109,7 +110,7 @@ class BadgeItemWidget extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11.5,
                 fontWeight: isEarned ? FontWeight.w600 : FontWeight.w500,
-                color: isEarned ? const Color(0xFF2A2A2A) : const Color(0xFF9E9E9E).withOpacity(0.7),
+                color: isEarned ? AppColors.textDark : AppColors.textHint.withOpacity(0.7),
                 letterSpacing: -0.3,
               ),
               maxLines: 2,
@@ -126,7 +127,7 @@ class BadgeItemWidget extends StatelessWidget {
       width: 110,
       height: 110,
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
+        color: AppColors.backgroundGrey,
         borderRadius: BorderRadius.circular(28),
       ),
       padding: const EdgeInsets.all(16),
@@ -134,7 +135,7 @@ class BadgeItemWidget extends StatelessWidget {
           ? Center(
               child: Icon(
                 _getBadgeIcon(badge.code), // 💡 팝업 상세창에도 동일한 고유 아이콘 적용
-                color: const Color(0xFF66BB6A),
+                color: AppColors.primary,
                 size: 54,
               ),
             )
@@ -144,7 +145,7 @@ class BadgeItemWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 48,
                   fontWeight: FontWeight.w400,
-                  color: Color(0xFFB0B0B0),
+                  color: AppColors.textHint,
                 ),
               ),
             ),
@@ -164,7 +165,7 @@ class BadgeItemWidget extends StatelessWidget {
     final widgetConditionBox = Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
+        color: AppColors.backgroundGrey,
         borderRadius: BorderRadius.circular(30),
       ),
       child: Text(
@@ -173,7 +174,7 @@ class BadgeItemWidget extends StatelessWidget {
         style: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          color: Color(0xFF757575),
+          color: AppColors.textMedium,
         ),
       ),
     );
@@ -183,7 +184,7 @@ class BadgeItemWidget extends StatelessWidget {
       style: TextStyle(
         fontSize: 15,
         fontWeight: FontWeight.w500,
-        color: badge.isEarned ? const Color(0xFF66BB6A) : const Color(0xFFB0B0B0),
+        color: badge.isEarned ? AppColors.primary : AppColors.textHint,
       ),
     );
 
@@ -211,7 +212,7 @@ class BadgeItemWidget extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () => Get.back(),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF66BB6A),
+                    backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
                     ),

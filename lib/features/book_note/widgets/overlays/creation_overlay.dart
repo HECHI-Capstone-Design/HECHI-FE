@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -106,7 +107,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
                 Container(
                   width: double.infinity,
                   height: 1,
-                  color: const Color(0xFFF3F3F3),
+                  color: AppColors.divider,
                 ),
 
                 // 2. 스크롤 영역 (Expanded → 남은 공간 모두 차지)
@@ -143,7 +144,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
         children: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text("취소", style: TextStyle(color: Color(0xFF717171))),
+            child: const Text("취소", style: TextStyle(color: AppColors.textMedium)),
           ),
           Text(_title(), style: OverlayCommon.headerStyle),
           TextButton(
@@ -173,7 +174,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
       ),
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFF3F3F3))),
+        border: Border(top: BorderSide(color: AppColors.divider)),
       ),
       child: widget.type == "highlight"
           ? Row(
@@ -189,7 +190,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
             onChanged: _isReadOnly
                 ? null
                 : (v) => setState(() => isPublic = v),
-            activeColor: const Color(0xFF4DB56C),
+            activeColor: AppColors.primary,
           ),
         ],
       )
@@ -213,20 +214,24 @@ class _CreationOverlayState extends State<CreationOverlay> {
   ];
 
   Widget _buildPageInput() {
+    final controller = Get.find<BookNoteController>();
+    final totalPages = (controller.bookInfo["total_pages"] ?? 0) as int;
+    final hintText = totalPages > 0 ? "페이지 번호 (최대 ${totalPages}p)" : "페이지 번호";
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(17, 14, 17, 0),
       child: Row(
         children: [
           const Text("p.",
-              style: TextStyle(color: Color(0xFFABABAB), fontSize: 15)),
+              style: TextStyle(color: AppColors.textHint, fontSize: 15)),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
               controller: pageController,
               readOnly: _isReadOnly,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                hintText: "페이지 번호",
+              decoration: InputDecoration(
+                hintText: hintText,
                 border: InputBorder.none,
               ),
             ),
@@ -240,7 +245,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(17),
-      color: const Color(0x7FD1ECD9),
+      color: AppColors.primarySurface,
       child: Column(
         children: [
           if (!_isReadOnly) _buildOcrCaptureButton(),
@@ -290,12 +295,12 @@ class _CreationOverlayState extends State<CreationOverlay> {
           mainAxisSize: MainAxisSize.min,
           children: const [
             Icon(Icons.camera_alt_outlined,
-                size: 16, color: Color(0xFF4DB56C)),
+                size: 16, color: AppColors.primary),
             SizedBox(width: 6),
             Text(
               "카메라로 문장 가져오기",
               style: TextStyle(
-                  color: Color(0xFF4DB56C),
+                  color: AppColors.primary,
                   fontSize: 12,
                   fontWeight: FontWeight.w600),
             ),
@@ -339,9 +344,15 @@ class _CreationOverlayState extends State<CreationOverlay> {
     final sentence = sentenceController.text.trim();
     final content = contentController.text.trim();
 
+    final totalPages = (controller.bookInfo["total_pages"] ?? 0) as int;
+
     if (widget.type == "bookmark") {
       if (page == null || page <= 0) {
         Get.snackbar("입력 오류", "페이지 번호를 입력해주세요.");
+        return;
+      }
+      if (totalPages > 0 && page > totalPages) {
+        Get.snackbar("입력 오류", "페이지는 최대 ${totalPages}p까지 입력 가능합니다.");
         return;
       }
       if (widget.isEdit && widget.itemId != null) {
@@ -356,6 +367,10 @@ class _CreationOverlayState extends State<CreationOverlay> {
       }
       if (page == null || page <= 0) {
         Get.snackbar("입력 오류", "페이지 번호를 입력해주세요.");
+        return;
+      }
+      if (totalPages > 0 && page > totalPages) {
+        Get.snackbar("입력 오류", "페이지는 최대 ${totalPages}p까지 입력 가능합니다.");
         return;
       }
       if (widget.isEdit && widget.itemId != null) {
@@ -380,12 +395,9 @@ class _CreationOverlayState extends State<CreationOverlay> {
   String _title() {
     if (_isReadOnly) return "상세 보기";
     switch (widget.type) {
-      case "bookmark":
-        return "북마크 작성";
-      case "highlight":
-        return "하이라이트 작성";
-      default:
-        return "메모 작성";
+      case "bookmark": return widget.isEdit ? "북마크 수정" : "북마크 작성";
+      case "highlight": return widget.isEdit ? "하이라이트 수정" : "하이라이트 작성";
+      default: return widget.isEdit ? "메모 수정" : "메모 작성";
     }
   }
 }

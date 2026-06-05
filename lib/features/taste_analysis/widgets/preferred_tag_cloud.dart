@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/taste_analysis_controller.dart';
@@ -30,7 +31,7 @@ class PreferredTagCloud extends GetView<TasteAnalysisController> {
             style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF3F3F3F)
+                color: AppColors.textDark
             ),
           ),
           const SizedBox(height: 20),

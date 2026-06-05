@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
@@ -15,11 +16,11 @@ class GroupPostCreateView extends GetView<GroupController> {
   Widget build(BuildContext context) {
     final titleController = TextEditingController();
     final contentController = TextEditingController();
-    const brandColor = Color(0xFF8DC695); 
+    const brandColor = AppColors.primaryLight;
 
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true, 
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.white, elevation: 0,
         leading: IconButton(icon: const Icon(Icons.close, color: Colors.black), onPressed: () => Get.back()),
@@ -62,7 +63,7 @@ class GroupPostCreateView extends GetView<GroupController> {
                   decoration: const InputDecoration(hintText: "제목", border: InputBorder.none),
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                const Divider(height: 1, color: Color(0xFFEAEAEA)),
+                const Divider(height: 1, color: AppColors.border),
                 const SizedBox(height: 12),
                 TextField(
                   controller: contentController, maxLines: null, minLines: 8, cursorColor: brandColor,
@@ -73,46 +74,46 @@ class GroupPostCreateView extends GetView<GroupController> {
                 if (!isMission)
                   Obx(() => controller.isBookAttached.value
                       ? Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(color: const Color(0xFF222222), borderRadius: BorderRadius.circular(12)),
-                          child: Row(children: [
-                            Container(width: 45, height: 65, decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), image: DecorationImage(image: NetworkImage(controller.attachedBookCover.value), fit: BoxFit.cover))),
-                            const SizedBox(width: 12),
-                            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Text(controller.attachedBookTitle.value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                              Text(controller.attachedBookAuthor.value, style: const TextStyle(color: Colors.white60, fontSize: 12)),
-                            ])),
-                            IconButton(icon: const Icon(Icons.close, color: Colors.white60), onPressed: () => controller.removeAttachedBook())
-                          ]),
-                        )
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(color: AppColors.textDark, borderRadius: BorderRadius.circular(12)),
+                    child: Row(children: [
+                      Container(width: 45, height: 65, decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), image: DecorationImage(image: NetworkImage(controller.attachedBookCover.value), fit: BoxFit.cover))),
+                      const SizedBox(width: 12),
+                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(controller.attachedBookTitle.value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        Text(controller.attachedBookAuthor.value, style: const TextStyle(color: Colors.white60, fontSize: 12)),
+                      ])),
+                      IconButton(icon: const Icon(Icons.close, color: Colors.white60), onPressed: () => controller.removeAttachedBook())
+                    ]),
+                  )
                       : const SizedBox.shrink()),
 
                 Obx(() => controller.isDiscussionAttached.value
                     ? Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12.0),
-                        child: Container(
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.poll_outlined, color: brandColor, size: 18),
-                                  const SizedBox(width: 6),
-                                  Expanded(child: Text("토론 주제: ${controller.discussionTopic.value}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
-                                  IconButton(icon: const Icon(Icons.close, size: 16, color: Colors.grey), onPressed: () => controller.removeAttachedDiscussion())
-                                ],
-                              ),
-                              const Divider(),
-                              ...controller.discussionOptions.map((opt) => Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                child: Text("• $opt", style: const TextStyle(fontSize: 13, color: Colors.black54)),
-                              )).toList(),
-                            ],
-                          ),
+                  padding: const EdgeInsets.symmetric(vertical: 12.0),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.poll_outlined, color: brandColor, size: 18),
+                            const SizedBox(width: 6),
+                            Expanded(child: Text("토론 주제: ${controller.discussionTopic.value}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
+                            IconButton(icon: const Icon(Icons.close, size: 16, color: Colors.grey), onPressed: () => controller.removeAttachedDiscussion())
+                          ],
                         ),
-                      )
+                        const Divider(),
+                        ...controller.discussionOptions.map((opt) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Text("• $opt", style: const TextStyle(fontSize: 13, color: Colors.black54)),
+                        )).toList(),
+                      ],
+                    ),
+                  ),
+                )
                     : const SizedBox.shrink()),
 
                 Obx(() {
@@ -153,9 +154,9 @@ class GroupPostCreateView extends GetView<GroupController> {
           SafeArea(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), offset: const Offset(0, -3), blurRadius: 4)],
-                border: const Border(top: BorderSide(color: Color(0xFFF5F5F5)))
+                  color: Colors.white,
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), offset: const Offset(0, -3), blurRadius: 4)],
+                  border: const Border(top: BorderSide(color: AppColors.backgroundGrey))
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -278,94 +279,94 @@ class GroupPostCreateView extends GetView<GroupController> {
       TextEditingController(),
       TextEditingController(),
     ].obs;
-    const brandColor = Color(0xFF8DC695);
+    const brandColor = AppColors.primaryLight;
 
     Get.to(
-      Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
+        Scaffold(
           backgroundColor: Colors.white,
-          elevation: 0,
-          leading: IconButton(icon: const Icon(Icons.close, color: Colors.black), onPressed: () => Get.back()),
-          title: const Text("토론 투표 설정", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
-          centerTitle: true,
-          actions: [
-            TextButton(
-              onPressed: () {
-                List<String> options = itemFields.map((c) => c.text.trim()).where((t) => t.isNotEmpty).toList();
-                if (topicController.text.isNotEmpty && options.length >= 2) {
-                  controller.attachDiscussion(topicController.text, options, "종료시간 생략");
-                  Get.back();
-                } else {
-                  Get.snackbar("알림", "주제와 최소 2개 이상의 투표 항목을 입력하세요.");
-                }
-              }, 
-              child: const Text("완료", style: TextStyle(color: brandColor, fontWeight: FontWeight.bold, fontSize: 16))
-            )
-          ],
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                controller: topicController,
-                cursorColor: brandColor,
-                decoration: const InputDecoration(hintText: "토론 투표 주제를 입력하세요...", border: UnderlineInputBorder()),
-              ),
-              const SizedBox(height: 24),
-              const Text("투표 선택 항목", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black54)),
-              const SizedBox(height: 12),
-              Expanded(
-                child: Obx(() => ListView.builder(
-                  itemCount: itemFields.length,
-                  itemBuilder: (context, idx) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(12)),
-                              child: TextField(
-                                controller: itemFields[idx],
-                                cursorColor: brandColor,
-                                decoration: InputDecoration(hintText: "${idx + 1}번 항목 입력", border: InputBorder.none),
-                              ),
-                            ),
-                          ),
-                          if (itemFields.length > 2)
-                            IconButton(
-                              icon: const Icon(Icons.remove_circle_outline, color: Colors.redAccent),
-                              onPressed: () => itemFields.removeAt(idx),
-                            )
-                        ],
-                      ),
-                    );
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: IconButton(icon: const Icon(Icons.close, color: Colors.black), onPressed: () => Get.back()),
+            title: const Text("토론 투표 설정", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
+            centerTitle: true,
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    List<String> options = itemFields.map((c) => c.text.trim()).where((t) => t.isNotEmpty).toList();
+                    if (topicController.text.isNotEmpty && options.length >= 2) {
+                      controller.attachDiscussion(topicController.text, options, "종료시간 생략");
+                      Get.back();
+                    } else {
+                      Get.snackbar("알림", "주제와 최소 2개 이상의 투표 항목을 입력하세요.");
+                    }
                   },
-                )),
-              ),
-              Obx(() {
-                if (itemFields.length >= 6) return const SizedBox.shrink();
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0),
-                  child: InkWell(
-                    onTap: () => itemFields.add(TextEditingController()),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: brandColor)),
-                      child: const Center(child: Text("+ 다른 선택 항목 추가", style: TextStyle(color: brandColor, fontWeight: FontWeight.bold))),
-                    ),
-                  ),
-                );
-              }),
+                  child: const Text("완료", style: TextStyle(color: brandColor, fontWeight: FontWeight.bold, fontSize: 16))
+              )
             ],
           ),
-        ),
-      )
+          body: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: topicController,
+                  cursorColor: brandColor,
+                  decoration: const InputDecoration(hintText: "토론 투표 주제를 입력하세요...", border: UnderlineInputBorder()),
+                ),
+                const SizedBox(height: 24),
+                const Text("투표 선택 항목", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black54)),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: Obx(() => ListView.builder(
+                    itemCount: itemFields.length,
+                    itemBuilder: (context, idx) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(12)),
+                                child: TextField(
+                                  controller: itemFields[idx],
+                                  cursorColor: brandColor,
+                                  decoration: InputDecoration(hintText: "${idx + 1}번 항목 입력", border: InputBorder.none),
+                                ),
+                              ),
+                            ),
+                            if (itemFields.length > 2)
+                              IconButton(
+                                icon: const Icon(Icons.remove_circle_outline, color: Colors.redAccent),
+                                onPressed: () => itemFields.removeAt(idx),
+                              )
+                          ],
+                        ),
+                      );
+                    },
+                  )),
+                ),
+                Obx(() {
+                  if (itemFields.length >= 6) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    child: InkWell(
+                      onTap: () => itemFields.add(TextEditingController()),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: brandColor)),
+                        child: const Center(child: Text("+ 다른 선택 항목 추가", style: TextStyle(color: brandColor, fontWeight: FontWeight.bold))),
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        )
     );
   }
 }

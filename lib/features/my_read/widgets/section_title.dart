@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class SectionTitle extends StatelessWidget {
@@ -12,7 +13,7 @@ class SectionTitle extends StatelessWidget {
       padding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 10),
       child: Text(
           title,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF3F3F3F))
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textDark)
       ),
     );
   }

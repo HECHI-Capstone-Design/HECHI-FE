@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/app/routes.dart';
@@ -130,7 +131,7 @@ class PreferenceController extends GetxController {
         await box.write('is_taste_analyzed_local', true);
         Get.offAllNamed(Routes.initial);
         Get.snackbar("환영합니다!", "취향 분석이 완료되었습니다.",
-            backgroundColor: const Color(0xFF4DB56C), colorText: Colors.white);
+            backgroundColor: AppColors.primary, colorText: Colors.white);
       } else {
         _showError("저장에 실패했습니다. (${response.statusCode})");
       }

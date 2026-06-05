@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 // lib/features/reading_registration/controllers/reading_registration_controller.dart 최종 완결판
 
 import 'dart:async';
@@ -295,15 +296,15 @@ class ReadingRegistrationController extends GetxController {
               const SizedBox(height: 30),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Text('도서 변경', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF3F3F3F))),
+                child: Text('도서 변경', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textDark)),
               ),
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text('\'${newItem.book.title}\'(으)로\n변경하시겠습니까?', textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, color: Color(0xFF888888), height: 1.4)),
+                child: Text('\'${newItem.book.title}\'(으)로\n변경하시겠습니까?', textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, color: AppColors.textHint, height: 1.4)),
               ),
               const SizedBox(height: 30),
-              const Divider(height: 1, color: Color(0xFFEEEEEE)),
+              const Divider(height: 1, color: AppColors.divider),
               SizedBox(
                 height: 50,
                 child: Row(
@@ -315,10 +316,10 @@ class ReadingRegistrationController extends GetxController {
                           Get.back();
                         },
                         borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(16)),
-                        child: const Center(child: Text('취소', style: TextStyle(fontSize: 16, color: Color(0xFF888888), fontWeight: FontWeight.w500))),
+                        child: const Center(child: Text('취소', style: TextStyle(fontSize: 16, color: AppColors.textHint, fontWeight: FontWeight.w500))),
                       ),
                     ),
-                    const VerticalDivider(width: 1, color: Color(0xFFEEEEEE)),
+                    const VerticalDivider(width: 1, color: AppColors.divider),
                     Expanded(
                       child: InkWell(
                         onTap: () async {
@@ -328,7 +329,7 @@ class ReadingRegistrationController extends GetxController {
                           _isProcessingClick = false;
                         },
                         borderRadius: const BorderRadius.only(bottomRight: Radius.circular(16)),
-                        child: const Center(child: Text('변경', style: TextStyle(fontSize: 16, color: Color(0xFF4CAF50), fontWeight: FontWeight.w500))),
+                        child: const Center(child: Text('변경', style: TextStyle(fontSize: 16, color: AppColors.primary, fontWeight: FontWeight.w500))),
                       ),
                     ),
                   ],
@@ -364,15 +365,15 @@ class ReadingRegistrationController extends GetxController {
             const SizedBox(height: 30),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Text('독서 시작', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF3F3F3F))),
+              child: Text('독서 시작', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textDark)),
             ),
             const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text('${item.book.title}\n독서를 시작하시겠습니까?', textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, color: Color(0xFF888888), height: 1.4)),
+              child: Text('${item.book.title}\n독서를 시작하시겠습니까?', textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, color: AppColors.textHint, height: 1.4)),
             ),
             const SizedBox(height: 30),
-            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+            const Divider(height: 1, color: AppColors.divider),
             SizedBox(
               height: 50,
               child: Row(
@@ -381,10 +382,10 @@ class ReadingRegistrationController extends GetxController {
                     child: InkWell(
                       onTap: () => Get.back(),
                       borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(16)),
-                      child: const Center(child: Text('취소', style: TextStyle(fontSize: 16, color: Color(0xFF888888), fontWeight: FontWeight.w500))),
+                      child: const Center(child: Text('취소', style: TextStyle(fontSize: 16, color: AppColors.textHint, fontWeight: FontWeight.w500))),
                     ),
                   ),
-                  const VerticalDivider(width: 1, color: Color(0xFFEEEEEE)),
+                  const VerticalDivider(width: 1, color: AppColors.divider),
                   Expanded(
                     child: InkWell(
                       onTap: () async {
@@ -401,7 +402,7 @@ class ReadingRegistrationController extends GetxController {
                         startReadingSession(item.book.id, startPage);
                       },
                       borderRadius: const BorderRadius.only(bottomRight: Radius.circular(16)),
-                      child: const Center(child: Text('시작', style: TextStyle(fontSize: 16, color: Color(0xFF4CAF50), fontWeight: FontWeight.w500))),
+                      child: const Center(child: Text('시작', style: TextStyle(fontSize: 16, color: AppColors.primary, fontWeight: FontWeight.w500))),
                     ),
                   ),
                 ],
@@ -449,7 +450,7 @@ class ReadingRegistrationController extends GetxController {
             const SizedBox(height: 30),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Text('독서 종료', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF3F3F3F))),
+              child: Text('독서 종료', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textDark)),
             ),
             const SizedBox(height: 24),
             Padding(
@@ -460,7 +461,7 @@ class ReadingRegistrationController extends GetxController {
                 children: [
                   const Padding(
                     padding: EdgeInsets.only(top: 3),
-                    child: Text("마지막 페이지", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF3F3F3F))),
+                    child: Text("마지막 페이지", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textDark)),
                   ),
                   const SizedBox(width: 16),
                   SizedBox(
@@ -470,15 +471,15 @@ class ReadingRegistrationController extends GetxController {
                       keyboardType: TextInputType.number,
                       autofocus: true,
                       textAlign: TextAlign.center,
-                      cursorColor: const Color(0xFF4CAF50),
+                      cursorColor: AppColors.primary,
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
                       decoration: InputDecoration(
                         isDense: true,
                         contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                         hintText: '0',
-                        hintStyle: const TextStyle(color: Color(0xFFDDDDDD)),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFFE0E0E0), width: 1.2)),
-                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFFE0E0E0), width: 1.2)),
+                        hintStyle: const TextStyle(color: AppColors.border),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.border, width: 1.2)),
+                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.border, width: 1.2)),
                       ),
                     ),
                   ),
@@ -491,11 +492,11 @@ class ReadingRegistrationController extends GetxController {
               child: Text(
                 totalBookPages > 0 ? '읽은 페이지를 저장하시겠습니까? (최대 $totalBookPages p)' : '읽은 페이지를 저장하시겠습니까?',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF888888)),
+                style: const TextStyle(fontSize: 12, color: AppColors.textHint),
               ),
             ),
             const SizedBox(height: 30),
-            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+            const Divider(height: 1, color: AppColors.divider),
             SizedBox(
               height: 50,
               child: Row(
@@ -508,10 +509,10 @@ class ReadingRegistrationController extends GetxController {
                         Get.back();
                       },
                       borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(16)),
-                      child: const Center(child: Text('취소', style: TextStyle(fontSize: 16, color: Color(0xFF888888), fontWeight: FontWeight.w500))),
+                      child: const Center(child: Text('취소', style: TextStyle(fontSize: 16, color: AppColors.textHint, fontWeight: FontWeight.w500))),
                     ),
                   ),
-                  const VerticalDivider(width: 1, color: Color(0xFFEEEEEE)),
+                  const VerticalDivider(width: 1, color: AppColors.divider),
                   Expanded(
                     child: InkWell(
                       onTap: () {
@@ -531,7 +532,7 @@ class ReadingRegistrationController extends GetxController {
                         }
                       },
                       borderRadius: const BorderRadius.only(bottomRight: Radius.circular(16)),
-                      child: const Center(child: Text('저장', style: TextStyle(fontSize: 16, color: Color(0xFF4CAF50), fontWeight: FontWeight.w500))),
+                      child: const Center(child: Text('저장', style: TextStyle(fontSize: 16, color: AppColors.primary, fontWeight: FontWeight.w500))),
                     ),
                   ),
                 ],

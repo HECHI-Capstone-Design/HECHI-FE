@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
@@ -50,7 +51,7 @@ class GroupMemberListView extends GetView<GroupController> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Container(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(16)),
+                decoration: BoxDecoration(color: AppColors.backgroundGrey, borderRadius: BorderRadius.circular(16)),
                 child: Obx(() => GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 7,
@@ -67,7 +68,7 @@ class GroupMemberListView extends GetView<GroupController> {
                         children: [
                           const CircleAvatar(
                             radius: 18,
-                            backgroundColor: Color(0xFF8DC695),
+                            backgroundColor: AppColors.primaryLight,
                             child: Icon(Icons.person, color: Colors.white, size: 20),
                           ),
                           const SizedBox(height: 4),

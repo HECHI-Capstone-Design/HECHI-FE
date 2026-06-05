@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class VerifyHeader extends StatelessWidget {
@@ -12,7 +13,7 @@ class VerifyHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Icon(Icons.mark_email_read_outlined, size: 80, color: Color(0xFF4DB56C)),
+        const Icon(Icons.mark_email_read_outlined, size: 80, color: AppColors.primary),
         const SizedBox(height: 24),
         Text(
           '${targetEmail.isNotEmpty ? targetEmail : "입력하신 이메일"}으로\n인증 코드가 발송되었습니다.',

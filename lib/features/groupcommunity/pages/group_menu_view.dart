@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
@@ -10,7 +11,7 @@ class GroupMenuView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final GroupController controller = Get.find<GroupController>();
-    const brandMainGreen = Color(0xFF4EB56D); 
+    const brandMainGreen = AppColors.primary; 
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -120,7 +121,7 @@ class GroupMenuView extends StatelessWidget {
                       Text(
                         titleText,
                         style: const TextStyle(
-                          color: Color(0xFF222222),
+                          color: AppColors.textDark,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -130,7 +131,7 @@ class GroupMenuView extends StatelessWidget {
                         bodyText,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          color: Color(0xFF777777),
+                          color: AppColors.textMedium,
                           fontSize: 13,
                         ),
                       ),
@@ -139,7 +140,7 @@ class GroupMenuView extends StatelessWidget {
                 ),
                 Container(
                   height: 0.5,
-                  color: const Color(0xFFE5E5E5),
+                  color: AppColors.border,
                 ),
                 IntrinsicHeight(
                   child: Row(
@@ -187,7 +188,7 @@ class GroupMenuView extends StatelessWidget {
                       ),
                       Container(
                         width: 0.5,
-                        color: const Color(0xFFE5E5E5),
+                        color: AppColors.border,
                       ),
                       Expanded(
                         child: TextButton(
@@ -201,7 +202,7 @@ class GroupMenuView extends StatelessWidget {
                           child: const Text(
                             "아니오",
                             style: TextStyle(
-                              color: Color(0xFF999999),
+                              color: AppColors.textHint,
                               fontWeight: FontWeight.w500,
                               fontSize: 14,
                             ),

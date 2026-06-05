@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/reading_detail_controller.dart';
@@ -35,7 +36,7 @@ class BookInfoSection extends GetView<ReadingDetailController> {
               ],
             ),
             style: const TextStyle(
-              color: Color(0xFF717171),
+              color: AppColors.textMedium,
               fontSize: 15,
               fontFamily: 'Roboto',
               height: 1.4,
@@ -47,7 +48,7 @@ class BookInfoSection extends GetView<ReadingDetailController> {
           Obx(() => Text(
             '${controller.category.value} · ${controller.publishDate.value}',
             style: const TextStyle(
-              color: Color(0xFF717171),
+              color: AppColors.textMedium,
               fontSize: 15,
               fontFamily: 'Roboto',
               height: 1.4,

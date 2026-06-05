@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/create_collection_controller.dart';
@@ -29,7 +30,7 @@ class TagSearchSection extends GetView<CreateCollectionController> {
       decoration: ShapeDecoration(
         color: Colors.white,
         shape: RoundedRectangleBorder(
-          side: const BorderSide(width: 1, color: Color(0xFF717171)),
+          side: const BorderSide(width: 1, color: AppColors.textMedium),
           borderRadius: isOpen
               ? const BorderRadius.vertical(top: Radius.circular(5))
               : BorderRadius.circular(5),
@@ -42,7 +43,7 @@ class TagSearchSection extends GetView<CreateCollectionController> {
               controller: controller.tagSearchController,
               onTap: controller.openTagDropdown,
               style: const TextStyle(
-                color: Color(0xFF3F3F3F),
+                color: AppColors.textDark,
                 fontSize: 15,
                 fontFamily: 'Roboto',
                 fontWeight: FontWeight.w400,
@@ -51,7 +52,7 @@ class TagSearchSection extends GetView<CreateCollectionController> {
               decoration: const InputDecoration(
                 hintText: '#태그 검색',
                 hintStyle: TextStyle(
-                  color: Color(0xFF717171),
+                  color: AppColors.textMedium,
                   fontSize: 14,
                   fontFamily: 'Roboto',
                   fontWeight: FontWeight.w400,
@@ -72,7 +73,7 @@ class TagSearchSection extends GetView<CreateCollectionController> {
                   ? Icons.keyboard_arrow_up
                   : Icons.keyboard_arrow_down,
               size: 20,
-              color: const Color(0xFF717171),
+              color: AppColors.textMedium,
             ),
           ),
         ],
@@ -89,9 +90,9 @@ class TagSearchSection extends GetView<CreateCollectionController> {
       decoration: BoxDecoration(
         color: Colors.white,
         border: const Border(
-          left: BorderSide(width: 1, color: Color(0xFF717171)),
-          right: BorderSide(width: 1, color: Color(0xFF717171)),
-          bottom: BorderSide(width: 1, color: Color(0xFF717171)),
+          left: BorderSide(width: 1, color: AppColors.textMedium),
+          right: BorderSide(width: 1, color: AppColors.textMedium),
+          bottom: BorderSide(width: 1, color: AppColors.textMedium),
         ),
         borderRadius:
         const BorderRadius.vertical(bottom: Radius.circular(5)),
@@ -113,7 +114,7 @@ class TagSearchSection extends GetView<CreateCollectionController> {
         child: const Text(
           '검색 결과가 없습니다',
           style: TextStyle(
-            color: Color(0xFFABABAB),
+            color: AppColors.textHint,
             fontSize: 14,
             fontFamily: 'Roboto',
             fontWeight: FontWeight.w400,
@@ -217,7 +218,7 @@ class TagSearchSection extends GetView<CreateCollectionController> {
           width: double.infinity,
           height: 33,
           padding: const EdgeInsets.symmetric(horizontal: 10),
-          color: const Color(0xFFF0FAF3),
+          color: AppColors.primarySurface,
           child: Row(
             children: [
               GestureDetector(
@@ -225,14 +226,14 @@ class TagSearchSection extends GetView<CreateCollectionController> {
                 child: const Icon(
                   Icons.arrow_back_ios,
                   size: 14,
-                  color: Color(0xFF4DB56C),
+                  color: AppColors.primary,
                 ),
               ),
               const SizedBox(width: 4),
               Text(
                 controller.selectedCategory.value,
                 style: const TextStyle(
-                  color: Color(0xFF4DB56C),
+                  color: AppColors.primary,
                   fontSize: 14,
                   fontFamily: 'Roboto',
                   fontWeight: FontWeight.w500,
@@ -243,7 +244,7 @@ class TagSearchSection extends GetView<CreateCollectionController> {
           ),
         ),
 
-        const Divider(height: 1, thickness: 0.5, color: Color(0xFFDADADA)),
+        const Divider(height: 1, thickness: 0.5, color: AppColors.border),
 
         // 해당 카테고리 태그 목록
         ConstrainedBox(
@@ -291,7 +292,7 @@ class TagSearchSection extends GetView<CreateCollectionController> {
         const Text(
           '추천 태그',
           style: TextStyle(
-            color: Color(0xFF717171),
+            color: AppColors.textMedium,
             fontSize: 14,
             fontFamily: 'Roboto',
             fontWeight: FontWeight.w400,
@@ -335,13 +336,13 @@ class _SearchResultItem extends StatelessWidget {
           width: double.infinity,
           height: 33,
           padding: const EdgeInsets.symmetric(horizontal: 10),
-          color: isSelected ? const Color(0xFFF0FAF3) : Colors.transparent,
+          color: isSelected ? AppColors.primarySurface : Colors.transparent,
           child: Row(
             children: [
               Text(
                 tag.label,
                 style: const TextStyle(
-                  color: Color(0xFF3F3F3F),
+                  color: AppColors.textDark,
                   fontSize: 14,
                   fontFamily: 'Roboto',
                   fontWeight: FontWeight.w400,
@@ -350,7 +351,7 @@ class _SearchResultItem extends StatelessWidget {
               ),
               const Spacer(),
               if (isSelected)
-                const Icon(Icons.check, size: 16, color: Color(0xFF4DB56C)),
+                const Icon(Icons.check, size: 16, color: AppColors.primary),
             ],
           ),
         ),

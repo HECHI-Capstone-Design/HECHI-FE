@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class LoginTextField extends StatelessWidget {
@@ -30,11 +31,11 @@ class LoginTextField extends StatelessWidget {
         // 1. 라벨 (이메일, 비밀번호 등)
         Row(
           children: [
-            const Text('* ', style: TextStyle(color: Color(0xFF4DB56C), fontSize: 14, fontWeight: FontWeight.bold)),
+            const Text('* ', style: TextStyle(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.bold)),
             Text(
               label,
               style: const TextStyle(
-                color: Color(0xFF3F3F3F),
+                color: AppColors.textDark,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -48,7 +49,7 @@ class LoginTextField extends StatelessWidget {
           height: 45,
           padding: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
-            color: const Color(0xFFF3F3F3),
+            color: AppColors.divider,
             borderRadius: BorderRadius.circular(25),
           ),
           child: Row(
@@ -61,7 +62,7 @@ class LoginTextField extends StatelessWidget {
                   style: const TextStyle(fontSize: 13, color: Colors.black87),
                   decoration: InputDecoration(
                     hintText: hintText,
-                    hintStyle: const TextStyle(color: Color(0xFF9E9E9E), fontSize: 13),
+                    hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 13),
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
@@ -74,7 +75,7 @@ class LoginTextField extends StatelessWidget {
                   onTap: onToggleVisibility,
                   child: Icon(
                     obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                    color: const Color(0xFF717171),
+                    color: AppColors.textMedium,
                     size: 20,
                   ),
                 ),

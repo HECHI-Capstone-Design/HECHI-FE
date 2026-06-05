@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class WeekdayHeader extends StatelessWidget {
@@ -15,7 +16,7 @@ class WeekdayHeader extends StatelessWidget {
               style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF3F3F3F)
+                  color: AppColors.textDark
               ),
             ),
           ),

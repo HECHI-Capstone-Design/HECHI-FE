@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/settings_controller.dart';
@@ -39,7 +40,7 @@ class SettingsView extends GetView<SettingsController> {
             onChanged: controller.toggleNotification,
           )),
 
-          const Divider(thickness: 1, height: 30, color: Color(0xFFEEEEEE)),
+          const Divider(thickness: 1, height: 30, color: AppColors.divider),
 
           // 2. 고객 지원 섹션
           const SettingsSectionHeader(title: "지원"),
@@ -49,7 +50,7 @@ class SettingsView extends GetView<SettingsController> {
             onTap: controller.goToCustomerService,
           ),
 
-          const Divider(thickness: 1, height: 30, color: Color(0xFFEEEEEE)),
+          const Divider(thickness: 1, height: 30, color: AppColors.divider),
 
           // 3. 계정 섹션
           const SettingsSectionHeader(title: "계정"),

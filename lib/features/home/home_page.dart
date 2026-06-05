@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../notification/pages/notification_page.dart';
@@ -27,7 +28,7 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.home_outlined, size: 80, color: Color(0xFF4DB56C)),
+            const Icon(Icons.home_outlined, size: 80, color: AppColors.primary),
             const SizedBox(height: 20),
             const Text(
               '안녕하세요!\n무엇을 도와드릴까요?',
@@ -49,7 +50,7 @@ class HomePage extends StatelessWidget {
             _buildMenuButton(
               title: '고객센터 문의하기',
               icon: Icons.support_agent,
-              color: const Color(0xFF4DB56C),
+              color: AppColors.primary,
               onTap: () => Get.to(() => CustomerServicePage()),
             ),
 

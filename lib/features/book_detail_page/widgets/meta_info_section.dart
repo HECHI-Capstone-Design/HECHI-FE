@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/book_detail_controller.dart';
@@ -15,10 +16,10 @@ class MetaInfoSection extends GetView<BookDetailController> {
         width: double.infinity,
         height: 62,
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F5).withValues(alpha: 0.7),
+          color: AppColors.backgroundGrey.withValues(alpha: 0.7),
           border: const Border(
-            top: BorderSide(width: 0.5, color: Color(0xFFD4D4D4)),
-            bottom: BorderSide(width: 0.5, color: Color(0xFFD4D4D4)),
+            top: BorderSide(width: 0.5, color: AppColors.borderMedium),
+            bottom: BorderSide(width: 0.5, color: AppColors.borderMedium),
           ),
         ),
         child: SingleChildScrollView(
@@ -51,7 +52,7 @@ class MetaInfoSection extends GetView<BookDetailController> {
           Text(
             label,
             style: const TextStyle(
-              color: Color(0xFF717171),
+              color: AppColors.textMedium,
               fontSize: 13,
               fontWeight: FontWeight.w500,
               height: 1.54,
@@ -61,7 +62,7 @@ class MetaInfoSection extends GetView<BookDetailController> {
           Text(
             value,
             style: const TextStyle(
-              color: Color(0xFF3F3F3F),
+              color: AppColors.textDark,
               fontSize: 13,
               fontWeight: FontWeight.w400,
               height: 1.54,

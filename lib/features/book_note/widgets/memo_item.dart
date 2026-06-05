@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../widgets/dialogs/option_bottom_sheet.dart';
@@ -36,16 +37,16 @@ class _MemoItemState extends State<MemoItem> {
               width: 28,
               height: 28,
               decoration: const BoxDecoration(
-                color: Color(0xFFFFEBEE),
+                color: AppColors.memoBackground,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.description_outlined, size: 16, color: Color(0xFFEF5350)),
+              child: const Icon(Icons.description_outlined, size: 16, color: AppColors.error),
             ),
             if (!_expanded)
               Expanded(
                 child: Container(
                   width: 1,
-                  color: const Color(0xFFF3F3F3),
+                  color: AppColors.divider,
                 ),
               ),
           ],
@@ -66,7 +67,7 @@ class _MemoItemState extends State<MemoItem> {
                         OptionBottomSheet(type: "memo", data: widget.data),
                         backgroundColor: Colors.transparent,
                       ),
-                      child: const Icon(Icons.more_horiz, size: 20, color: Color(0xFFBDBDBD)),
+                      child: const Icon(Icons.more_horiz, size: 20, color: AppColors.border),
                     ),
                   ),
 
@@ -92,10 +93,10 @@ class _MemoItemState extends State<MemoItem> {
                     width: double.infinity,
                     padding: const EdgeInsets.only(left: 16, top: 4, bottom: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF9F9F9),
+                      color: AppColors.backgroundGrey,
                       border: Border(
                         left: BorderSide(
-                          color: const Color(0xFFEF5350).withOpacity(0.5),
+                          color: AppColors.error.withOpacity(0.5),
                           width: 3,
                         ),
                       ),
@@ -115,7 +116,7 @@ class _MemoItemState extends State<MemoItem> {
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF3F3F3F),
+                        color: AppColors.textDark,
                         height: 1.6,
                       ),
                     ),
@@ -126,7 +127,7 @@ class _MemoItemState extends State<MemoItem> {
 
                 Text(
                   date,
-                  style: const TextStyle(fontSize: 12, color: Color(0xFF9E9E9E)),
+                  style: const TextStyle(fontSize: 12, color: AppColors.textHint),
                 ),
               ],
             ),

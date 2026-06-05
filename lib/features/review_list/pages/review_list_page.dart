@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/review_list_controller.dart';
@@ -45,19 +46,19 @@ class ReviewListPage extends GetView<ReviewListController> {
             child: Container(
               width: double.infinity,
               height: 50,
-              color: const Color(0xFFF3F3F3),
+              color: AppColors.divider,
               padding: const EdgeInsets.symmetric(horizontal: 17),
               child: Row(
                 children: [
                   Obx(() => Text(
                     controller.sortText,
                     style: const TextStyle(
-                      color: Color(0xFF3F3F3F),
+                      color: AppColors.textDark,
                       fontSize: 15,
                     ),
                   )),
                   const SizedBox(width: 4),
-                  const Icon(Icons.keyboard_arrow_down, size: 20, color: Color(0xFF3F3F3F)),
+                  const Icon(Icons.keyboard_arrow_down, size: 20, color: AppColors.textDark),
                 ],
               ),
             ),
@@ -75,7 +76,7 @@ class ReviewListPage extends GetView<ReviewListController> {
               return ListView.separated(
                 padding: EdgeInsets.zero,
                 itemCount: controller.reviews.length,
-                separatorBuilder: (_, __) => const Divider(height: 1, thickness: 1, color: Color(0xFFF3F3F3)),
+                separatorBuilder: (_, __) => const Divider(height: 1, thickness: 1, color: AppColors.divider),
 
                 itemBuilder: (context, index) {
                   return Obx(() {

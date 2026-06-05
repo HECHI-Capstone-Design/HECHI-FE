@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/app/routes.dart';
@@ -16,7 +17,7 @@ class SeeAllTasteButton extends StatelessWidget {
 
           padding: const EdgeInsets.symmetric(vertical: 11),
           decoration: BoxDecoration(
-            color: const Color(0xFFF7F7F7),
+            color: AppColors.backgroundGrey,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(

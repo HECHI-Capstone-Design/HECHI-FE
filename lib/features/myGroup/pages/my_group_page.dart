@@ -1,3 +1,4 @@
+import 'package:hechi/app/colors.dart';
 // lib/features/myGroup/pages/my_group_page.dart
 
 import 'package:flutter/material.dart';
@@ -100,7 +101,7 @@ class MyGroupPage extends GetView<MyGroupController> {
                     padding: EdgeInsets.symmetric(vertical: 40.0),
                     child: Center(
                       child: CircularProgressIndicator(
-                        color: Color(0xff4DB56C), // 메인테마 초록색 적용
+                        color: AppColors.primary, // 메인테마 초록색 적용
                       ),
                     ),
                   );
