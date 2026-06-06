@@ -29,9 +29,7 @@ class ReadingRegistrationView extends GetView<ReadingRegistrationController> {
         ],
       ),
       backgroundColor: Colors.grey[50],
-      body: SafeArea(
-        top: false,
-        child: Obx(() {
+      body: Obx(() {
         if (controller.isLoading.value && controller.libraryReadingItems.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -77,14 +75,12 @@ class ReadingRegistrationView extends GetView<ReadingRegistrationController> {
                   const SizedBox(
                     height: 100,
                     child: Center(child: Text("보관함에 읽고 있는 책이 없습니다.", style: TextStyle(color: Colors.grey))),
-
                   ),
               ],
             ),
           ),
         );
       }),
-        ),
     );
   }
 }

@@ -10,87 +10,98 @@ class SearchHeaderWidget extends GetView<BookSearchController> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          width: 412,
-          height: 62,
-          padding: const EdgeInsets.only(left: 16, right: 16, top: 20),
-          decoration: const BoxDecoration(color: Colors.white),
-          child: Container(
-            height: 30,
-            decoration: ShapeDecoration(
-              color: AppColors.backgroundGrey,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(13),
-              ),
-            ),
-            child: Obx(() => TextField(
-              controller: controller.searchTextController,
-              focusNode: controller.searchFocusNode,
-              textAlignVertical: TextAlignVertical.center,
-              textInputAction: TextInputAction.search,
-              onSubmitted: (_) =>
-                  controller.onSubmit(controller.searchTextController.text),
-              decoration: InputDecoration(
-                prefixIcon: controller.selectedSearchTags.isEmpty
-                    ? const Icon(Icons.search, color: AppColors.textDark)
-                    : SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(width: 10),
-                      ...controller.selectedSearchTags.map((tag) =>
-                          Container(
-                            margin: const EdgeInsets.only(right: 6),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 2),
-                            decoration: ShapeDecoration(
-                              color: AppColors.primarySurface,
-                              shape: RoundedRectangleBorder(
-                                side: const BorderSide(
-                                    width: 0.5,
-                                    color: AppColors.primary),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  '#${tag['name']}',
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 15,
-                                    fontFamily: 'Roboto',
-                                    fontWeight: FontWeight.w400,
-                                    height: 1.75,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                GestureDetector(
-                                  onTap: () =>
-                                      controller.removeSearchTag(tag),
-                                  child: const Icon(Icons.close,
-                                      size: 14,
-                                      color: AppColors.primary),
-                                ),
-                              ],
-                            ),
-                          )).toList(),
-                    ],
+        Padding(
+          padding: const EdgeInsets.only(left: 16, right: 8, top: 20),
+          child: Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 30,
+                  decoration: ShapeDecoration(
+                    color: AppColors.backgroundGrey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(13),
+                    ),
                   ),
+                  child: Obx(() => TextField(
+                    controller: controller.searchTextController,
+                    focusNode: controller.searchFocusNode,
+                    textAlignVertical: TextAlignVertical.center,
+                    textInputAction: TextInputAction.search,
+                    onSubmitted: (_) =>
+                        controller.onSubmit(controller.searchTextController.text),
+                    decoration: InputDecoration(
+                      prefixIcon: controller.selectedSearchTags.isEmpty
+                          ? const Icon(Icons.search, color: AppColors.textDark)
+                          : SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(width: 10),
+                            ...controller.selectedSearchTags.map((tag) =>
+                                Container(
+                                  margin: const EdgeInsets.only(right: 6),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 2),
+                                  decoration: ShapeDecoration(
+                                    color: AppColors.primarySurface,
+                                    shape: RoundedRectangleBorder(
+                                      side: const BorderSide(
+                                          width: 0.5,
+                                          color: AppColors.primary),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        '#${tag['name']}',
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 15,
+                                          fontFamily: 'Roboto',
+                                          fontWeight: FontWeight.w400,
+                                          height: 1.75,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      GestureDetector(
+                                        onTap: () =>
+                                            controller.removeSearchTag(tag),
+                                        child: const Icon(Icons.close,
+                                            size: 14,
+                                            color: AppColors.primary),
+                                      ),
+                                    ],
+                                  ),
+                                )).toList(),
+                          ],
+                        ),
+                      ),
+                      hintText: controller.selectedSearchTags.isEmpty ? '검색' : '',
+                      hintStyle: const TextStyle(
+                        color: AppColors.textDark,
+                        fontSize: 16,
+                        fontFamily: 'Roboto',
+                      ),
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  )),
                 ),
-                hintText: controller.selectedSearchTags.isEmpty ? '검색' : '',
-                hintStyle: const TextStyle(
-                  color: AppColors.textDark,
-                  fontSize: 16,
-                  fontFamily: 'Roboto',
-                ),
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
               ),
-            )),
+              // ISBN 바코드 스캔 버튼
+              GestureDetector(
+                onTap: controller.navigateToIsbnScan,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: const Icon(Icons.qr_code_scanner, color: AppColors.textDark, size: 24),
+                ),
+              ),
+            ],
           ),
         ),
 

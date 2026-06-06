@@ -529,7 +529,14 @@ class GroupController extends GetxController {
       }
 
       final response = await http.post(url, headers: _headers, body: jsonEncode(bodyData));
-      if (response.statusCode == 200 || response.statusCode == 201) await fetchAllDataFromAPI();
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // 미션 게시판은 현재 미션책 필터 유지, 자유 게시판은 전체 새로고침
+        if (isMission && currentMissionBookId.value != 0) {
+          await fetchFilteredBookBoard(currentMissionBookId.value.toString(), true);
+        } else {
+          await refreshPostsOnly();
+        }
+      }
     } catch (e) {
       print("❌ createNewPost Error: $e");
     } finally {

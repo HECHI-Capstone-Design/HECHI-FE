@@ -21,6 +21,15 @@ class _NotificationPageState extends State<NotificationPage> {
   final NotificationController controller = Get.find<NotificationController>();
 
   @override
+  void initState() {
+    super.initState();
+    // 페이지 열릴 때마다 새로 fetch (onInit은 앱 시작 시 로그인 전에 실행됨)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.refreshNotificationPage();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -44,7 +53,9 @@ class _NotificationPageState extends State<NotificationPage> {
           ),
         ],
       ),
-      body: RefreshIndicator(
+      body: SafeArea(
+        top: false,
+        child: RefreshIndicator(
         color: AppColors.primary,
         onRefresh: () async {
           final category = _selectedTab == 0 ? 'GENERAL' : 'GROUP';
@@ -67,6 +78,7 @@ class _NotificationPageState extends State<NotificationPage> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -119,13 +131,12 @@ class _GeneralListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<NotificationController>();
-    final double safeBottom = MediaQuery.of(context).padding.bottom;
     return Obx(() {
       final items = controller.generalNotifications;
       if (items.isEmpty) return const NotificationEmptyState(message: '일반 알림이 없습니다.');
 
       return ListView.builder(
-        padding: EdgeInsets.only(bottom: safeBottom + 16),
+        padding: const EdgeInsets.only(bottom: 16),
         itemCount: items.length,
         itemBuilder: (_, i) => _buildSwipeableTile(
           item: items[i],
@@ -143,13 +154,12 @@ class _GroupListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<NotificationController>();
-    final double safeBottom = MediaQuery.of(context).padding.bottom;
     return Obx(() {
       final items = controller.groupNotifications;
       if (items.isEmpty) return const NotificationEmptyState(message: '그룹 알림이 없습니다.');
 
       return ListView.builder(
-        padding: EdgeInsets.only(bottom: safeBottom + 16),
+        padding: const EdgeInsets.only(bottom: 16),
         itemCount: items.length,
         itemBuilder: (_, i) => _buildSwipeableTile(
           item: items[i],

@@ -6,6 +6,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
 import 'package:hechi/features/groupcommunity/widgets/group_comment_bottom_sheet.dart';
+import 'package:hechi/core/utils/time_ago.dart';
 import 'package:hechi/features/book_note/widgets/bookmark_item.dart';
 import 'package:hechi/features/book_note/widgets/highlight_item.dart';
 import 'package:hechi/features/book_note/widgets/memo_item.dart';
@@ -90,7 +91,7 @@ class _GroupPostCardState extends State<GroupPostCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(widget.post["author"] ?? "여름", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                    Text(widget.post["date"] ?? "방금 전", style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                    Text(timeAgo(widget.post["date"]), style: const TextStyle(color: Colors.grey, fontSize: 11)),
                   ],
                 ),
               ),

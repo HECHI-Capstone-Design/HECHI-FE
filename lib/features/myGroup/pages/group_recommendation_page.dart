@@ -37,7 +37,6 @@ class GroupRecommendationPage extends GetView<MyGroupController> {
           },
         )),
       ),
-        ),
       ),
     );
   }

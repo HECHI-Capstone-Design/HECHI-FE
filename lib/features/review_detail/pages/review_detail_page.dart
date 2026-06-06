@@ -406,7 +406,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
     final double safeBottom = MediaQuery.of(context).padding.bottom;
 
     return Container(
-      padding: EdgeInsets.fromLTRB(16, 10, 16, safeBottom > 0 ? safeBottom : 10),
+      padding: EdgeInsets.fromLTRB(16, 8, 16, safeBottom > 0 ? safeBottom + 4 : 12),
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: AppColors.divider)),
@@ -414,46 +414,42 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: CircleAvatar(
-              radius: 16,
-              backgroundColor: AppColors.primary.withOpacity(0.5),
-              child: const Icon(Icons.person, color: Colors.white, size: 20),
-            ),
-          ),
-          const SizedBox(width: 10),
+          // 텍스트 필드
           Expanded(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
               constraints: const BoxConstraints(maxHeight: 120),
               decoration: BoxDecoration(
                 color: AppColors.backgroundGrey,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(22),
               ),
               child: TextField(
                 controller: controller.commentInputController,
                 keyboardType: TextInputType.multiline,
                 maxLines: null,
                 decoration: const InputDecoration(
-                  hintText: "코멘트에 댓글을 남겨보세요",
+                  hintText: "댓글을 남겨보세요",
                   border: InputBorder.none,
-                  hintStyle:
-                  TextStyle(fontSize: 13, color: AppColors.border),
+                  hintStyle: TextStyle(fontSize: 14, color: AppColors.textHint),
                   isDense: true,
-                  contentPadding: EdgeInsets.symmetric(vertical: 10),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 ),
-                style: const TextStyle(fontSize: 13),
+                style: const TextStyle(fontSize: 14),
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
+          // 전송 버튼
           GestureDetector(
             onTap: controller.postComment,
-            child: const Text("등록",
-                style: TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold)),
+            child: Container(
+              width: 38,
+              height: 38,
+              decoration: const BoxDecoration(
+                color: AppColors.primary,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.send_rounded, color: Colors.white, size: 18),
+            ),
           ),
         ],
       ),

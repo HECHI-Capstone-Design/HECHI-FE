@@ -90,6 +90,7 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
           ],
         ),
       ),
+      ),
     );
   }
 
@@ -400,7 +401,6 @@ class _CustomSwitch extends StatelessWidget {
           ),
         ),
       ),
-        ),
     );
   }
 }

@@ -41,9 +41,17 @@ class NotificationController extends GetxController {
       final url = Uri.parse('$baseUrl/users/me/notifications?tabCategory=$category&limit=40&offset=0');
       final response = await http.get(url, headers: _getHeaders());
 
+      print("🔔 알림 API 응답 [${response.statusCode}]: ${response.body}");
       if (response.statusCode == 200) {
         final decodedData = jsonDecode(utf8.decode(response.bodyBytes));
-        final List<dynamic> list = decodedData['notifications'] ?? [];
+        print("🔔 파싱된 키 목록: ${decodedData.keys.toList()}");
+        // 서버 응답 키가 notifications / items / content / data 등 다를 수 있음
+        final List<dynamic> list = decodedData['notifications']
+            ?? decodedData['items']
+            ?? decodedData['content']
+            ?? decodedData['data']
+            ?? [];
+        print("🔔 알림 개수: ${list.length}");
         List<NotificationItem> parsedList = list.map((json) => NotificationItem.fromJson(json)).toList();
 
         if (category == 'GENERAL') {
@@ -51,6 +59,8 @@ class NotificationController extends GetxController {
         } else {
           groupNotifications.value = parsedList;
         }
+      } else {
+        print("🔔 알림 API 실패: ${response.statusCode} ${response.body}");
       }
     } catch (e) {
       print("알림 목록 로드 실패: $e");

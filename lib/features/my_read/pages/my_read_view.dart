@@ -31,9 +31,7 @@ class MyReadView extends GetView<MyReadController> {
           ),
         ],
       ),
-      body: SafeArea(
-        top: false,
-        child: RefreshIndicator(
+      body: RefreshIndicator(
         color: AppColors.primary,
         onRefresh: () async => await controller.fetchMyReadData(),
         child: SingleChildScrollView(
@@ -90,7 +88,6 @@ class MyReadView extends GetView<MyReadController> {
           ),
         ),
       ),
-        ),
     );
   }
 }

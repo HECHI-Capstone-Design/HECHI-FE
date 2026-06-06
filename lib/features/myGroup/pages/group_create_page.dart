@@ -70,20 +70,29 @@ class GroupCreatePage extends GetView<GroupCreateController> {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            GestureDetector(
-                              onTap: () => controller.checkDuplicateId(controller.groupId.value),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryLight, // 연한 초록색
-                                  borderRadius: BorderRadius.circular(16),
+                            Obx(() {
+                              final status = controller.idCheckStatus.value;
+                              final bool hasText = controller.groupId.value.isNotEmpty;
+                              final Color btnColor = !hasText
+                                  ? AppColors.primaryLight
+                                  : status == 1
+                                      ? Colors.green
+                                      : AppColors.primary;
+                              return GestureDetector(
+                                onTap: () async => await controller.checkDuplicateId(controller.groupId.value),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                  decoration: BoxDecoration(
+                                    color: btnColor,
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: const Text(
+                                    '중복 확인',
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                                child: const Text(
-                                  '중복 확인',
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
+                              );
+                            }),
                           ],
                         ),
                         // 아이디 중복 확인 결과 텍스트
@@ -96,7 +105,7 @@ class GroupCreatePage extends GetView<GroupCreateController> {
                           } else if (controller.idCheckStatus.value == 2) {
                             return const Padding(
                               padding: EdgeInsets.only(top: 8, left: 8),
-                              child: Text('이미 있는 아이디입니다.', style: TextStyle(color: Colors.red, fontSize: 12)),
+                              child: Text('이미 사용중인 그룹 아이디입니다.', style: TextStyle(color: Colors.red, fontSize: 12)),
                             );
                           }
                           return const SizedBox.shrink();

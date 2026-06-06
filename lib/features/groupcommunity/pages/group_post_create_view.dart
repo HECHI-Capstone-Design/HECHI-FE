@@ -14,7 +14,6 @@ class GroupPostCreateView extends GetView<GroupController> {
 
   @override
   Widget build(BuildContext context) {
-    final titleController = TextEditingController();
     final contentController = TextEditingController();
     const brandColor = AppColors.primaryLight;
 
@@ -29,10 +28,12 @@ class GroupPostCreateView extends GetView<GroupController> {
           TextButton(
             onPressed: () {
               final bool hasContent = contentController.text.isNotEmpty;
-              final bool hasTitle = titleController.text.isNotEmpty;
               final bool hasNotes = controller.attachedNotes.isNotEmpty;
 
-              if (hasTitle && !hasContent) {
+              if (hasContent || hasNotes) {
+                controller.createNewPost('', contentController.text, isMission);
+                Get.back();
+              } else {
                 Get.snackbar(
                   "내용을 입력해주세요",
                   "",
@@ -40,12 +41,6 @@ class GroupPostCreateView extends GetView<GroupController> {
                   margin: const EdgeInsets.all(16),
                   borderRadius: 8,
                 );
-                return;
-              }
-
-              if (hasContent || hasNotes) {
-                controller.createNewPost(titleController.text, contentController.text, isMission);
-                Get.back();
               }
             },
             child: const Text("확인", style: TextStyle(color: brandColor, fontWeight: FontWeight.bold, fontSize: 16)),
@@ -58,13 +53,6 @@ class GroupPostCreateView extends GetView<GroupController> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                TextField(
-                  controller: titleController, cursorColor: brandColor,
-                  decoration: const InputDecoration(hintText: "제목", border: InputBorder.none),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const Divider(height: 1, color: AppColors.border),
-                const SizedBox(height: 12),
                 TextField(
                   controller: contentController, maxLines: null, minLines: 8, cursorColor: brandColor,
                   decoration: const InputDecoration(hintText: "책과 함께 내 생각을 기록해보세요..!", border: InputBorder.none),

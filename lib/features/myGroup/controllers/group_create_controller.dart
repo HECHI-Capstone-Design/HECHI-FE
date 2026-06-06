@@ -23,15 +23,34 @@ class GroupCreateController extends GetxController {
 
   var isLoading = false.obs;
 
-  void checkDuplicateId(String id) {
+  Future<void> checkDuplicateId(String id) async {
     if (id.isEmpty) {
       idCheckStatus.value = 0;
       return;
     }
-    if (id.toLowerCase() == 'hechi') {
-      idCheckStatus.value = 2; 
-    } else {
-      idCheckStatus.value = 1; 
+    try {
+      final String? token = _storage.read('access_token');
+      final response = await _connect.get(
+        '$baseUrl/groups/check-id?groupId=${Uri.encodeComponent(id)}',
+        headers: {
+          'accept': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+      if (response.statusCode == 200) {
+        final body = response.body;
+        // 서버가 { "available": true/false } 또는 200 = 사용가능, 409 = 중복 형태일 수 있음
+        final bool available = body is Map
+            ? (body['available'] == true)
+            : true;
+        idCheckStatus.value = available ? 1 : 2;
+      } else if (response.statusCode == 409) {
+        idCheckStatus.value = 2; // 중복
+      } else {
+        idCheckStatus.value = 0;
+      }
+    } catch (e) {
+      idCheckStatus.value = 0;
     }
   }
 
@@ -51,6 +70,10 @@ class GroupCreateController extends GetxController {
   Future<void> createGroup() async {
     if (groupName.value.isEmpty || groupId.value.isEmpty || maxMembers.value == null) {
       Get.snackbar('입력 오류', '그룹 이름, ID, 최대 인원을 모두 지정해주세요.', snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+    if (idCheckStatus.value != 1) {
+      Get.snackbar('아이디 확인 필요', '그룹 아이디 중복 확인을 먼저 해주세요.', snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
