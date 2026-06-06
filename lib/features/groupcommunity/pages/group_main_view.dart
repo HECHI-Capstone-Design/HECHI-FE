@@ -462,7 +462,7 @@ class GroupAnnouncementListView extends GetView<GroupController> {
           itemBuilder: (context, index) {
             final ann = controller.announcements[index];
             return Obx(() {
-              final bool isPinned = ann["isPinned"]?.value ?? false;
+              final bool isPinned = ann["isPinned"] == true;
 
               return ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -506,7 +506,7 @@ class GroupAnnouncementListView extends GetView<GroupController> {
   }
 
   void _showAnnouncementOptions(BuildContext context, Map<String, dynamic> ann) {
-    final bool isPinned = ann["isPinned"]?.value ?? false;
+    final bool isPinned = ann["isPinned"] == true;
 
     Get.bottomSheet(
       Container(

@@ -10,7 +10,8 @@ class PreferenceIntroStep extends StatelessWidget {
       width: double.infinity,
       height: double.infinity,
       color: AppColors.primary,
-      child: const Center(
+      child: SafeArea(
+        child: Center(
         child: Text.rich(
           TextSpan(
             children: [
@@ -20,6 +21,7 @@ class PreferenceIntroStep extends StatelessWidget {
             ],
           ),
           textAlign: TextAlign.center,
+        ),
         ),
       ),
     );

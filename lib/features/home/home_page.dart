@@ -54,15 +54,6 @@ class HomePage extends StatelessWidget {
               onTap: () => Get.to(() => CustomerServicePage()),
             ),
 
-            const SizedBox(height: 40),
-
-            // ⭐ 팀원 전용 개발 메뉴 ⭐
-            _buildMenuButton(
-              title: '[DEV] 팀원 페이지 이동',
-              icon: Icons.developer_mode,
-              color: Colors.blueAccent,
-              onTap: () => Get.to(() => const DevMenuPage()),
-            ),
           ],
         ),
       ),
@@ -101,32 +92,3 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class DevMenuPage extends StatelessWidget {
-  const DevMenuPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('DEV 메뉴')),
-
-      // 팀원들이 자기 페이지 path 하나만 추가하면 여기 자동 표시됨
-      body: ListView(
-        children: [
-
-          // _devTile('샘플 페이지 1', () => Get.to(() => const Sample1Page())),
-
-          // 여기도 팀원들이 항목만 추가하면 됨
-
-        ],
-      ),
-    );
-  }
-
-  ListTile _devTile(String title, VoidCallback onTap) {
-    return ListTile(
-      title: Text(title),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: onTap,
-    );
-  }
-}

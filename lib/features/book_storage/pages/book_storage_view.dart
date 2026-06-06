@@ -147,40 +147,11 @@ class _BookGridItem extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final textPainter = TextPainter(
-                text: TextSpan(text: book.title, style: titleStyle),
-                maxLines: 1,
-                textDirection: TextDirection.ltr,
-              )
-                ..layout(maxWidth: constraints.maxWidth);
-
-              String displayTitle = book.title;
-              if (textPainter.didExceedMaxLines) {
-                int charCount = 0;
-                final fullPainter = TextPainter(
-                  textDirection: TextDirection.ltr,
-                  maxLines: 1,
-                );
-
-                for (int i = 0; i < book.title.length; i++) {
-                  fullPainter.text = TextSpan(
-                      text: book.title.substring(0, i + 1) + "..",
-                      style: titleStyle);
-                  fullPainter.layout(maxWidth: constraints.maxWidth);
-                  if (fullPainter.didExceedMaxLines) break;
-                  charCount = i + 1;
-                }
-                displayTitle = book.title.substring(0, charCount) + "..";
-              }
-
-              return Text(
-                displayTitle,
-                maxLines: 1,
-                style: titleStyle,
-              );
-            },
+          Text(
+            book.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: titleStyle,
           ),
           const SizedBox(height: 2),
           _buildRatingInfo(),
