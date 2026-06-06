@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:hechi/app/colors.dart';
 // lib/features/myGroup/widgets/recommended_group_item_widget.dart
 
@@ -18,13 +19,23 @@ class RecommendedGroupItemWidget extends StatelessWidget {
     this.showDescription = false,
   }) : super(key: key);
 
+  ImageProvider? _resolveImage(String? url) {
+    if (url == null || url.isEmpty) return null;
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return NetworkImage(url);
+    }
+    return FileImage(File(url));
+  }
+
   @override
   Widget build(BuildContext context) {
+    final imageProvider = _resolveImage(group.backgroundImage);
+
     return InkWell(
       onTap: () {
-        print('👉 그룹 카드 클릭됨: ${group.title}');
+        print('그룹 카드 클릭됨: ${group.title}');
         Get.to(
-              () => GroupJoinPage(),
+          () => GroupJoinPage(),
           binding: GroupJoinBinding(),
           arguments: group,
         );
@@ -41,10 +52,16 @@ class RecommendedGroupItemWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // 상단 배너 영역 - 그룹 프로필 이미지
               Container(
                 width: double.infinity,
                 height: 120,
-                color: Colors.grey[300],
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  image: imageProvider != null
+                      ? DecorationImage(image: imageProvider, fit: BoxFit.cover)
+                      : null,
+                ),
                 padding: const EdgeInsets.all(12),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -52,14 +69,19 @@ class RecommendedGroupItemWidget extends StatelessWidget {
                     Container(
                       width: 28,
                       height: 28,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      decoration: BoxDecoration(
+                        color: imageProvider != null
+                            ? Colors.black38
+                            : Colors.white,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.person, color: Colors.grey[400], size: 18),
+                      child: Icon(Icons.person,
+                          color: imageProvider != null
+                              ? Colors.white
+                              : Colors.grey[400],
+                          size: 18),
                     ),
                     const SizedBox(width: 8),
-
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 2),

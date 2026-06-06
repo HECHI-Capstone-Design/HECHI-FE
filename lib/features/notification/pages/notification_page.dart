@@ -18,15 +18,31 @@ class NotificationPage extends StatefulWidget {
 
 class _NotificationPageState extends State<NotificationPage> {
   int _selectedTab = 0;
+  late final PageController _pageController;
   final NotificationController controller = Get.find<NotificationController>();
 
   @override
   void initState() {
     super.initState();
-    // 페이지 열릴 때마다 새로 fetch (onInit은 앱 시작 시 로그인 전에 실행됨)
+    _pageController = PageController(initialPage: 0);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.refreshNotificationPage();
     });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onTabChanged(int i) {
+    setState(() => _selectedTab = i);
+    _pageController.animateToPage(
+      i,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -64,30 +80,37 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
       body: SafeArea(
         top: false,
-        child: RefreshIndicator(
-        color: AppColors.primary,
-        onRefresh: () async {
-          final category = _selectedTab == 0 ? 'GENERAL' : 'GROUP';
-          await controller.fetchNotifications(category: category);
-          await controller.fetchUnreadCount();
-        },
         child: Column(
           children: [
             NotificationTabBar(
               selectedTab: _selectedTab,
-              onTabChanged: (i) => setState(() => _selectedTab = i),
+              onTabChanged: _onTabChanged,
             ),
             Expanded(
               child: Obx(() {
                 if (controller.isLoading.value) {
                   return const Center(child: CircularProgressIndicator(color: AppColors.primary));
                 }
-                return _selectedTab == 0 ? const _GeneralListView() : const _GroupListView();
+                return RefreshIndicator(
+                  color: AppColors.primary,
+                  onRefresh: () async {
+                    final category = _selectedTab == 0 ? 'GENERAL' : 'GROUP';
+                    await controller.fetchNotifications(category: category);
+                    await controller.fetchUnreadCount();
+                  },
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: (i) => setState(() => _selectedTab = i),
+                    children: const [
+                      _GeneralListView(),
+                      _GroupListView(),
+                    ],
+                  ),
+                );
               }),
             ),
           ],
         ),
-      ),
       ),
     );
   }
@@ -127,8 +150,6 @@ Widget _buildSwipeableTile({
           ),
         ],
       ),
-      // ✅ 겉포장지의 GestureDetector를 깔끔하게 제거하고 tileWidget만 남겼습니다!
-      // (터치 로직은 이제 General/Group 타일 내부의 InkWell이 완벽하게 처리합니다)
       child: tileWidget,
     ),
   );
