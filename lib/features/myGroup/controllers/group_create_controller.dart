@@ -57,41 +57,58 @@ class GroupCreateController extends GetxController {
         },
       );
 
-      print('📸 presign 응답: ${presignRes.statusCode} / ${presignRes.body}');
+      print('📸 presign 응답 코드: ${presignRes.statusCode}');
+      print('📸 presign 응답 바디: ${presignRes.body}');
 
       if (presignRes.statusCode == 200) {
         final body = presignRes.body;
         String uploadUrl = '';
         Map<String, String> fields = {};
+        String? presignPublicUrl;
 
         if (body is Map) {
           uploadUrl = body['url']?.toString() ?? '';
+          if (uploadUrl.isEmpty) uploadUrl = body['presignedUrl']?.toString() ?? '';
+          presignPublicUrl = body['publicUrl']?.toString();
+
           final rawFields = body['fields'];
           if (rawFields is Map) {
             rawFields.forEach((k, v) => fields[k.toString()] = v.toString());
           }
-          // 일부 서버는 presignedUrl + publicUrl 패턴
-          if (uploadUrl.isEmpty) uploadUrl = body['presignedUrl']?.toString() ?? '';
-          if (body['publicUrl'] != null) {
-            backgroundImageUrl.value = body['publicUrl'].toString();
-          }
         }
 
-        if (uploadUrl.isNotEmpty && fields.isNotEmpty) {
-          // Step 2: S3에 직접 multipart POST
+        print('📸 uploadUrl=$uploadUrl, fields keys=${fields.keys.toList()}, publicUrl=$presignPublicUrl');
+
+        if (uploadUrl.isNotEmpty) {
+          // Step 2: S3 multipart POST
           final request = http.MultipartRequest('POST', Uri.parse(uploadUrl));
           fields.forEach((k, v) => request.fields[k] = v);
-          request.files.add(await http.MultipartFile.fromPath('file', picked.path,
-              filename: filename));
+          request.files.add(await http.MultipartFile.fromPath(
+              'file', picked.path, filename: filename));
           final s3Res = await request.send();
-          print('📸 S3 업로드: ${s3Res.statusCode}');
+          print('📸 S3 업로드 결과: ${s3Res.statusCode}');
 
           if (s3Res.statusCode == 200 || s3Res.statusCode == 204) {
-            // public URL = uploadUrl + key
-            final key = fields['key'] ?? filename;
-            backgroundImageUrl.value = '$uploadUrl$key';
+            if (presignPublicUrl != null && presignPublicUrl.isNotEmpty) {
+              backgroundImageUrl.value = presignPublicUrl;
+            } else {
+              // uploadUrl + key 조합 (슬래시 처리)
+              final key = fields['key'] ?? filename;
+              final base = uploadUrl.endsWith('/') ? uploadUrl : '$uploadUrl/';
+              backgroundImageUrl.value = '$base$key';
+            }
+            print('📸 최종 backgroundImageUrl: ${backgroundImageUrl.value}');
+          } else {
+            print('📸 S3 업로드 실패: ${s3Res.statusCode} - 로컬 경로 사용');
+            backgroundImageUrl.value = picked.path; // 로컬 폴백
           }
+        } else {
+          print('📸 uploadUrl 없음 - presign 응답 구조 이상');
+          backgroundImageUrl.value = picked.path;
         }
+      } else {
+        print('📸 presign 실패: ${presignRes.statusCode}');
+        backgroundImageUrl.value = picked.path; // 로컬 폴백
       }
     } catch (e) {
       print('📸 이미지 업로드 오류: $e');
@@ -186,7 +203,18 @@ class GroupCreateController extends GetxController {
 
       if (response.statusCode == 201) {
         print('✅ 그룹 생성 성공: ${response.body}');
-        
+
+        // 새 그룹 ID로 이미지 URL을 GetStorage에 저장 (API 응답에 없을 경우 백업)
+        if (backgroundImageUrl.value.isNotEmpty) {
+          final newGroupId = response.body is Map
+              ? (response.body['groupId']?.toString() ?? response.body['id']?.toString())
+              : null;
+          if (newGroupId != null) {
+            _storage.write('group_img_$newGroupId', backgroundImageUrl.value);
+            print('📸 GetStorage 저장: group_img_$newGroupId = ${backgroundImageUrl.value}');
+          }
+        }
+
         // 갱신 호출 안전하게 분리
         if (Get.isRegistered<MyGroupController>()) {
           final myGroupCtrl = Get.find<MyGroupController>();

@@ -172,13 +172,20 @@ class MyGroupController extends GetxController {
 
   /// 🧩 4. [데이터 매핑] JSON 구조 -> GroupModel 변환 공통 함수
   GroupModel _mapJsonToGroupModel(Map<String, dynamic> json) {
-    // 🚨 [동기화 정상화 핵심]: Swagger 정품 규격 'groupId' 필드를 확실히 획득하여 바인딩
+    final groupId = json['groupId']?.toString() ?? json['id']?.toString() ?? '';
+    final serverImg = json['backgroundImage'] ?? json['background_image'] ?? json['imageUrl'];
+    // API 응답에 이미지가 없으면 GetStorage에 로컬 저장된 URL로 폴백
+    final localImg = _storage.read<String>('group_img_$groupId');
+    final finalImg = (serverImg != null && serverImg.toString().isNotEmpty)
+        ? serverImg.toString()
+        : localImg;
+
     return GroupModel(
-      id: json['groupId']?.toString() ?? json['id']?.toString() ?? '',
+      id: groupId,
       title: json['name'] ?? '이름 없는 그룹',
       description: json['description'] ?? '설명이 없는 그룹입니다.',
       authorName: '',
-      backgroundImage: json['backgroundImage'] ?? json['background_image'] ?? json['imageUrl'],
+      backgroundImage: finalImg,
     );
   }
 

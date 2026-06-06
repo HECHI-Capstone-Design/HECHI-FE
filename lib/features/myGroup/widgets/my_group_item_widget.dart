@@ -1,10 +1,10 @@
 // lib/features/myGroup/widgets/my_group_item_widget.dart
 
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart'; 
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import '../models/group_model.dart';
-import '../../../app/routes.dart'; 
-
 import '../../groupcommunity/controllers/group_controller.dart';
 import '../../groupcommunity/bindings/group_binding.dart';
 import '../../groupcommunity/pages/group_main_view.dart';
@@ -14,8 +14,28 @@ class MyGroupItemWidget extends StatelessWidget {
 
   const MyGroupItemWidget({Key? key, required this.group}) : super(key: key);
 
+  /// 서버 URL이면 NetworkImage, 로컬 경로면 FileImage로 분기
+  ImageProvider _resolveImage(String url) {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return NetworkImage(url);
+    }
+    return FileImage(File(url));
+  }
+
   @override
   Widget build(BuildContext context) {
+    // GetStorage에서 직접 읽어 폴백 (API 응답에 없을 때 대비)
+    final storage = GetStorage();
+    final localImg = storage.read<String>('group_img_${group.id}');
+    final displayImage = (group.backgroundImage != null && group.backgroundImage!.isNotEmpty)
+        ? group.backgroundImage!
+        : localImg;
+
+    final ImageProvider? imageProvider =
+        (displayImage != null && displayImage.isNotEmpty)
+            ? _resolveImage(displayImage)
+            : null;
+
     return Padding(
       padding: const EdgeInsets.only(right: 16.0),
       child: GestureDetector(
@@ -27,7 +47,7 @@ class MyGroupItemWidget extends StatelessWidget {
           }
 
           Get.to(
-                () => const GroupMainView(),
+            () => const GroupMainView(),
             arguments: group.id,
             binding: GroupBinding(),
             transition: Transition.rightToLeft,
@@ -43,14 +63,11 @@ class MyGroupItemWidget extends StatelessWidget {
                 color: Colors.grey[300],
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: Colors.black12),
-                image: (group.backgroundImage != null && group.backgroundImage!.isNotEmpty)
-                    ? DecorationImage(
-                        image: NetworkImage(group.backgroundImage!),
-                        fit: BoxFit.cover,
-                      )
+                image: imageProvider != null
+                    ? DecorationImage(image: imageProvider, fit: BoxFit.cover)
                     : null,
               ),
-              child: (group.backgroundImage == null || group.backgroundImage!.isEmpty)
+              child: imageProvider == null
                   ? const Icon(Icons.group, color: Colors.white54, size: 36)
                   : null,
             ),

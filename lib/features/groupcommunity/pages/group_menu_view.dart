@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
 import 'package:hechi/features/groupcommunity/pages/group_report_views.dart';
+import 'package:hechi/features/myGroup/controllers/my_group_controller.dart';
 import 'package:hechi/features/search/data/book_model.dart';
 
 class GroupMenuView extends StatelessWidget {
@@ -372,6 +373,12 @@ class GroupMenuView extends StatelessWidget {
       final finalUrl = (publicUrl != null && publicUrl.isNotEmpty) ? publicUrl : picked.path;
       controller.groupBackgroundImage.value = finalUrl;
       GetStorage().write('group_img_$groupId', finalUrl);
+
+      // 내 그룹 목록 갱신 (GetStorage 폴백 반영)
+      if (Get.isRegistered<MyGroupController>()) {
+        Get.find<MyGroupController>().fetchMyGroups();
+      }
+
       Get.snackbar("완료", "프로필 사진이 변경되었습니다.");
     } catch (e) {
       print('프로필 사진 변경 오류: $e');
