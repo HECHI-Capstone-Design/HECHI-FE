@@ -24,6 +24,7 @@ class GroupController extends GetxController {
   };
 
   final groupName = "".obs;
+  final groupBackgroundImage = Rxn<String>(); // 그룹 프로필 이미지
   final currentMissionBookId = 0.obs;
   final currentMissionBookTitle = "".obs;
   final currentMissionBookAuthor = "".obs;
@@ -92,7 +93,12 @@ class GroupController extends GetxController {
       if (groupRes.statusCode == 200) {
         final Map<String, dynamic> groupData = jsonDecode(utf8.decode(groupRes.bodyBytes));
         groupName.value = groupData["name"] ?? "hechi1";
-
+        // 서버 이미지 우선, 없으면 로컬 저장 이미지 사용
+        final serverImg = groupData["backgroundImage"] ?? groupData["background_image"] ?? groupData["imageUrl"];
+        final localImg = GetStorage().read<String>('group_img_${currentGroupId.value}');
+        groupBackgroundImage.value = (serverImg != null && serverImg.toString().isNotEmpty)
+            ? serverImg.toString()
+            : localImg;
         isLeader.value = groupData["isLeader"] ?? false;
 
         final currentBookObj = groupData["currentMissionBook"];

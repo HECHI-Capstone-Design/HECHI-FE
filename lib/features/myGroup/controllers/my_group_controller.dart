@@ -178,6 +178,7 @@ class MyGroupController extends GetxController {
       title: json['name'] ?? '이름 없는 그룹',
       description: json['description'] ?? '설명이 없는 그룹입니다.',
       authorName: '',
+      backgroundImage: json['backgroundImage'] ?? json['background_image'] ?? json['imageUrl'],
     );
   }
 

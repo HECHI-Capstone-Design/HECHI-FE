@@ -1,6 +1,10 @@
-import 'package:flutter/material.dart'; // 만약 누락되어 있다면 함께 추가
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 import 'package:hechi/features/myGroup/controllers/my_group_controller.dart';
 
 class GroupCreateController extends GetxController {
@@ -13,6 +17,11 @@ class GroupCreateController extends GetxController {
   var groupId = ''.obs;
   var idCheckStatus = 0.obs;
 
+  // 그룹 프로필 이미지
+  var selectedImageFile = Rxn<File>();
+  var backgroundImageUrl = ''.obs;
+  var isUploadingImage = false.obs;
+
   var maxMembers = RxnInt(); 
   final List<int> memberOptions = [10, 50, 100, 200, 300, 400, 500];
 
@@ -22,6 +31,75 @@ class GroupCreateController extends GetxController {
   var passwordConfirm = ''.obs;
 
   var isLoading = false.obs;
+
+  /// 갤러리에서 이미지 선택 후 S3 presign 업로드
+  Future<void> pickAndUploadImage() async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+      if (picked == null) return;
+
+      selectedImageFile.value = File(picked.path);
+      isUploadingImage.value = true;
+
+      final String? token = _storage.read('access_token');
+      if (token == null) return;
+
+      final filename = 'group_${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      // Step 1: presign URL 획득
+      final presignRes = await _connect.post(
+        '$baseUrl/uploads/presign?filename=$filename&contentType=image%2Fjpeg&acl=public-read',
+        null,
+        headers: {
+          'accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('📸 presign 응답: ${presignRes.statusCode} / ${presignRes.body}');
+
+      if (presignRes.statusCode == 200) {
+        final body = presignRes.body;
+        String uploadUrl = '';
+        Map<String, String> fields = {};
+
+        if (body is Map) {
+          uploadUrl = body['url']?.toString() ?? '';
+          final rawFields = body['fields'];
+          if (rawFields is Map) {
+            rawFields.forEach((k, v) => fields[k.toString()] = v.toString());
+          }
+          // 일부 서버는 presignedUrl + publicUrl 패턴
+          if (uploadUrl.isEmpty) uploadUrl = body['presignedUrl']?.toString() ?? '';
+          if (body['publicUrl'] != null) {
+            backgroundImageUrl.value = body['publicUrl'].toString();
+          }
+        }
+
+        if (uploadUrl.isNotEmpty && fields.isNotEmpty) {
+          // Step 2: S3에 직접 multipart POST
+          final request = http.MultipartRequest('POST', Uri.parse(uploadUrl));
+          fields.forEach((k, v) => request.fields[k] = v);
+          request.files.add(await http.MultipartFile.fromPath('file', picked.path,
+              filename: filename));
+          final s3Res = await request.send();
+          print('📸 S3 업로드: ${s3Res.statusCode}');
+
+          if (s3Res.statusCode == 200 || s3Res.statusCode == 204) {
+            // public URL = uploadUrl + key
+            final key = fields['key'] ?? filename;
+            backgroundImageUrl.value = '$uploadUrl$key';
+          }
+        }
+      }
+    } catch (e) {
+      print('📸 이미지 업로드 오류: $e');
+      Get.snackbar('오류', '이미지 업로드에 실패했습니다.');
+    } finally {
+      isUploadingImage.value = false;
+    }
+  }
 
   Future<void> checkDuplicateId(String id) async {
     if (id.isEmpty) {
@@ -96,7 +174,7 @@ class GroupCreateController extends GetxController {
       final body = {
         "name": groupName.value,
         "groupId": groupId.value,
-        "backgroundImage": "string", 
+        "backgroundImage": backgroundImageUrl.value.isNotEmpty ? backgroundImageUrl.value : "",
         "maxMembers": maxMembers.value,
         "description": groupDescription.value.isNotEmpty ? groupDescription.value : "그룹 설명입니다.",
         "isPrivate": isPrivate.value,

@@ -40,10 +40,19 @@ class MyGroupItemWidget extends StatelessWidget {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: Colors.grey[300], 
+                color: Colors.grey[300],
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: Colors.black12),
+                image: (group.backgroundImage != null && group.backgroundImage!.isNotEmpty)
+                    ? DecorationImage(
+                        image: NetworkImage(group.backgroundImage!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
+              child: (group.backgroundImage == null || group.backgroundImage!.isEmpty)
+                  ? const Icon(Icons.group, color: Colors.white54, size: 36)
+                  : null,
             ),
             const SizedBox(height: 8),
             Text(

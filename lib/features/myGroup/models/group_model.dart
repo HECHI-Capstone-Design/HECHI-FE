@@ -4,6 +4,7 @@ class GroupModel {
   final String? description;
   final String authorName;
   String leaderName;
+  final String? backgroundImage;
 
   GroupModel({
     required this.id,
@@ -11,5 +12,6 @@ class GroupModel {
     this.description,
     required this.authorName,
     this.leaderName = '방장 미상',
+    this.backgroundImage,
   });
 }

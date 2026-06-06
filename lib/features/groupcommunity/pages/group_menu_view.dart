@@ -1,6 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
 import 'package:hechi/features/groupcommunity/pages/group_report_views.dart';
 import 'package:hechi/features/search/data/book_model.dart';
@@ -46,6 +51,12 @@ class GroupMenuView extends StatelessWidget {
             if (!controller.isLeader.value) return const SizedBox.shrink();
             return Column(
               children: [
+                ListTile(
+                  leading: const Icon(Icons.add_photo_alternate_outlined, color: Colors.black87),
+                  title: const Text("프로필 사진 변경"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+                  onTap: () => _changeGroupProfileImage(controller),
+                ),
                 ListTile(
                   leading: const Icon(Icons.campaign, color: Colors.black87),
                   title: const Text("공지사항 작성하기"),
@@ -301,18 +312,70 @@ class GroupMenuView extends StatelessWidget {
                         if (isSuccess) {
                           Get.snackbar("성공", "미션책이 변경 되었습니다.");
                         } else {
-                          Get.snackbar("오류", "서버 미션책 변경 처리에 실패했습니다.");
+                          Get.snackbar("오류", "미션책 변경에 실패했습니다.");
                         }
                       },
                     );
                   },
                 );
               }),
-            ),          // Expanded
+            ),
           ],
-          ),            // Column
-          ),            // SafeArea
-        ),              // Scaffold body
-    );                  // Get.to
-  }                     // _showChangeMissionBookSheet
+          ),
+          ),
+        ),
+    );
+  }
+
+  Future<void> _changeGroupProfileImage(GroupController controller) async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+      if (picked == null) return;
+
+      Get.snackbar("업로드 중", "사진 업로드 중...", duration: const Duration(seconds: 2));
+
+      final token = GetStorage().read('access_token') as String?;
+      if (token == null) return;
+
+      final groupId = controller.currentGroupId.value;
+      final filename = 'group_${groupId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      final presignRes = await http.post(
+        Uri.parse('https://api.43-202-101-63.sslip.io/uploads/presign'
+            '?filename=$filename&contentType=image%2Fjpeg&acl=public-read'),
+        headers: {'accept': 'application/json', 'Authorization': 'Bearer $token'},
+      );
+
+      print('presign: ${presignRes.statusCode}');
+      String? publicUrl;
+
+      if (presignRes.statusCode == 200) {
+        final body = jsonDecode(presignRes.body) as Map<String, dynamic>;
+        final String uploadUrl = body['url']?.toString() ?? '';
+        final rawFields = body['fields'] as Map? ?? {};
+        final Map<String, String> fields = {};
+        rawFields.forEach((k, v) => fields[k.toString()] = v.toString());
+
+        if (uploadUrl.isNotEmpty && fields.isNotEmpty) {
+          final request = http.MultipartRequest('POST', Uri.parse(uploadUrl));
+          fields.forEach((k, v) => request.fields[k] = v);
+          request.files.add(await http.MultipartFile.fromPath('file', picked.path, filename: filename));
+          final s3Res = await request.send();
+          if (s3Res.statusCode == 200 || s3Res.statusCode == 204) {
+            publicUrl = body['publicUrl']?.toString() ?? '$uploadUrl${fields['key'] ?? filename}';
+          }
+        }
+        publicUrl ??= body['publicUrl']?.toString();
+      }
+
+      final finalUrl = (publicUrl != null && publicUrl.isNotEmpty) ? publicUrl : picked.path;
+      controller.groupBackgroundImage.value = finalUrl;
+      GetStorage().write('group_img_$groupId', finalUrl);
+      Get.snackbar("완료", "프로필 사진이 변경되었습니다.");
+    } catch (e) {
+      print('프로필 사진 변경 오류: $e');
+      Get.snackbar("오류", "사진 변경에 실패했습니다.");
+    }
+  }
 }
