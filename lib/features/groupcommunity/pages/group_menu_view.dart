@@ -174,7 +174,10 @@ class GroupMenuView extends StatelessWidget {
                             if (isLeader) {
                               bool success = await controller.deleteGroup();
                               if (success) {
-                                Get.back(); 
+                                if (Get.isRegistered<MyGroupController>()) {
+                                  await Get.find<MyGroupController>().fetchMyGroups();
+                                }
+                                Get.back();
                                 Get.offAllNamed('/home');
                                 Get.snackbar("삭제 완료", "그룹이 성공적으로 삭제되었습니다.");
                               } else {
@@ -183,7 +186,10 @@ class GroupMenuView extends StatelessWidget {
                             } else {
                               bool success = await controller.leaveGroup();
                               if (success) {
-                                Get.back(); 
+                                if (Get.isRegistered<MyGroupController>()) {
+                                  await Get.find<MyGroupController>().fetchMyGroups();
+                                }
+                                Get.back();
                                 Get.offAllNamed('/home');
                                 Get.snackbar("탈퇴 완료", "그룹에서 성공적으로 탈퇴되었습니다.");
                               } else {

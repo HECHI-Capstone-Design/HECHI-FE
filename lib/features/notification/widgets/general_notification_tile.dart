@@ -141,19 +141,30 @@ class _CircleThumbnail extends StatelessWidget {
   const _CircleThumbnail({this.imageUrl, required this.type, this.reminderType});
   @override
   Widget build(BuildContext context) {
-    IconData icon = Icons.notifications;
-    if (type.contains('NOTICE')) icon = Icons.campaign;
-    else if (reminderType == 'READING_REMINDER') icon = Icons.menu_book;
+    // 시스템 알림 타입은 전용 아이콘 사용
+    if (type.contains('NOTICE')) {
+      return Container(
+        width: 60, height: 60,
+        decoration: BoxDecoration(color: kNotifGreenLight, shape: BoxShape.circle, border: Border.all(color: kNotifGreen.withOpacity(0.3))),
+        child: const Icon(Icons.campaign, color: AppColors.primary, size: 26),
+      );
+    }
+    if (reminderType == 'READING_REMINDER') {
+      return Container(
+        width: 60, height: 60,
+        decoration: BoxDecoration(color: kNotifGreenLight, shape: BoxShape.circle, border: Border.all(color: kNotifGreen.withOpacity(0.3))),
+        child: const Icon(Icons.menu_book, color: AppColors.primary, size: 26),
+      );
+    }
 
-
-    else if (type.contains('REWARD') || type.contains('BADGE')) icon = Icons.star_rounded;
-
+    // 사용자 프로필 이미지 있으면 표시, 없으면 회색 게스트 아이콘
     return Container(
       width: 60, height: 60,
-      decoration: BoxDecoration(color: kNotifGreenLight, shape: BoxShape.circle, border: Border.all(color: kNotifGreen.withOpacity(0.3))),
+      decoration: const BoxDecoration(color: AppColors.border, shape: BoxShape.circle),
       child: imageUrl != null && imageUrl!.isNotEmpty
-          ? ClipOval(child: Image.network(imageUrl!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Icon(icon, color: kNotifGreen, size: 26)))
-          : Icon(icon, color: kNotifGreen, size: 26),
+          ? ClipOval(child: Image.network(imageUrl!, fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => const Icon(Icons.person, color: Colors.white, size: 30)))
+          : const Icon(Icons.person, color: Colors.white, size: 30),
     );
   }
 }

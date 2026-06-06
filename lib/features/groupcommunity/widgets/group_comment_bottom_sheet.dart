@@ -20,6 +20,24 @@ class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
   Map<String, dynamic>? replyingTargetComment;
   bool _isInitLoading = true;
 
+  /// 프로필 이미지 있으면 표시, 없으면 회색 person 아이콘
+  Widget _buildAvatar(String? imageUrl, double radius) {
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.grey.shade300,
+        backgroundImage: NetworkImage(imageUrl),
+        onBackgroundImageError: (_, __) {},
+        child: null,
+      );
+    }
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: Colors.grey.shade300,
+      child: Icon(Icons.person, color: Colors.white, size: radius * 1.1),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -137,12 +155,7 @@ class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const CircleAvatar(
-                              radius: 18,
-                              backgroundColor: brandColor,
-                              child: Icon(Icons.person,
-                                  color: Colors.white, size: 20),
-                            ),
+                            _buildAvatar(comment["profileImageUrl"]?.toString(), 18),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
@@ -234,12 +247,7 @@ class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
                                   crossAxisAlignment:
                                   CrossAxisAlignment.start,
                                   children: [
-                                    const CircleAvatar(
-                                      radius: 14,
-                                      backgroundColor: brandColor,
-                                      child: Icon(Icons.person,
-                                          color: Colors.white, size: 14),
-                                    ),
+                                    _buildAvatar(reply["profileImageUrl"]?.toString(), 14),
                                     const SizedBox(width: 10),
                                     Expanded(
                                       child: Column(
@@ -354,12 +362,7 @@ class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
                   ),
                 Row(
                   children: [
-                    const CircleAvatar(
-                      radius: 18,
-                      backgroundColor: brandColor,
-                      child:
-                      Icon(Icons.person, color: Colors.white, size: 20),
-                    ),
+                    _buildAvatar(null, 18), // 본인 아바타 (추후 내 프로필로 교체 가능)
                     const SizedBox(width: 10),
                     Expanded(
                       child: Container(

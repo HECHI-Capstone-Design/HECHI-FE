@@ -34,7 +34,16 @@ class MyGroupPage extends GetView<MyGroupController> {
           const SizedBox(width: 8),
         ],
       ),
-      body: SingleChildScrollView(
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () async {
+          await Future.wait([
+            controller.fetchMyGroups(),
+            controller.fetchRecommendedGroups(),
+          ]);
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
           child: Column(
@@ -135,6 +144,7 @@ class MyGroupPage extends GetView<MyGroupController> {
               }),
             ],
           ),
+        ),
         ),
       ),
     );

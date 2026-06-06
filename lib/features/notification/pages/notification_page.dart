@@ -18,15 +18,31 @@ class NotificationPage extends StatefulWidget {
 
 class _NotificationPageState extends State<NotificationPage> {
   int _selectedTab = 0;
+  late final PageController _pageController;
   final NotificationController controller = Get.find<NotificationController>();
 
   @override
   void initState() {
     super.initState();
-    // 페이지 열릴 때마다 새로 fetch (onInit은 앱 시작 시 로그인 전에 실행됨)
+    _pageController = PageController(initialPage: 0);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.refreshNotificationPage();
     });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onTabChanged(int i) {
+    setState(() => _selectedTab = i);
+    _pageController.animateToPage(
+      i,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -64,36 +80,31 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
       body: SafeArea(
         top: false,
-        child: RefreshIndicator(
-        color: AppColors.primary,
-        onRefresh: () async {
-          final category = _selectedTab == 0 ? 'GENERAL' : 'GROUP';
-          await controller.fetchNotifications(category: category);
-          await controller.fetchUnreadCount();
-        },
         child: Column(
           children: [
             NotificationTabBar(
               selectedTab: _selectedTab,
-              onTabChanged: (i) => setState(() => _selectedTab = i),
+              onTabChanged: _onTabChanged,
             ),
             Expanded(
-              child: Obx(() {
-                if (controller.isLoading.value) {
-                  return const Center(child: CircularProgressIndicator(color: AppColors.primary));
-                }
-                return _selectedTab == 0 ? const _GeneralListView() : const _GroupListView();
-              }),
+              // PageView를 Obx로 감싸지 않아서 isLoading 변화에도 페이지 위치 유지
+              child: PageView(
+                controller: _pageController,
+                onPageChanged: (i) => setState(() => _selectedTab = i),
+                children: const [
+                  _GeneralListView(),
+                  _GroupListView(),
+                ],
+              ),
             ),
           ],
         ),
-      ),
       ),
     );
   }
 }
 
-// 공통 리스트 아이템 빌더 (스와이프 UI 적용)
+// 공통 스와이프 삭제 타일
 Widget _buildSwipeableTile({
   required dynamic item,
   required Widget tileWidget,
@@ -118,17 +129,11 @@ Widget _buildSwipeableTile({
                 color: const Color(0xFFFDEAEA),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
-                Icons.delete_outline,
-                color: AppColors.error,
-                size: 28,
-              ),
+              child: const Icon(Icons.delete_outline, color: AppColors.error, size: 28),
             ),
           ),
         ],
       ),
-      // ✅ 겉포장지의 GestureDetector를 깔끔하게 제거하고 tileWidget만 남겼습니다!
-      // (터치 로직은 이제 General/Group 타일 내부의 InkWell이 완벽하게 처리합니다)
       child: tileWidget,
     ),
   );
@@ -140,20 +145,35 @@ class _GeneralListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<NotificationController>();
-    return Obx(() {
-      final items = controller.generalNotifications;
-      if (items.isEmpty) return const NotificationEmptyState(message: '일반 알림이 없습니다.');
-
-      return ListView.builder(
-        padding: const EdgeInsets.only(bottom: 16),
-        itemCount: items.length,
-        itemBuilder: (_, i) => _buildSwipeableTile(
-          item: items[i],
-          tileWidget: GeneralNotificationTile(item: items[i]),
-          onDelete: (id) => controller.deleteNotification(id),
-        ),
-      );
-    });
+    return RefreshIndicator(
+      color: AppColors.primary,
+      onRefresh: () async {
+        await controller.fetchNotifications(category: 'GENERAL');
+        await controller.fetchUnreadCount();
+      },
+      child: Obx(() {
+        final items = controller.generalNotifications;
+        // 초기 로딩 중 (아이템 없을 때만 스피너)
+        if (controller.isLoading.value && items.isEmpty) {
+          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+        }
+        if (items.isEmpty) {
+          return const CustomScrollView(
+            slivers: [SliverFillRemaining(child: NotificationEmptyState(message: '일반 알림이 없습니다.'))],
+          );
+        }
+        return ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.only(bottom: 16),
+          itemCount: items.length,
+          itemBuilder: (_, i) => _buildSwipeableTile(
+            item: items[i],
+            tileWidget: GeneralNotificationTile(item: items[i]),
+            onDelete: (id) => controller.deleteNotification(id),
+          ),
+        );
+      }),
+    );
   }
 }
 
@@ -163,19 +183,33 @@ class _GroupListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<NotificationController>();
-    return Obx(() {
-      final items = controller.groupNotifications;
-      if (items.isEmpty) return const NotificationEmptyState(message: '그룹 알림이 없습니다.');
-
-      return ListView.builder(
-        padding: const EdgeInsets.only(bottom: 16),
-        itemCount: items.length,
-        itemBuilder: (_, i) => _buildSwipeableTile(
-          item: items[i],
-          tileWidget: GroupNotificationTile(item: items[i]),
-          onDelete: (id) => controller.deleteNotification(id),
-        ),
-      );
-    });
+    return RefreshIndicator(
+      color: AppColors.primary,
+      onRefresh: () async {
+        await controller.fetchNotifications(category: 'GROUP');
+        await controller.fetchUnreadCount();
+      },
+      child: Obx(() {
+        final items = controller.groupNotifications;
+        if (controller.isLoading.value && items.isEmpty) {
+          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+        }
+        if (items.isEmpty) {
+          return const CustomScrollView(
+            slivers: [SliverFillRemaining(child: NotificationEmptyState(message: '그룹 알림이 없습니다.'))],
+          );
+        }
+        return ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.only(bottom: 16),
+          itemCount: items.length,
+          itemBuilder: (_, i) => _buildSwipeableTile(
+            item: items[i],
+            tileWidget: GroupNotificationTile(item: items[i]),
+            onDelete: (id) => controller.deleteNotification(id),
+          ),
+        );
+      }),
+    );
   }
 }
