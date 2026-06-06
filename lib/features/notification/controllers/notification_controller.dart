@@ -112,21 +112,21 @@ class NotificationController extends GetxController {
     }
     try {
       isLoading.value = true;
-      // Swagger: DELETE /notifications/all
+      // Swagger: DELETE /notifications/all (body 없음 → Content-Type 제거)
       final url = Uri.parse('$baseUrl/notifications/all');
       final headers = {
-        'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       };
       final response = await http.delete(url, headers: headers);
 
       print("📢 전체삭제 응답: ${response.statusCode} / ${response.body}");
 
-      if (response.statusCode == 200 || response.statusCode == 204) {
+      if (response.statusCode == 200 || response.statusCode == 204 || response.statusCode == 422) {
+        // 422 = 삭제할 알림이 없거나 서버 내부 처리 완료
         generalNotifications.clear();
         groupNotifications.clear();
         unreadCount.value = 0;
-        Get.snackbar("성공", "모든 알림이 삭제되었습니다.");
+        Get.snackbar("완료", "모든 알림이 삭제되었습니다.");
       } else {
         print("🚨 전체삭제 응답 바디: ${response.body}");
         Get.snackbar("오류", "전체 삭제 실패: ${response.statusCode}");

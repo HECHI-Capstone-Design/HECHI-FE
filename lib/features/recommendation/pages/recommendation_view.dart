@@ -22,7 +22,9 @@ class RecommendationView extends GetView<RecommendationController> {
           onPressed: () => Get.back(),
         ),
       ),
-      body: Obx(() {
+      body: SafeArea(
+        top: false,
+        child: Obx(() {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -31,9 +33,8 @@ class RecommendationView extends GetView<RecommendationController> {
           return const Center(child: Text("추천할 도서가 없습니다."));
         }
 
-        final bottomPadding = MediaQuery.of(context).padding.bottom;
         return ListView.separated(
-          padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottomPadding),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
           itemCount: controller.recommendedBooks.length,
           separatorBuilder: (context, index) => const SizedBox(height: 20),
           itemBuilder: (context, index) {
@@ -85,6 +86,7 @@ class RecommendationView extends GetView<RecommendationController> {
           },
         );
       }),
+      ),
     );
   }
 }
