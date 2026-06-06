@@ -373,6 +373,7 @@ class BookDetailController extends GetxController {
   // ==========================
   Future<void> delete() async {
     final token = box.read("access_token");
+    if (token == null) return;
     final res = await http.delete(
       Uri.parse("$baseUrl/reviews/$myReviewId"),
       headers: {"Authorization": "Bearer $token"},

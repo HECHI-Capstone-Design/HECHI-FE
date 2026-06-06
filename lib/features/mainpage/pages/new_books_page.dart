@@ -23,7 +23,9 @@ class NewBooksPage extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
       ),
-      body: Obx(() {
+      body: SafeArea(
+        top: false,
+        child: Obx(() {
         if (controller.isLoading.value) return const Center(child: CircularProgressIndicator());
         if (controller.bookList.isEmpty) return const Center(child: Text("데이터가 없습니다."));
 
@@ -75,6 +77,7 @@ class NewBooksPage extends StatelessWidget {
           },
         );
       }),
+        ),
     );
   }
 }

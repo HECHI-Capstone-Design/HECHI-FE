@@ -107,7 +107,9 @@ class _ProfileEditViewState extends State<ProfileEditView> {
         ),
         title: const Text("프로필 변경", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
       ),
-      body: SingleChildScrollView(
+      body: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,6 +187,7 @@ class _ProfileEditViewState extends State<ProfileEditView> {
           ],
         ),
       ),
+        ),
     );
   }
 

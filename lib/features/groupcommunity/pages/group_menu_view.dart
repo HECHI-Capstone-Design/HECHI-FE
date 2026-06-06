@@ -25,7 +25,9 @@ class GroupMenuView extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
       ),
-      body: Column(
+      body: SafeArea(
+        top: false,
+        child: Column(
         children: [
           ListTile(
             leading: const Icon(Icons.collections_bookmark, color: Colors.black87),
@@ -89,6 +91,7 @@ class GroupMenuView extends StatelessWidget {
             ),
           )
         ],
+      ),
       ),
     );
   }
@@ -234,7 +237,9 @@ class GroupMenuView extends StatelessWidget {
           title: const Text("미션 책 변경하기", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
           centerTitle: true,
         ),
-        body: Column(
+        body: SafeArea(
+          top: false,
+          child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -303,10 +308,11 @@ class GroupMenuView extends StatelessWidget {
                   },
                 );
               }),
-            )
+            ),          // Expanded
           ],
-        ),
-      )
-    );
-  }
+          ),            // Column
+          ),            // SafeArea
+        ),              // Scaffold body
+    );                  // Get.to
+  }                     // _showChangeMissionBookSheet
 }

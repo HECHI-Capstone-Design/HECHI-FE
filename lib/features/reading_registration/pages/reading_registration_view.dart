@@ -29,7 +29,9 @@ class ReadingRegistrationView extends GetView<ReadingRegistrationController> {
         ],
       ),
       backgroundColor: Colors.grey[50],
-      body: Obx(() {
+      body: SafeArea(
+        top: false,
+        child: Obx(() {
         if (controller.isLoading.value && controller.libraryReadingItems.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -82,6 +84,7 @@ class ReadingRegistrationView extends GetView<ReadingRegistrationController> {
           ),
         );
       }),
+        ),
     );
   }
 }

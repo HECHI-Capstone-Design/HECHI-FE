@@ -71,8 +71,11 @@ class NotificationController extends GetxController {
 
   Future<void> markAsRead(int notificationId) async {
     try {
+      final token = box.read('access_token');
+      if (token == null) return;
+      // Swagger: GET /notifications/{notification_id}/read
       final url = Uri.parse('$baseUrl/notifications/$notificationId/read');
-      final response = await http.patch(url, headers: _getHeaders());
+      final response = await http.get(url, headers: _getHeaders());
       if (response.statusCode == 200) {
         _updateLocalReadStatus(notificationId);
         fetchUnreadCount();
@@ -82,6 +85,9 @@ class NotificationController extends GetxController {
 
   Future<void> markAllAsRead() async {
     try {
+      final token = box.read('access_token');
+      if (token == null) return;
+      // Swagger: PATCH /notifications/read-all
       final url = Uri.parse('$baseUrl/notifications/read-all');
       final response = await http.patch(url, headers: _getHeaders());
       if (response.statusCode == 200) refreshNotificationPage();
@@ -89,10 +95,20 @@ class NotificationController extends GetxController {
   }
 
   Future<void> deleteAllNotifications() async {
+    final token = box.read('access_token');
+    if (token == null) {
+      Get.snackbar("오류", "로그인이 필요합니다.");
+      return;
+    }
     try {
       isLoading.value = true;
+      // Swagger: DELETE /notifications/all
       final url = Uri.parse('$baseUrl/notifications/all');
-      final response = await http.delete(url, headers: _getHeaders());
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+      final response = await http.delete(url, headers: headers);
 
       print("📢 전체삭제 응답: ${response.statusCode} / ${response.body}");
 
@@ -102,6 +118,7 @@ class NotificationController extends GetxController {
         unreadCount.value = 0;
         Get.snackbar("성공", "모든 알림이 삭제되었습니다.");
       } else {
+        print("🚨 전체삭제 응답 바디: ${response.body}");
         Get.snackbar("오류", "전체 삭제 실패: ${response.statusCode}");
       }
     } catch (e) {
@@ -114,6 +131,8 @@ class NotificationController extends GetxController {
   // 개별 삭제 API 호출부 (ID 타입 체크 강화)
   Future<void> deleteNotification(dynamic notificationId) async {
     try {
+      final token = box.read('access_token');
+      if (token == null) return;
       final url = Uri.parse('$baseUrl/notifications/$notificationId');
       final response = await http.delete(url, headers: _getHeaders());
 

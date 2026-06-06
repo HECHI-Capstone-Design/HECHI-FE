@@ -17,7 +17,9 @@ class BestsellerPage extends StatelessWidget {
         elevation: 0,
         leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black), onPressed: () => Get.back()),
       ),
-      body: Obx(() {
+      body: SafeArea(
+        top: false,
+        child: Obx(() {
         if (controller.isLoading.value) return const Center(child: CircularProgressIndicator());
         if (controller.bookList.isEmpty) return const Center(child: Text("데이터가 없습니다."));
 
@@ -57,6 +59,7 @@ class BestsellerPage extends StatelessWidget {
           },
         );
       }),
+        ),
     );
   }
 }

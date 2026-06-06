@@ -21,7 +21,9 @@ class PopularListPage extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
       ),
-      body: Obx(() {
+      body: SafeArea(
+        top: false,
+        child: Obx(() {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -88,6 +90,7 @@ class PopularListPage extends StatelessWidget {
           },
         );
       }),
+        ),
     );
   }
 }

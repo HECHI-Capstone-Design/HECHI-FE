@@ -34,7 +34,9 @@ class MyGroupPage extends GetView<MyGroupController> {
           const SizedBox(width: 8),
         ],
       ),
-      body: SingleChildScrollView(
+      body: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
           child: Column(
@@ -137,6 +139,7 @@ class MyGroupPage extends GetView<MyGroupController> {
           ),
         ),
       ),
+        ),
     );
   }
 }

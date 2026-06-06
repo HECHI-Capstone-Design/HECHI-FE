@@ -56,6 +56,8 @@ class ReviewDetailController extends GetxController {
           fetchBookDetail(data['book_id']);
         }
       }
+    } catch (e) {
+      print("❌ fetchReviewDetail Error: $e");
     } finally {
       isLoadingReview.value = false;
     }
@@ -243,6 +245,8 @@ class ReviewDetailController extends GetxController {
         final List list = jsonDecode(utf8.decode(res.bodyBytes));
         comments.value = list.cast<Map<String, dynamic>>();
       }
+    } catch (e) {
+      print("❌ fetchComments Error: $e");
     } finally {
       isLoadingComments.value = false;
     }

@@ -23,7 +23,9 @@ class ThemeListPage extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
       ),
-      body: Obx(() {
+      body: SafeArea(
+        top: false,
+        child: Obx(() {
         if (controller.isThemeLoading.value) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -84,6 +86,7 @@ class ThemeListPage extends StatelessWidget {
           },
         );
       }),
+        ),
     );
   }
 }

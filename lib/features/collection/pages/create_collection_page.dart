@@ -70,7 +70,9 @@ class CreateCollectionPage extends GetView<CreateCollectionController> {
           child: Divider(height: 1, thickness: 0.5, color: AppColors.border),
         ),
       ),
-      body: SingleChildScrollView(
+      body: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -398,6 +400,7 @@ class _CustomSwitch extends StatelessWidget {
           ),
         ),
       ),
+        ),
     );
   }
 }

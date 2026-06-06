@@ -53,7 +53,9 @@ class GroupMainView extends GetView<GroupController> {
           )
         ],
       ),
-      body: Obx(() {
+      body: SafeArea(
+        top: false,
+        child: Obx(() {
         if (controller.isLoading.value && controller.groupName.value.isEmpty) {
           return const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(unifiedGreen)));
         }
@@ -396,6 +398,7 @@ class GroupMainView extends GetView<GroupController> {
           ),
         );
       }),
+        ),
     );
   }
 

@@ -23,7 +23,9 @@ class GroupRecommendationPage extends GetView<MyGroupController> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SafeArea(
+        top: false,
+        child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
         child: Obx(() => ListView.builder(
           itemCount: controller.recommendedGroupsDetail.length,
@@ -34,6 +36,8 @@ class GroupRecommendationPage extends GetView<MyGroupController> {
             );
           },
         )),
+      ),
+        ),
       ),
     );
   }

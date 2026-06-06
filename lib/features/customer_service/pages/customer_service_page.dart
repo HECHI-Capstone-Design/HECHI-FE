@@ -13,7 +13,9 @@ class CustomerServicePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
-      body: Obx(() {
+      body: SafeArea(
+        top: false,
+        child: Obx(() {
         if (controller.isLoading.value) return const Center(child: CircularProgressIndicator());
         switch (controller.currentViewIndex.value) {
           case 0: return _buildMainView();
@@ -24,6 +26,7 @@ class CustomerServicePage extends StatelessWidget {
           default: return _buildMainView();
         }
       }),
+        ),
     );
   }
 

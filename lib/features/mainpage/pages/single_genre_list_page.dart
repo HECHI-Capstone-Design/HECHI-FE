@@ -26,7 +26,9 @@ class SingleGenreListPage extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
       ),
-      body: books.isEmpty
+      body: SafeArea(
+        top: false,
+        child: books.isEmpty
           ? const Center(child: Text("도서 데이터가 없습니다."))
           : ListView.separated(
         padding: const EdgeInsets.all(20),
@@ -80,6 +82,7 @@ class SingleGenreListPage extends StatelessWidget {
             ),
           );
         },
+      ),
       ),
     );
   }

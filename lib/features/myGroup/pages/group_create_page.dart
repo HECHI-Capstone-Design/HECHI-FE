@@ -24,7 +24,9 @@ class GroupCreatePage extends GetView<GroupCreateController> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Column(
+      body: SafeArea(
+        top: false,
+        child: Column(
         children: [
           Expanded(
             child: SingleChildScrollView(
@@ -190,7 +192,12 @@ class GroupCreatePage extends GetView<GroupCreateController> {
 
           // 하단 그룹 생성하기 버튼 고정
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 16,
+              bottom: MediaQuery.of(context).padding.bottom + 16,
+            ),
             decoration: const BoxDecoration(color: Colors.white),
             child: SizedBox(
               width: double.infinity,
@@ -212,6 +219,7 @@ class GroupCreatePage extends GetView<GroupCreateController> {
             ),
           ),
         ],
+        ),
       ),
     );
   }

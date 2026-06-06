@@ -765,7 +765,7 @@ class GroupController extends GetxController {
     final bool isMissionPost = (postType == "MISSION" || postType == "mission");
     final int baseLikes = int.tryParse((item["likeCount"] ?? item["likesCount"] ?? 0).toString()) ?? 0;
     final bool baseIsLiked = item["isLiked"] ?? false;
-    final int parsedBookId = int.tryParse((item["id"] ?? item["bookId"])?.toString() ?? "0") ?? 0;
+    final int parsedBookId = int.tryParse(item["bookId"]?.toString() ?? "0") ?? 0;
 
     String finalTitle = "";
     String finalAuthor = "";

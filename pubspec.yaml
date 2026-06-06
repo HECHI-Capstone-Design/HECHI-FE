@@ -26,7 +26,6 @@ dependencies:
   permission_handler: ^12.0.3
   flutter_local_notifications: ^20.1.0
 
-
   google_mlkit_text_recognition: ^0.15.1
   mobile_ocr_flutter:
     path: packages/mobile_ocr_flutter
@@ -39,12 +38,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  # 1. 이미지 및 아이콘 경로
   assets:
     - assets/icons/
-
-  # 2. 폰트 등록 (들여쓰기 주의!)
-  fonts:
-    - family: MoveSans
-      fonts:
-        - asset: assets/fonts/MoveSans.ttf

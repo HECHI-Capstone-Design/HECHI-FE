@@ -66,11 +66,14 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
           child: Divider(height: 1, thickness: 0.5, color: AppColors.border),
         ),
       ),
-      body: Column(
-        children: [
-          _buildSearchBar(),
-          Expanded(child: _buildBody()),
-        ],
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            _buildSearchBar(),
+            Expanded(child: _buildBody()),
+          ],
+        ),
       ),
     );
   }
@@ -194,8 +197,9 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
       );
     }
 
-    return ReorderableListView.builder(
-      padding: const EdgeInsets.only(bottom: 20),
+    return Builder(
+      builder: (context) => ReorderableListView.builder(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 16),
       buildDefaultDragHandles: false,
       itemCount: controller.books.length,
       onReorder: controller.reorderBooks,
@@ -204,7 +208,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
         shadowColor: Colors.black26,
         child: child,
       ),
-      itemBuilder: (context, index) {
+      itemBuilder: (ctx, index) {
         final book = controller.books[index];
         return _BookListItem(
           key: ValueKey('${book.id}_$index'),
@@ -213,6 +217,7 @@ class CollectionBookEditPage extends GetView<CollectionBookEditController> {
           onDelete: () => controller.removeBook(book.id),
         );
       },
+    ),
     );
   }
 }

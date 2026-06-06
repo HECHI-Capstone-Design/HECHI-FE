@@ -28,7 +28,9 @@ class SettingsView extends GetView<SettingsController> {
         ),
         centerTitle: false,
       ),
-      body: ListView(
+      body: SafeArea(
+        top: false,
+        child: ListView(
         children: [
           // 1. 앱 설정 섹션
           const SettingsSectionHeader(title: "앱 설정"),
@@ -60,6 +62,7 @@ class SettingsView extends GetView<SettingsController> {
             onTap: controller.logout,
           ),
         ],
+        ),
       ),
     );
   }

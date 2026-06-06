@@ -68,7 +68,9 @@ class AddToCollectionPage extends GetView<AddToCollectionController> {
           child: Divider(height: 1, thickness: 0.5, color: AppColors.border),
         ),
       ),
-      body: Obx(() {
+      body: SafeArea(
+        top: false,
+        child: Obx(() {
         if (controller.isLoading.value) {
           return const Center(
             child: CircularProgressIndicator(color: AppColors.primary),
@@ -101,6 +103,7 @@ class AddToCollectionPage extends GetView<AddToCollectionController> {
           ],
         );
       }),
+        ),
     );
   }
 

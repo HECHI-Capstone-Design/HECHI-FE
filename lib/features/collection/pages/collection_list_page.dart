@@ -54,7 +54,10 @@ class CollectionListPage extends GetView<CollectionListController> {
           child: Divider(height: 1, thickness: 0.5, color: AppColors.border),
         ),
       ),
-      body: _buildBody(),
+      body: SafeArea(
+        top: false,
+        child: _buildBody(),
+      ),
     );
   }
 

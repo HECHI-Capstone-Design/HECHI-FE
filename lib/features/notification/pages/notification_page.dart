@@ -119,12 +119,13 @@ class _GeneralListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<NotificationController>();
+    final double safeBottom = MediaQuery.of(context).padding.bottom;
     return Obx(() {
       final items = controller.generalNotifications;
       if (items.isEmpty) return const NotificationEmptyState(message: '일반 알림이 없습니다.');
 
       return ListView.builder(
-        padding: const EdgeInsets.only(bottom: 30),
+        padding: EdgeInsets.only(bottom: safeBottom + 16),
         itemCount: items.length,
         itemBuilder: (_, i) => _buildSwipeableTile(
           item: items[i],
@@ -142,12 +143,13 @@ class _GroupListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<NotificationController>();
+    final double safeBottom = MediaQuery.of(context).padding.bottom;
     return Obx(() {
       final items = controller.groupNotifications;
       if (items.isEmpty) return const NotificationEmptyState(message: '그룹 알림이 없습니다.');
 
       return ListView.builder(
-        padding: const EdgeInsets.only(bottom: 30),
+        padding: EdgeInsets.only(bottom: safeBottom + 16),
         itemCount: items.length,
         itemBuilder: (_, i) => _buildSwipeableTile(
           item: items[i],

@@ -36,11 +36,13 @@ class CollectionListItem {
       authorProfileUrl: authorProfileUrl,
       tags: tags,
       bookCoverUrls: bookCoverUrls,
-      likeCount: isLiked == true ? likeCount + 1 : likeCount - 1,
+      likeCount: isLiked != null
+          ? (isLiked ? likeCount + 1 : likeCount - 1)
+          : likeCount,
       bookCount: bookCount,
       isLiked: isLiked ?? this.isLiked,
       isPublic: isPublic,
-      hasBook: hasBook ?? this.hasBook,
+      hasBook: hasBook,
     );
   }
 

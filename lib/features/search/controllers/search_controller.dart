@@ -553,28 +553,6 @@ class BookSearchController extends GetxController {
     }
   }
 
-  Future<void> _searchCollectionsByTagIds(List<String> tagIds) async {
-    try {
-      isCollectionLoading.value = true;
-      collectionSearchResults.clear();
-      final uri = Uri.parse(
-          '$baseUrl/collections?tagIds=${tagIds.join(",")}&sort=like&limit=50'
-      );
-      final res = await http.get(uri, headers: _headers);
-      if (res.statusCode == 200) {
-        final data = jsonDecode(utf8.decode(res.bodyBytes));
-        final list = (data['collections'] as List)
-            .map((e) => CollectionListItem.fromJson(e))
-            .toList();
-        collectionSearchResults.assignAll(list);
-      }
-    } catch (e) {
-      print('❌ _searchCollectionsByTagIds error: $e');
-    } finally {
-      isCollectionLoading.value = false;
-    }
-  }
-
   Future<void> searchCollections(String query) async {
     if (query.trim().isEmpty || query.startsWith('#')) return;
     try {

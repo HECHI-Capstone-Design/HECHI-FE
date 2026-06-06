@@ -23,7 +23,9 @@ class GroupReportListView extends GetView<GroupController> {
         title: const Text("신고함", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
         centerTitle: true,
       ),
-      body: Padding(
+      body: SafeArea(
+        top: false,
+        child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,6 +62,7 @@ class GroupReportListView extends GetView<GroupController> {
           ],
         ),
       ),
+      ),
     );
   }
 }
@@ -84,7 +87,9 @@ class GroupReportDetailView extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
       ),
-      body: SingleChildScrollView(
+      body: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -108,6 +113,7 @@ class GroupReportDetailView extends StatelessWidget {
             GroupPostCard(post: targetPost),
           ],
         ),
+      ),
       ),
     );
   }
