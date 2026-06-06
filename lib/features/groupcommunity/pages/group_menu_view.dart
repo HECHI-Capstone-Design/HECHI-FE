@@ -244,6 +244,8 @@ class GroupMenuView extends StatelessWidget {
   void _showChangeMissionBookSheet(Color brandColor, GroupController controller) {
     final searchInputController = TextEditingController();
     controller.searchedBooksResult.clear();
+    // dispose는 시트가 닫힐 때 처리
+    void disposeController() => searchInputController.dispose();
 
     Get.to(
       Scaffold(
@@ -251,7 +253,7 @@ class GroupMenuView extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
-          leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black), onPressed: () => Get.back()),
+          leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black), onPressed: () { disposeController(); Get.back(); }),
           title: const Text("미션 책 변경하기", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
           centerTitle: true,
         ),
