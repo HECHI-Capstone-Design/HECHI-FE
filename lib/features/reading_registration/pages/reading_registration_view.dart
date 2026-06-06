@@ -75,7 +75,6 @@ class ReadingRegistrationView extends GetView<ReadingRegistrationController> {
                   const SizedBox(
                     height: 100,
                     child: Center(child: Text("보관함에 읽고 있는 책이 없습니다.", style: TextStyle(color: Colors.grey))),
-
                   ),
               ],
             ),

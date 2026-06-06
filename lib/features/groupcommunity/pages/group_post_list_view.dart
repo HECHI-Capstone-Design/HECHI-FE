@@ -230,8 +230,10 @@ class GroupPostListView extends GetView<GroupController> {
                       padding: EdgeInsets.only(
                           top: 8, bottom: safeBottom + 80),
                       itemCount: currentPosts.length,
-                      itemBuilder: (context, index) =>
-                          GroupPostCard(post: currentPosts[index]),
+                      itemBuilder: (context, index) => GroupPostCard(
+                            key: ValueKey(currentPosts[index]["id"]),
+                            post: currentPosts[index],
+                          ),
                     ),
                   );
                 }),

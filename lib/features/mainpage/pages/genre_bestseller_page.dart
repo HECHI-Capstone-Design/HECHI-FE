@@ -23,7 +23,9 @@ class GenreBestsellerPage extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
       ),
-      body: Obx(() {
+      body: SafeArea(
+        top: false,
+        child: Obx(() {
         if (controller.isLoading.value) return const Center(child: CircularProgressIndicator());
         if (controller.genreSections.isEmpty) return const Center(child: Text("추천할 장르 도서가 없습니다."));
 
@@ -45,6 +47,7 @@ class GenreBestsellerPage extends StatelessWidget {
           },
         );
       }),
+        ),
     );
   }
 }

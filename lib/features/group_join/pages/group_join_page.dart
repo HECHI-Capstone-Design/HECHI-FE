@@ -28,7 +28,9 @@ class GroupJoinPage extends GetView<GroupJoinController> {
           ),
         ),
       ),
-      body: Obx(() {
+      body: SafeArea(
+        top: false,
+        child: Obx(() {
         return SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,6 +160,7 @@ class GroupJoinPage extends GetView<GroupJoinController> {
           ),
         );
       }),
+        ),
     );
   }
 }

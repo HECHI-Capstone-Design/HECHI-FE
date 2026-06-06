@@ -197,7 +197,9 @@ mixin GroupShareMixin {
       final bookInfo = bookNoteCtrl.bookInfo;
       groupCtrl.attachedBookId.value = bookId;
       groupCtrl.attachedBookTitle.value = bookInfo["title"]?.toString() ?? "";
-      groupCtrl.attachedBookAuthor.value = (bookInfo["authors"] as List?)?.first?.toString() ?? "";
+      final authors = bookInfo["authors"] as List?;
+      groupCtrl.attachedBookAuthor.value =
+          (authors != null && authors.isNotEmpty) ? authors.first.toString() : "";
       groupCtrl.attachedBookCover.value = bookInfo["thumbnail"]?.toString() ?? "";
       groupCtrl.isBookAttached.value = true;
     }

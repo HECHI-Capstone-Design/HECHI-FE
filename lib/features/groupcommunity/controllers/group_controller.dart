@@ -24,6 +24,7 @@ class GroupController extends GetxController {
   };
 
   final groupName = "".obs;
+  final groupBackgroundImage = Rxn<String>(); // 그룹 프로필 이미지
   final currentMissionBookId = 0.obs;
   final currentMissionBookTitle = "".obs;
   final currentMissionBookAuthor = "".obs;
@@ -92,7 +93,12 @@ class GroupController extends GetxController {
       if (groupRes.statusCode == 200) {
         final Map<String, dynamic> groupData = jsonDecode(utf8.decode(groupRes.bodyBytes));
         groupName.value = groupData["name"] ?? "hechi1";
-
+        // 서버 이미지 우선, 없으면 로컬 저장 이미지 사용
+        final serverImg = groupData["backgroundImage"] ?? groupData["background_image"] ?? groupData["imageUrl"];
+        final localImg = GetStorage().read<String>('group_img_${currentGroupId.value}');
+        groupBackgroundImage.value = (serverImg != null && serverImg.toString().isNotEmpty)
+            ? serverImg.toString()
+            : localImg;
         isLeader.value = groupData["isLeader"] ?? false;
 
         final currentBookObj = groupData["currentMissionBook"];
@@ -529,7 +535,14 @@ class GroupController extends GetxController {
       }
 
       final response = await http.post(url, headers: _headers, body: jsonEncode(bodyData));
-      if (response.statusCode == 200 || response.statusCode == 201) await fetchAllDataFromAPI();
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // 미션 게시판은 현재 미션책 필터 유지, 자유 게시판은 전체 새로고침
+        if (isMission && currentMissionBookId.value != 0) {
+          await fetchFilteredBookBoard(currentMissionBookId.value.toString(), true);
+        } else {
+          await refreshPostsOnly();
+        }
+      }
     } catch (e) {
       print("❌ createNewPost Error: $e");
     } finally {
@@ -765,7 +778,7 @@ class GroupController extends GetxController {
     final bool isMissionPost = (postType == "MISSION" || postType == "mission");
     final int baseLikes = int.tryParse((item["likeCount"] ?? item["likesCount"] ?? 0).toString()) ?? 0;
     final bool baseIsLiked = item["isLiked"] ?? false;
-    final int parsedBookId = int.tryParse((item["id"] ?? item["bookId"])?.toString() ?? "0") ?? 0;
+    final int parsedBookId = int.tryParse(item["bookId"]?.toString() ?? "0") ?? 0;
 
     String finalTitle = "";
     String finalAuthor = "";

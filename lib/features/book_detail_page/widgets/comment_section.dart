@@ -142,8 +142,8 @@ Widget _buildRatingGraph(Map<String, dynamic> histogram, int maxCount) {
     if (r > maxRatio) maxRatio = r;
   }
 
-  final Color DarkGreen = AppColors.primary;
-  final Color LightGreen = AppColors.primaryLight;
+  final Color darkGreen = AppColors.primary;
+  final Color lightGreen = AppColors.primaryLight;
   const double maxHeight = 100.0;
 
   return SizedBox(
@@ -159,7 +159,7 @@ Widget _buildRatingGraph(Map<String, dynamic> histogram, int maxCount) {
 
           final bool isMax = (ratio == maxRatio && ratio > 0);
 
-          Color barColor = isMax ? DarkGreen : LightGreen;
+          Color barColor = isMax ? darkGreen : lightGreen;
           if (ratio == 0) barColor = AppColors.backgroundGrey;
 
           double barHeight = 2.0;

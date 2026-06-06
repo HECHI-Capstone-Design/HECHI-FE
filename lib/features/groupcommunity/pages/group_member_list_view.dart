@@ -25,7 +25,9 @@ class GroupMemberListView extends GetView<GroupController> {
           onPressed: () => Get.back(),
         ),
       ),
-      body: Column(
+      body: SafeArea(
+        top: false,
+        child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -85,6 +87,7 @@ class GroupMemberListView extends GetView<GroupController> {
             ),
           ),
         ],
+        ),
       ),
     );
   }

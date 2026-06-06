@@ -43,7 +43,11 @@ class NotificationController extends GetxController {
 
       if (response.statusCode == 200) {
         final decodedData = jsonDecode(utf8.decode(response.bodyBytes));
-        final List<dynamic> list = decodedData['notifications'] ?? [];
+        final List<dynamic> list = decodedData['notifications']
+            ?? decodedData['items']
+            ?? decodedData['content']
+            ?? decodedData['data']
+            ?? [];
         List<NotificationItem> parsedList = list.map((json) => NotificationItem.fromJson(json)).toList();
 
         if (category == 'GENERAL') {
@@ -51,6 +55,8 @@ class NotificationController extends GetxController {
         } else {
           groupNotifications.value = parsedList;
         }
+      } else {
+        print("알림 API 실패: ${response.statusCode}");
       }
     } catch (e) {
       print("알림 목록 로드 실패: $e");
@@ -71,8 +77,10 @@ class NotificationController extends GetxController {
 
   Future<void> markAsRead(int notificationId) async {
     try {
+      final token = box.read('access_token');
+      if (token == null) return;
       final url = Uri.parse('$baseUrl/notifications/$notificationId/read');
-      final response = await http.patch(url, headers: _getHeaders());
+      final response = await http.get(url, headers: _getHeaders());
       if (response.statusCode == 200) {
         _updateLocalReadStatus(notificationId);
         fetchUnreadCount();
@@ -82,38 +90,77 @@ class NotificationController extends GetxController {
 
   Future<void> markAllAsRead() async {
     try {
+      final token = box.read('access_token');
+      if (token == null) return;
       final url = Uri.parse('$baseUrl/notifications/read-all');
       final response = await http.patch(url, headers: _getHeaders());
       if (response.statusCode == 200) refreshNotificationPage();
     } catch (e) {}
   }
 
-  Future<void> deleteAllNotifications() async {
+  /// 현재 탭 알림 전체 조회 후 병렬 삭제 (limit=500)
+  Future<void> deleteAllByCategory(String category) async {
+    final token = box.read('access_token');
+    if (token == null) return;
+
     try {
       isLoading.value = true;
-      final url = Uri.parse('$baseUrl/notifications/all');
-      final response = await http.delete(url, headers: _getHeaders());
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
 
-      print("📢 전체삭제 응답: ${response.statusCode} / ${response.body}");
+      final fetchUrl = Uri.parse(
+          '$baseUrl/users/me/notifications?tabCategory=$category&limit=500&offset=0');
+      final fetchRes = await http.get(fetchUrl, headers: headers);
 
-      if (response.statusCode == 200 || response.statusCode == 204) {
-        generalNotifications.clear();
-        groupNotifications.clear();
-        unreadCount.value = 0;
-        Get.snackbar("성공", "모든 알림이 삭제되었습니다.");
-      } else {
-        Get.snackbar("오류", "전체 삭제 실패: ${response.statusCode}");
+      List<int> allIds = [];
+      if (fetchRes.statusCode == 200) {
+        final decoded = jsonDecode(utf8.decode(fetchRes.bodyBytes));
+        final List<dynamic> list = decoded['notifications']
+            ?? decoded['items']
+            ?? decoded['content']
+            ?? decoded['data']
+            ?? [];
+        allIds = list.map<int>((n) => n['notificationId'] is int
+            ? n['notificationId']
+            : int.parse(n['notificationId'].toString())).toList();
+        print("삭제 대상 $category: ${allIds.length}건");
       }
+
+      if (allIds.isEmpty) {
+        Get.snackbar("알림", "삭제할 알림이 없습니다.");
+        return;
+      }
+
+      await Future.wait(allIds.map((id) async {
+        final res = await http.delete(
+          Uri.parse('$baseUrl/notifications/$id'),
+          headers: {'Authorization': 'Bearer $token'},
+        );
+        print("삭제 [$id]: ${res.statusCode}");
+      }));
+
+      if (category == 'GENERAL') {
+        generalNotifications.clear();
+      } else {
+        groupNotifications.clear();
+      }
+      await fetchUnreadCount();
+      final label = category == 'GENERAL' ? '일반' : '그룹';
+      Get.snackbar("완료", "$label 알림을 모두 삭제했습니다.");
     } catch (e) {
-      print("🚨 전체 삭제 시스템 에러: $e");
+      print("전체삭제 에러: $e");
+      Get.snackbar("오류", "삭제 중 오류가 발생했습니다.");
     } finally {
       isLoading.value = false;
     }
   }
 
-  // 개별 삭제 API 호출부 (ID 타입 체크 강화)
   Future<void> deleteNotification(dynamic notificationId) async {
     try {
+      final token = box.read('access_token');
+      if (token == null) return;
       final url = Uri.parse('$baseUrl/notifications/$notificationId');
       final response = await http.delete(url, headers: _getHeaders());
 
@@ -123,17 +170,19 @@ class NotificationController extends GetxController {
         fetchUnreadCount();
       }
     } catch (e) {
-      print("🚨 삭제 에러: $e");
+      print("삭제 에러: $e");
     }
   }
 
   void _updateLocalReadStatus(int notificationId) {
-    int genIndex = generalNotifications.indexWhere((item) => int.tryParse(item.notificationId.toString()) == notificationId);
+    int genIndex = generalNotifications.indexWhere(
+        (item) => int.tryParse(item.notificationId.toString()) == notificationId);
     if (genIndex != -1) {
       generalNotifications[genIndex] = _cloneWithReadTrue(generalNotifications[genIndex]);
       return;
     }
-    int grpIndex = groupNotifications.indexWhere((item) => int.tryParse(item.notificationId.toString()) == notificationId);
+    int grpIndex = groupNotifications.indexWhere(
+        (item) => int.tryParse(item.notificationId.toString()) == notificationId);
     if (grpIndex != -1) {
       groupNotifications[grpIndex] = _cloneWithReadTrue(groupNotifications[grpIndex]);
     }

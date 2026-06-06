@@ -21,7 +21,9 @@ class TrendingListPage extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
       ),
-      body: Obx(() {
+      body: SafeArea(
+        top: false,
+        child: Obx(() {
         if (controller.trendingBookList.isEmpty) {
           return const Center(child: Text("데이터가 없습니다."));
         }
@@ -83,6 +85,7 @@ class TrendingListPage extends StatelessWidget {
           },
         );
       }),
+        ),
     );
   }
 }

@@ -23,7 +23,9 @@ class NotificationSettingsPage extends StatelessWidget {
           style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ),
-      body: Obx(() {
+      body: SafeArea(
+        top: false,
+        child: Obx(() {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator(color: brandColor));
         }
@@ -70,6 +72,7 @@ class NotificationSettingsPage extends StatelessWidget {
           ],
         );
       }),
+      ),
     );
   }
 

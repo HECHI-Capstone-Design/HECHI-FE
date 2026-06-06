@@ -24,29 +24,73 @@ class GroupCreatePage extends GetView<GroupCreateController> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Column(
+      body: SafeArea(
+        top: false,
+        child: Column(
         children: [
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 상단 이미지 등록 영역
-                  Container(
-                    width: double.infinity,
-                    height: 200,
-                    color: const Color(0xFFB0BEC5), // 임시 회색 배경
-                    child: const Center(
-                      child: Icon(Icons.image_outlined, size: 48, color: Colors.black87),
-                    ),
-                  ),
+                  // 상단 이미지 등록 영역 (탭하면 갤러리 열림)
+                  Obx(() {
+                    final file = controller.selectedImageFile.value;
+                    return GestureDetector(
+                      onTap: controller.pickAndUploadImage,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            height: 200,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFB0BEC5),
+                              image: file != null
+                                  ? DecorationImage(
+                                      image: FileImage(file),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : null,
+                            ),
+                          ),
+                          if (controller.isUploadingImage.value)
+                            const CircularProgressIndicator(color: Colors.white)
+                          else if (file == null)
+                            const Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.add_photo_alternate_outlined, size: 48, color: Colors.white),
+                                SizedBox(height: 8),
+                                Text('그룹 사진 추가', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              ],
+                            )
+                          else
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.black45,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.edit, color: Colors.white, size: 16),
+                                  SizedBox(width: 4),
+                                  Text('사진 변경', style: TextStyle(color: Colors.white, fontSize: 13)),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  }),
 
                   Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 그룹 이름
                         _buildLabel('그룹 이름'),
                         _buildTextField(
                           hint: '그룹 이름을 입력하세요.',
@@ -54,7 +98,6 @@ class GroupCreatePage extends GetView<GroupCreateController> {
                         ),
                         const SizedBox(height: 24),
 
-                        // 그룹 아이디 & 중복 확인
                         _buildLabel('그룹 아이디'),
                         Row(
                           children: [
@@ -63,28 +106,36 @@ class GroupCreatePage extends GetView<GroupCreateController> {
                                 hint: '아이디를 입력하세요.',
                                 onChanged: (val) {
                                   controller.groupId.value = val;
-                                  controller.idCheckStatus.value = 0; // 값 변경 시 초기화
+                                  controller.idCheckStatus.value = 0;
                                 },
                               ),
                             ),
                             const SizedBox(width: 8),
-                            GestureDetector(
-                              onTap: () => controller.checkDuplicateId(controller.groupId.value),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryLight, // 연한 초록색
-                                  borderRadius: BorderRadius.circular(16),
+                            Obx(() {
+                              final status = controller.idCheckStatus.value;
+                              final bool hasText = controller.groupId.value.isNotEmpty;
+                              final Color btnColor = !hasText
+                                  ? AppColors.primaryLight
+                                  : status == 1
+                                      ? Colors.green
+                                      : AppColors.primary;
+                              return GestureDetector(
+                                onTap: () async => await controller.checkDuplicateId(controller.groupId.value),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                  decoration: BoxDecoration(
+                                    color: btnColor,
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: const Text(
+                                    '중복 확인',
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                                child: const Text(
-                                  '중복 확인',
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
+                              );
+                            }),
                           ],
                         ),
-                        // 아이디 중복 확인 결과 텍스트
                         Obx(() {
                           if (controller.idCheckStatus.value == 1) {
                             return const Padding(
@@ -101,16 +152,15 @@ class GroupCreatePage extends GetView<GroupCreateController> {
                         }),
                         const SizedBox(height: 24),
 
-                        // 그룹 최대 인원 수
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween, // 양 끝 정렬
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _buildLabel('그룹 최대 인원 수'), // 왼쪽 정렬됨
-                            const Spacer(), // 중간 공간을 다 차지해서 네모 칸을 오른쪽으로 밀어냄
+                            _buildLabel('그룹 최대 인원 수'),
+                            const Spacer(),
                             GestureDetector(
                               onTap: () => _showMemberPicker(context),
                               child: Container(
-                                width: 100, // 네모 칸의 너비 유지
+                                width: 100,
                                 padding: const EdgeInsets.symmetric(vertical: 14),
                                 decoration: BoxDecoration(
                                   color: AppColors.backgroundGrey,
@@ -129,7 +179,6 @@ class GroupCreatePage extends GetView<GroupCreateController> {
                         ),
                         const SizedBox(height: 24),
 
-                        // 그룹 소개
                         _buildLabel('그룹 소개'),
                         _buildTextField(
                           hint: '그룹 소개를 입력하세요. (그룹 소개 및 규칙)',
@@ -137,7 +186,6 @@ class GroupCreatePage extends GetView<GroupCreateController> {
                         ),
                         const SizedBox(height: 24),
 
-                        // 비공개 설정 토글
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -179,7 +227,7 @@ class GroupCreatePage extends GetView<GroupCreateController> {
                           }
                           return const SizedBox.shrink();
                         }),
-                        const SizedBox(height: 40), // 하단 여백
+                        const SizedBox(height: 40),
                       ],
                     ),
                   ),
@@ -188,9 +236,13 @@ class GroupCreatePage extends GetView<GroupCreateController> {
             ),
           ),
 
-          // 하단 그룹 생성하기 버튼 고정
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 16,
+              bottom: MediaQuery.of(context).padding.bottom + 16,
+            ),
             decoration: const BoxDecoration(color: Colors.white),
             child: SizedBox(
               width: double.infinity,
@@ -198,7 +250,7 @@ class GroupCreatePage extends GetView<GroupCreateController> {
               child: ElevatedButton(
                 onPressed: () => controller.createGroup(),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary, // HECHI 앱 메인 초록색
+                  backgroundColor: AppColors.primary,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(26),
@@ -212,11 +264,11 @@ class GroupCreatePage extends GetView<GroupCreateController> {
             ),
           ),
         ],
+        ),
       ),
     );
   }
 
-  // 텍스트 라벨 공통 위젯
   Widget _buildLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
@@ -227,7 +279,6 @@ class GroupCreatePage extends GetView<GroupCreateController> {
     );
   }
 
-  // 텍스트 필드 공통 위젯
   Widget _buildTextField({required String hint, bool obscureText = false, Function(String)? onChanged}) {
     return TextField(
       obscureText: obscureText,
@@ -236,7 +287,7 @@ class GroupCreatePage extends GetView<GroupCreateController> {
         hintText: hint,
         hintStyle: const TextStyle(color: Colors.black38, fontSize: 14),
         filled: true,
-        fillColor: AppColors.backgroundGrey, // 연한 회색 배경
+        fillColor: AppColors.backgroundGrey,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -246,9 +297,8 @@ class GroupCreatePage extends GetView<GroupCreateController> {
     );
   }
 
-  // 인원 수 선택 Cupertino Picker 바텀 시트
   void _showMemberPicker(BuildContext context) {
-    int tempSelected = controller.maxMembers.value ?? controller.memberOptions[3]; // 기본값 200
+    int tempSelected = controller.maxMembers.value ?? controller.memberOptions[3];
 
     showModalBottomSheet(
       context: context,
@@ -261,7 +311,6 @@ class GroupCreatePage extends GetView<GroupCreateController> {
           height: 250,
           child: Column(
             children: [
-              // 헤더 (완료 버튼)
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -274,7 +323,6 @@ class GroupCreatePage extends GetView<GroupCreateController> {
                   )
                 ],
               ),
-              // 스크롤 피커
               Expanded(
                 child: CupertinoPicker(
                   itemExtent: 40,

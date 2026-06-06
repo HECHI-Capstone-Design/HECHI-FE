@@ -57,36 +57,33 @@ class IsbnScanView extends StatelessWidget {
                   ),
                 ),
 
-                Expanded(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Positioned(
-                        top: MediaQuery.of(context).size.height * 0.5 - (scanBoxHeight / 2) - 150,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Text(
-                              '바코드를 영역에 맞춰 보세요',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              '원하는 도서를 빠르게 찾을 수 있어요',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                const Expanded(child: SizedBox()),
+              ],
+            ),
+          ),
+
+          // 텍스트: 노란 박스(화면 중앙) 바로 위에 고정
+          Positioned(
+            left: 0,
+            right: 0,
+            top: MediaQuery.of(context).size.height / 2 - (scanBoxHeight / 2) - 64,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Text(
+                  '바코드를 영역에 맞춰 보세요',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  '원하는 도서를 빠르게 찾을 수 있어요',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
                 ),
               ],
             ),

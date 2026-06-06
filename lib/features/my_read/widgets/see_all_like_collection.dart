@@ -82,7 +82,9 @@ class _SeeAllLikeCollectionPageState extends State<SeeAllLikeCollectionPage> {
           child: Divider(height: 1, thickness: 0.5, color: AppColors.border),
         ),
       ),
-      body: isLoading
+      body: SafeArea(
+        top: false,
+        child: isLoading
           ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : collections.isEmpty
           ? const Center(
@@ -176,6 +178,7 @@ class _SeeAllLikeCollectionPageState extends State<SeeAllLikeCollectionPage> {
           );
         },
       ),
+        ),
     );
   }
 }

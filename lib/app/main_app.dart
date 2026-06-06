@@ -34,6 +34,7 @@ class MainWrapper extends GetView<AppController> {
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
       body: SafeArea(
+        bottom: false,
         child: Obx(() => IndexedStack(
           index: controller.currentIndex.value,
           children: [

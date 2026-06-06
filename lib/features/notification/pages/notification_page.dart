@@ -21,6 +21,15 @@ class _NotificationPageState extends State<NotificationPage> {
   final NotificationController controller = Get.find<NotificationController>();
 
   @override
+  void initState() {
+    super.initState();
+    // 페이지 열릴 때마다 새로 fetch (onInit은 앱 시작 시 로그인 전에 실행됨)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.refreshNotificationPage();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -34,17 +43,28 @@ class _NotificationPageState extends State<NotificationPage> {
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'read_all') controller.markAllAsRead();
-              else if (value == 'delete_all') controller.deleteAllNotifications();
+              else if (value == 'delete_all') {
+                final category = _selectedTab == 0 ? 'GENERAL' : 'GROUP';
+                controller.deleteAllByCategory(category);
+              }
             },
             icon: const Icon(Icons.more_vert, color: Colors.black),
             itemBuilder: (BuildContext context) => [
               const PopupMenuItem(value: 'read_all', child: Text('전체 읽음')),
-              const PopupMenuItem(value: 'delete_all', child: Text('알림 전체 삭제', style: TextStyle(color: Colors.red))),
+              PopupMenuItem(
+                value: 'delete_all',
+                child: Text(
+                  '${_selectedTab == 0 ? '일반' : '그룹'} 알림 전체 삭제',
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
             ],
           ),
         ],
       ),
-      body: RefreshIndicator(
+      body: SafeArea(
+        top: false,
+        child: RefreshIndicator(
         color: AppColors.primary,
         onRefresh: () async {
           final category = _selectedTab == 0 ? 'GENERAL' : 'GROUP';
@@ -67,6 +87,7 @@ class _NotificationPageState extends State<NotificationPage> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -124,7 +145,7 @@ class _GeneralListView extends StatelessWidget {
       if (items.isEmpty) return const NotificationEmptyState(message: '일반 알림이 없습니다.');
 
       return ListView.builder(
-        padding: const EdgeInsets.only(bottom: 30),
+        padding: const EdgeInsets.only(bottom: 16),
         itemCount: items.length,
         itemBuilder: (_, i) => _buildSwipeableTile(
           item: items[i],
@@ -147,7 +168,7 @@ class _GroupListView extends StatelessWidget {
       if (items.isEmpty) return const NotificationEmptyState(message: '그룹 알림이 없습니다.');
 
       return ListView.builder(
-        padding: const EdgeInsets.only(bottom: 30),
+        padding: const EdgeInsets.only(bottom: 16),
         itemCount: items.length,
         itemBuilder: (_, i) => _buildSwipeableTile(
           item: items[i],
