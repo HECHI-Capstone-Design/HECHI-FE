@@ -234,6 +234,7 @@ class GroupController extends GetxController {
         return {
           "id": (r["commentId"] ?? "0").toString(),
           "author": r["userName"] ?? "익명",
+          "profileImageUrl": r["profileImageUrl"] ?? r["userProfileImage"] ?? r["profileImage"] ?? r["authorProfileImage"],
           "content": r["content"] ?? "",
           "likes": (int.tryParse((r["likeCount"] ?? 0).toString()) ?? 0).obs,
           "isCommentLiked": ((r["isLiked"] ?? false) as bool).obs,
@@ -243,6 +244,7 @@ class GroupController extends GetxController {
       return {
         "id": (c["commentId"] ?? "0").toString(),
         "author": c["userName"] ?? "익명",
+        "profileImageUrl": c["profileImageUrl"] ?? c["userProfileImage"] ?? c["profileImage"] ?? c["authorProfileImage"],
         "content": c["content"] ?? "",
         "likes": (int.tryParse((c["likeCount"] ?? 0).toString()) ?? 0).obs,
         "isCommentLiked": ((c["isLiked"] ?? false) as bool).obs,

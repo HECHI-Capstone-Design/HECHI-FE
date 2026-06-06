@@ -87,27 +87,15 @@ class _NotificationPageState extends State<NotificationPage> {
               onTabChanged: _onTabChanged,
             ),
             Expanded(
-              child: Obx(() {
-                if (controller.isLoading.value) {
-                  return const Center(child: CircularProgressIndicator(color: AppColors.primary));
-                }
-                return RefreshIndicator(
-                  color: AppColors.primary,
-                  onRefresh: () async {
-                    final category = _selectedTab == 0 ? 'GENERAL' : 'GROUP';
-                    await controller.fetchNotifications(category: category);
-                    await controller.fetchUnreadCount();
-                  },
-                  child: PageView(
-                    controller: _pageController,
-                    onPageChanged: (i) => setState(() => _selectedTab = i),
-                    children: const [
-                      _GeneralListView(),
-                      _GroupListView(),
-                    ],
-                  ),
-                );
-              }),
+              // PageView를 Obx로 감싸지 않아서 isLoading 변화에도 페이지 위치 유지
+              child: PageView(
+                controller: _pageController,
+                onPageChanged: (i) => setState(() => _selectedTab = i),
+                children: const [
+                  _GeneralListView(),
+                  _GroupListView(),
+                ],
+              ),
             ),
           ],
         ),
@@ -116,7 +104,7 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 }
 
-// 공통 리스트 아이템 빌더 (스와이프 UI 적용)
+// 공통 스와이프 삭제 타일
 Widget _buildSwipeableTile({
   required dynamic item,
   required Widget tileWidget,
@@ -141,11 +129,7 @@ Widget _buildSwipeableTile({
                 color: const Color(0xFFFDEAEA),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
-                Icons.delete_outline,
-                color: AppColors.error,
-                size: 28,
-              ),
+              child: const Icon(Icons.delete_outline, color: AppColors.error, size: 28),
             ),
           ),
         ],
@@ -161,20 +145,35 @@ class _GeneralListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<NotificationController>();
-    return Obx(() {
-      final items = controller.generalNotifications;
-      if (items.isEmpty) return const NotificationEmptyState(message: '일반 알림이 없습니다.');
-
-      return ListView.builder(
-        padding: const EdgeInsets.only(bottom: 16),
-        itemCount: items.length,
-        itemBuilder: (_, i) => _buildSwipeableTile(
-          item: items[i],
-          tileWidget: GeneralNotificationTile(item: items[i]),
-          onDelete: (id) => controller.deleteNotification(id),
-        ),
-      );
-    });
+    return RefreshIndicator(
+      color: AppColors.primary,
+      onRefresh: () async {
+        await controller.fetchNotifications(category: 'GENERAL');
+        await controller.fetchUnreadCount();
+      },
+      child: Obx(() {
+        final items = controller.generalNotifications;
+        // 초기 로딩 중 (아이템 없을 때만 스피너)
+        if (controller.isLoading.value && items.isEmpty) {
+          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+        }
+        if (items.isEmpty) {
+          return const CustomScrollView(
+            slivers: [SliverFillRemaining(child: NotificationEmptyState(message: '일반 알림이 없습니다.'))],
+          );
+        }
+        return ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.only(bottom: 16),
+          itemCount: items.length,
+          itemBuilder: (_, i) => _buildSwipeableTile(
+            item: items[i],
+            tileWidget: GeneralNotificationTile(item: items[i]),
+            onDelete: (id) => controller.deleteNotification(id),
+          ),
+        );
+      }),
+    );
   }
 }
 
@@ -184,19 +183,33 @@ class _GroupListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<NotificationController>();
-    return Obx(() {
-      final items = controller.groupNotifications;
-      if (items.isEmpty) return const NotificationEmptyState(message: '그룹 알림이 없습니다.');
-
-      return ListView.builder(
-        padding: const EdgeInsets.only(bottom: 16),
-        itemCount: items.length,
-        itemBuilder: (_, i) => _buildSwipeableTile(
-          item: items[i],
-          tileWidget: GroupNotificationTile(item: items[i]),
-          onDelete: (id) => controller.deleteNotification(id),
-        ),
-      );
-    });
+    return RefreshIndicator(
+      color: AppColors.primary,
+      onRefresh: () async {
+        await controller.fetchNotifications(category: 'GROUP');
+        await controller.fetchUnreadCount();
+      },
+      child: Obx(() {
+        final items = controller.groupNotifications;
+        if (controller.isLoading.value && items.isEmpty) {
+          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+        }
+        if (items.isEmpty) {
+          return const CustomScrollView(
+            slivers: [SliverFillRemaining(child: NotificationEmptyState(message: '그룹 알림이 없습니다.'))],
+          );
+        }
+        return ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.only(bottom: 16),
+          itemCount: items.length,
+          itemBuilder: (_, i) => _buildSwipeableTile(
+            item: items[i],
+            tileWidget: GroupNotificationTile(item: items[i]),
+            onDelete: (id) => controller.deleteNotification(id),
+          ),
+        );
+      }),
+    );
   }
 }
