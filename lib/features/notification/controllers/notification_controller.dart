@@ -104,35 +104,38 @@ class NotificationController extends GetxController {
     } catch (e) {}
   }
 
-  Future<void> deleteAllNotifications() async {
+  /// 현재 탭의 알림만 개별 삭제 API로 하나씩 제거 (탭별 전체삭제)
+  Future<void> deleteAllByCategory(String category) async {
     final token = box.read('access_token');
-    if (token == null) {
-      Get.snackbar("오류", "로그인이 필요합니다.");
+    if (token == null) return;
+
+    final list = category == 'GENERAL' ? generalNotifications : groupNotifications;
+    if (list.isEmpty) {
+      Get.snackbar("알림", "삭제할 알림이 없습니다.");
       return;
     }
+
     try {
       isLoading.value = true;
-      // Swagger: DELETE /notifications/all (body 없음 → Content-Type 제거)
-      final url = Uri.parse('$baseUrl/notifications/all');
-      final headers = {
-        'Authorization': 'Bearer $token',
-      };
-      final response = await http.delete(url, headers: headers);
+      final ids = list.map((n) => n.notificationId).toList();
+      final headers = {'Authorization': 'Bearer $token'};
 
-      print("📢 전체삭제 응답: ${response.statusCode} / ${response.body}");
-
-      if (response.statusCode == 200 || response.statusCode == 204 || response.statusCode == 422) {
-        // 422 = 삭제할 알림이 없거나 서버 내부 처리 완료
-        generalNotifications.clear();
-        groupNotifications.clear();
-        unreadCount.value = 0;
-        Get.snackbar("완료", "모든 알림이 삭제되었습니다.");
-      } else {
-        print("🚨 전체삭제 응답 바디: ${response.body}");
-        Get.snackbar("오류", "전체 삭제 실패: ${response.statusCode}");
+      for (final id in ids) {
+        final url = Uri.parse('$baseUrl/notifications/$id');
+        final res = await http.delete(url, headers: headers);
+        print("📢 삭제 [$id]: ${res.statusCode}");
       }
+
+      if (category == 'GENERAL') {
+        generalNotifications.clear();
+      } else {
+        groupNotifications.clear();
+      }
+      await fetchUnreadCount();
+      Get.snackbar("완료", "${category == 'GENERAL' ? '일반' : '그룹'} 알림을 모두 삭제했습니다.");
     } catch (e) {
-      print("🚨 전체 삭제 시스템 에러: $e");
+      print("🚨 전체삭제 에러: $e");
+      Get.snackbar("오류", "삭제 중 오류가 발생했습니다.");
     } finally {
       isLoading.value = false;
     }

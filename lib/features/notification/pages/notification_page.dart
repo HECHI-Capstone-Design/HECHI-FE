@@ -43,12 +43,21 @@ class _NotificationPageState extends State<NotificationPage> {
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'read_all') controller.markAllAsRead();
-              else if (value == 'delete_all') controller.deleteAllNotifications();
+              else if (value == 'delete_all') {
+                final category = _selectedTab == 0 ? 'GENERAL' : 'GROUP';
+                controller.deleteAllByCategory(category);
+              }
             },
             icon: const Icon(Icons.more_vert, color: Colors.black),
             itemBuilder: (BuildContext context) => [
               const PopupMenuItem(value: 'read_all', child: Text('전체 읽음')),
-              const PopupMenuItem(value: 'delete_all', child: Text('알림 전체 삭제', style: TextStyle(color: Colors.red))),
+              PopupMenuItem(
+                value: 'delete_all',
+                child: Text(
+                  '${_selectedTab == 0 ? '일반' : '그룹'} 알림 전체 삭제',
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
             ],
           ),
         ],
