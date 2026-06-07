@@ -158,6 +158,7 @@ class NotificationController extends GetxController {
   }
 
   Future<void> deleteNotification(dynamic notificationId) async {
+    final idStr = notificationId.toString();
     try {
       final token = box.read('access_token');
       if (token == null) return;
@@ -165,8 +166,8 @@ class NotificationController extends GetxController {
       final response = await http.delete(url, headers: _getHeaders());
 
       if (response.statusCode == 200 || response.statusCode == 204) {
-        generalNotifications.removeWhere((item) => item.notificationId.toString() == notificationId.toString());
-        groupNotifications.removeWhere((item) => item.notificationId.toString() == notificationId.toString());
+        generalNotifications.removeWhere((item) => item.notificationId.toString() == idStr);
+        groupNotifications.removeWhere((item) => item.notificationId.toString() == idStr);
         fetchUnreadCount();
       }
     } catch (e) {

@@ -51,7 +51,7 @@ class TasteHeader extends GetView<TasteAnalysisController> {
                   nickname,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 18g,
+                    fontSize: 18,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
