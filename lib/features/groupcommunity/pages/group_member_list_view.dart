@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
 import 'package:hechi/features/groupcommunity/widgets/member_profile_dialog.dart';
+import 'package:hechi/core/widgets/user_avatar.dart';
 
 class GroupMemberListView extends GetView<GroupController> {
   const GroupMemberListView({Key? key}) : super(key: key);
@@ -68,11 +69,7 @@ class GroupMemberListView extends GetView<GroupController> {
                       onTap: () => Get.dialog(MemberProfileDialog(member: member)),
                       child: Column(
                         children: [
-                          const CircleAvatar(
-                            radius: 18,
-                            backgroundColor: AppColors.primaryLight,
-                            child: Icon(Icons.person, color: Colors.white, size: 20),
-                          ),
+                          buildUserAvatar(member["profileImageUrl"]?.toString(), 18),
                           const SizedBox(height: 4),
                           Text(
                             member["nickname"] ?? "그룹원",
