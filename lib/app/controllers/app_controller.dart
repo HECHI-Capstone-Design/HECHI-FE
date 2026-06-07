@@ -45,9 +45,14 @@ class AppController extends GetxController {
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
+        // 서버가 profileImageUrl을 누락했을 경우 기존 값을 보존
+        final existingImageUrl = userProfile['profileImageUrl']?.toString() ?? '';
         userProfile.value = data;
+        if ((userProfile['profileImageUrl'] == null || userProfile['profileImageUrl'].toString().isEmpty)
+            && existingImageUrl.isNotEmpty) {
+          userProfile['profileImageUrl'] = existingImageUrl;
+        }
 
-        // ✅ [핵심 로직] 서버 데이터가 비어있으면 -> 기본 멘트 표시
         String serverDesc = data['description'] ?? "";
         if (serverDesc.trim().isEmpty) {
           description.value = "나만의 소개글을 입력해주세요!";
@@ -136,9 +141,13 @@ class AppController extends GetxController {
       if (response.statusCode == 200) {
         print("✅ 자동 로그인 성공!");
         final meData = jsonDecode(utf8.decode(response.bodyBytes));
+        final existingImageUrl = userProfile['profileImageUrl']?.toString() ?? '';
         userProfile.value = meData;
+        if ((userProfile['profileImageUrl'] == null || userProfile['profileImageUrl'].toString().isEmpty)
+            && existingImageUrl.isNotEmpty) {
+          userProfile['profileImageUrl'] = existingImageUrl;
+        }
 
-        // ✅ [핵심 로직] 여기도 동일하게 적용
         String serverDesc = meData['description'] ?? "";
         if (serverDesc.trim().isEmpty) {
           description.value = "나만의 소개글을 입력해주세요!";
@@ -186,8 +195,15 @@ class AppController extends GetxController {
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(utf8.decode(response.bodyBytes));
-        final imageUrl = data['profileImageUrl'];
+        // 응답이 plain string("https://...") 또는 {"profileImageUrl":"..."} 두 형태 모두 처리
+        final dynamic decoded = jsonDecode(utf8.decode(response.bodyBytes));
+        final String? imageUrl = decoded is String
+            ? decoded
+            : decoded['profileImageUrl']?.toString();
+        if (imageUrl == null || imageUrl.isEmpty) {
+          print("❌ 프로필 이미지 URL 파싱 실패");
+          return false;
+        }
         userProfile['profileImageUrl'] = imageUrl;
         userProfile.refresh();
         print("✅ 프로필 이미지 업로드 성공: $imageUrl");
