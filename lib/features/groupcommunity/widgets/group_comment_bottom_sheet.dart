@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
 import 'package:hechi/core/utils/time_ago.dart';
+import 'package:hechi/app/controllers/app_controller.dart';
 
 class GroupCommentBottomSheet extends StatefulWidget {
   final Map<String, dynamic> post;
@@ -21,21 +22,29 @@ class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
   bool _isInitLoading = true;
 
   /// 프로필 이미지 있으면 표시, 없으면 회색 person 아이콘
-  Widget _buildAvatar(String? imageUrl, double radius) {
-    if (imageUrl != null && imageUrl.isNotEmpty) {
+  Widget _buildAvatar(String? imageUrl, double radius, {String? authorName}) {
+    final appController = Get.find<AppController>();
+    return Obx(() {
+      final myNickname = appController.userProfile['nickname']?.toString() ?? '';
+      final isMe = authorName != null && myNickname.isNotEmpty && authorName == myNickname;
+      final effectiveUrl = isMe
+          ? (appController.userProfile['profileImageUrl']?.toString() ?? '')
+          : (imageUrl ?? '');
+      if (effectiveUrl.isNotEmpty) {
+        return CircleAvatar(
+          radius: radius,
+          backgroundColor: Colors.grey.shade300,
+          backgroundImage: NetworkImage(effectiveUrl),
+          onBackgroundImageError: (_, __) {},
+          child: null,
+        );
+      }
       return CircleAvatar(
         radius: radius,
         backgroundColor: Colors.grey.shade300,
-        backgroundImage: NetworkImage(imageUrl),
-        onBackgroundImageError: (_, __) {},
-        child: null,
+        child: Icon(Icons.person, color: Colors.white, size: radius * 1.1),
       );
-    }
-    return CircleAvatar(
-      radius: radius,
-      backgroundColor: Colors.grey.shade300,
-      child: Icon(Icons.person, color: Colors.white, size: radius * 1.1),
-    );
+    });
   }
 
   @override
@@ -155,7 +164,7 @@ class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildAvatar(comment["profileImageUrl"]?.toString(), 18),
+                            _buildAvatar(comment["profileImageUrl"]?.toString(), 18, authorName: comment["author"]?.toString()),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
@@ -247,7 +256,7 @@ class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
                                   crossAxisAlignment:
                                   CrossAxisAlignment.start,
                                   children: [
-                                    _buildAvatar(reply["profileImageUrl"]?.toString(), 14),
+                                    _buildAvatar(reply["profileImageUrl"]?.toString(), 14, authorName: reply["author"]?.toString()),
                                     const SizedBox(width: 10),
                                     Expanded(
                                       child: Column(

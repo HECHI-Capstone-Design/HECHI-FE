@@ -5,6 +5,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../controllers/review_list_controller.dart';
 import '../../book_detail_page/controllers/book_detail_controller.dart';
 import '../../review_detail/widgets/option_bottom_sheet.dart';
+import '../../../app/controllers/app_controller.dart';
 
 enum ReviewCardType { simple, detail, }
 
@@ -260,20 +261,26 @@ class ReviewCard extends StatelessWidget {
   // 헤더들
   // ==========================
   Widget _buildAvatar(double radius) {
-    final url = review['profileImageUrl']?.toString() ?? '';
-    if (url.isNotEmpty) {
+    final appController = Get.find<AppController>();
+    final isMe = review['is_my_review'] == true;
+    return Obx(() {
+      final url = isMe
+          ? (appController.userProfile['profileImageUrl']?.toString() ?? '')
+          : (review['profileImageUrl']?.toString() ?? '');
+      if (url.isNotEmpty) {
+        return CircleAvatar(
+          radius: radius,
+          backgroundColor: Colors.grey.shade300,
+          backgroundImage: NetworkImage(url),
+          onBackgroundImageError: (_, __) {},
+        );
+      }
       return CircleAvatar(
         radius: radius,
         backgroundColor: Colors.grey.shade300,
-        backgroundImage: NetworkImage(url),
-        onBackgroundImageError: (_, __) {},
+        child: Icon(Icons.person, color: Colors.white, size: radius * 1.2),
       );
-    }
-    return CircleAvatar(
-      radius: radius,
-      backgroundColor: Colors.grey.shade300,
-      child: Icon(Icons.person, color: Colors.white, size: radius * 1.2),
-    );
+    });
   }
 
   Widget _buildSimpleHeader(double rating){

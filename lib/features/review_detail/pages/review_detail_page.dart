@@ -5,6 +5,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../controllers/review_detail_controller.dart';
 import '../widgets/option_bottom_sheet.dart';
 import '../widgets/comment_delete_dialog.dart';
+import '../../../app/controllers/app_controller.dart';
 
 class ReviewDetailPage extends GetView<ReviewDetailController> {
   const ReviewDetailPage({super.key});
@@ -94,20 +95,26 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
     );
   }
 
-  Widget _buildAvatar(String? url, double radius) {
-    if (url != null && url.isNotEmpty) {
+  Widget _buildAvatar(String? url, double radius, {bool isMe = false}) {
+    final appController = Get.find<AppController>();
+    return Obx(() {
+      final effectiveUrl = isMe
+          ? (appController.userProfile['profileImageUrl']?.toString() ?? '')
+          : (url ?? '');
+      if (effectiveUrl.isNotEmpty) {
+        return CircleAvatar(
+          radius: radius,
+          backgroundColor: Colors.grey.shade300,
+          backgroundImage: NetworkImage(effectiveUrl),
+          onBackgroundImageError: (_, __) {},
+        );
+      }
       return CircleAvatar(
         radius: radius,
         backgroundColor: Colors.grey.shade300,
-        backgroundImage: NetworkImage(url),
-        onBackgroundImageError: (_, __) {},
+        child: Icon(Icons.person, color: Colors.white, size: radius * 1.2),
       );
-    }
-    return CircleAvatar(
-      radius: radius,
-      backgroundColor: Colors.grey.shade300,
-      child: Icon(Icons.person, color: Colors.white, size: radius * 1.2),
-    );
+    });
   }
 
   void _goBack() {
@@ -157,7 +164,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                   children: [
                     Row(
                       children: [
-                        _buildAvatar(review['profileImageUrl']?.toString(), 12),
+                        _buildAvatar(review['profileImageUrl']?.toString(), 12, isMe: review['is_my_review'] == true),
                         const SizedBox(width: 8),
                         Text(
                           "$nickname $date",
@@ -341,7 +348,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildAvatar(comment['profileImageUrl']?.toString(), 18),
+              _buildAvatar(comment['profileImageUrl']?.toString(), 18, isMe: comment['is_my_comment'] == true),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
