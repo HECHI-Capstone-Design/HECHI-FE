@@ -139,7 +139,7 @@ class BookDetailController extends GetxController {
         }).toList();
 
         final mine =
-          reviews.firstWhereOrNull((r) => r['is_my_review'] == true);
+        reviews.firstWhereOrNull((r) => r['is_my_review'] == true);
 
         if (mine != null) {
           myReviewId = mine["id"];
@@ -413,10 +413,8 @@ class BookDetailController extends GetxController {
       Get.bottomSheet(
         CommentOverlay(onSubmit: submitReview),
         isScrollControlled: true,
-        backgroundColor: Colors.white,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
-        ),
+        ignoreSafeArea: true,
+        backgroundColor: Colors.transparent,
       );
     }
   }
