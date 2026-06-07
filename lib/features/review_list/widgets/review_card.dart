@@ -5,6 +5,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../controllers/review_list_controller.dart';
 import '../../book_detail_page/controllers/book_detail_controller.dart';
 import '../../review_detail/widgets/option_bottom_sheet.dart';
+import '../../../core/widgets/user_avatar.dart';
 
 enum ReviewCardType { simple, detail, }
 
@@ -259,6 +260,9 @@ class ReviewCard extends StatelessWidget {
   // ==========================
   // 헤더들
   // ==========================
+  Widget _buildAvatar(double radius) =>
+      buildUserAvatar(review['profileImageUrl']?.toString(), radius);
+
   Widget _buildSimpleHeader(double rating){
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -284,11 +288,7 @@ class ReviewCard extends StatelessWidget {
                 )
             ),
             const SizedBox(width: 8),
-            CircleAvatar(
-              radius: 14,
-              backgroundColor: AppColors.primary.withOpacity(0.5),
-              child: const Icon(Icons.person, color: Colors.white, size: 18),
-            ),
+            _buildAvatar(14),
           ],
         ),
       ],
@@ -301,12 +301,7 @@ class ReviewCard extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 프로필 이미지
-        CircleAvatar(
-          radius: 18,
-          backgroundColor: AppColors.primary.withOpacity(0.5),
-          child: const Icon(Icons.person, color: Colors.white, size: 24),
-        ),
+        _buildAvatar(18),
         const SizedBox(width: 10),
 
         // 정보 영역

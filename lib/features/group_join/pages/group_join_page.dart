@@ -42,7 +42,7 @@ class GroupJoinPage extends GetView<GroupJoinController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 180), 
+                    SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight),
 
                     // 2. 그룹 정보 섹션 (타이틀, 멤버수, 그룹장 등)
                     GroupInfoSection(

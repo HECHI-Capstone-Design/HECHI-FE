@@ -5,6 +5,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../controllers/review_detail_controller.dart';
 import '../widgets/option_bottom_sheet.dart';
 import '../widgets/comment_delete_dialog.dart';
+import '../../../core/widgets/user_avatar.dart';
 
 class ReviewDetailPage extends GetView<ReviewDetailController> {
   const ReviewDetailPage({super.key});
@@ -94,6 +95,9 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
     );
   }
 
+  Widget _buildAvatar(String? url, double radius) =>
+      buildUserAvatar(url, radius);
+
   void _goBack() {
     Get.back(result: {
       "review_id": controller.reviewId,
@@ -141,13 +145,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                   children: [
                     Row(
                       children: [
-                        CircleAvatar(
-                          radius: 12,
-                          backgroundColor:
-                          AppColors.primary.withOpacity(0.5),
-                          child: const Icon(Icons.person,
-                              color: Colors.white, size: 20),
-                        ),
+                        _buildAvatar(review['profileImageUrl']?.toString(), 12),
                         const SizedBox(width: 8),
                         Text(
                           "$nickname $date",
@@ -331,13 +329,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundColor:
-                AppColors.primary.withOpacity(0.5),
-                child: const Icon(Icons.person,
-                    color: Colors.white, size: 20),
-              ),
+              _buildAvatar(comment['profileImageUrl']?.toString(), 18),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(

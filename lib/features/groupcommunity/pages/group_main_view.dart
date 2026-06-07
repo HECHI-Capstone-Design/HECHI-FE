@@ -6,6 +6,7 @@ import 'dart:ui';
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
 import 'package:hechi/features/groupcommunity/widgets/member_profile_dialog.dart';
 import 'package:hechi/features/groupcommunity/pages/group_post_list_view.dart';
+import 'package:hechi/core/widgets/user_avatar.dart';
 
 class GroupMainView extends GetView<GroupController> {
   const GroupMainView({Key? key}) : super(key: key);
@@ -286,11 +287,7 @@ class GroupMainView extends GetView<GroupController> {
                             onTap: () => Get.dialog(MemberProfileDialog(member: member)),
                             child: Column(
                               children: [
-                                const CircleAvatar(
-                                  radius: 18,
-                                  backgroundColor: unifiedGreen,
-                                  child: Icon(Icons.person, color: Colors.white, size: 20),
-                                ),
+                                buildUserAvatar(member["profileImageUrl"]?.toString(), 18),
                                 const SizedBox(height: 4),
                                 Text(
                                   member["nickname"] ?? "그룹원",

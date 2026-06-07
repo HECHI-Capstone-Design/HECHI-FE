@@ -10,6 +10,7 @@ import 'package:hechi/core/utils/time_ago.dart';
 import 'package:hechi/features/book_note/widgets/bookmark_item.dart';
 import 'package:hechi/features/book_note/widgets/highlight_item.dart';
 import 'package:hechi/features/book_note/widgets/memo_item.dart';
+import 'package:hechi/core/widgets/user_avatar.dart';
 
 class GroupPostCard extends StatefulWidget {
   final Map<String, dynamic> post;
@@ -80,11 +81,7 @@ class _GroupPostCardState extends State<GroupPostCard> {
         children: [
           Row(
             children: [
-              const CircleAvatar(
-                radius: 18,
-                backgroundColor: AppColors.primaryLight,
-                child: Icon(Icons.person, color: Colors.white, size: 20),
-              ),
+              buildUserAvatar(widget.post["authorProfileImageUrl"]?.toString(), 18),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(

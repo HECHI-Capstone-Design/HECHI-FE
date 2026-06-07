@@ -9,21 +9,23 @@ class BottomBar extends GetView<AppController> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Container(
-        width: double.infinity,
-        height: 65,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
+    return Container(
+      color: Colors.white,
+      child: SafeArea(
+        top: false,
+        child: Container(
+          width: double.infinity,
+          height: 65,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -33,6 +35,7 @@ class BottomBar extends GetView<AppController> {
             _buildNavItem(3, '그룹', 'assets/icons/icon_group.png', 56.0),
             _buildNavItem(4, '나의 독서', 'assets/icons/icon_user.png', 62.0),
           ],
+        ),
         ),
       ),
     );

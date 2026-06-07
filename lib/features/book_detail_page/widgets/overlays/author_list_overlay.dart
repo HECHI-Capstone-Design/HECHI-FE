@@ -9,8 +9,9 @@ class AuthorListOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context){
+    final bottomInset = MediaQuery.of(context).padding.bottom;
     return Container(
-        height: Get.height * 0.8,
+        height: Get.height * 0.8 - bottomInset,
         padding: const EdgeInsets.only(bottom: 30),
         decoration: const BoxDecoration(
           color: Colors.white,

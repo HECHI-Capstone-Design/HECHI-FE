@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:hechi/app/controllers/app_controller.dart';
 
 class CollectionDetailController extends GetxController {
   final String baseUrl = "https://api.43-202-101-63.sslip.io";
@@ -12,6 +13,7 @@ class CollectionDetailController extends GetxController {
   final RxString collectionTitle = ''.obs;
   final RxString collectionDesc = ''.obs;
   final RxString creatorName = ''.obs;
+  final RxString creatorProfileImageUrl = ''.obs;
   final RxList<String> tags = <String>[].obs;
   final RxList<String> thumbnailCovers = <String>[].obs;
 
@@ -50,9 +52,21 @@ class CollectionDetailController extends GetxController {
         collectionTitle.value = data['title'] ?? '';
         collectionDesc.value = data['description'] ?? '';
         creatorName.value = data['userName'] ?? '';
+        isMine.value = data['isMine'] ?? false;
+        // API 응답에 작성자 프로필 이미지가 포함된 경우 사용,
+        // 내 컬렉션이면 이미 인증된 AppController의 값으로 보완
+        final apiImageUrl = data['profileImageUrl']?.toString()
+            ?? data['userProfileImage']?.toString()
+            ?? data['authorProfileImageUrl']?.toString()
+            ?? '';
+        if (apiImageUrl.isNotEmpty) {
+          creatorProfileImageUrl.value = apiImageUrl;
+        } else if (isMine.value) {
+          creatorProfileImageUrl.value =
+              Get.find<AppController>().userProfile['profileImageUrl']?.toString() ?? '';
+        }
         likeCount.value = data['likeCount'] ?? 0;
         isLiked.value = data['isLiked'] ?? false;
-        isMine.value = data['isMine'] ?? false;
         isPrivate.value = data['isPrivate'] ?? false;
         tags.assignAll(List<String>.from(data['tags'] ?? []));
         thumbnailCovers.assignAll(List<String>.from(data['thumbnailCovers'] ?? []));

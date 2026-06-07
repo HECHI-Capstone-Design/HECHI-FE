@@ -100,6 +100,14 @@ class GeneralNotificationTile extends StatelessWidget {
 
     if (info['bookId'] != null) return _BookThumbnail(imageUrl: resolvedUrl);
 
+    // READING_REMINDER: 독서 중인 책 커버 스택 (백엔드가 bookCovers 배열 제공 시 스택, 미제공 시 회색 아이콘)
+    if (reminderType == 'READING_REMINDER') {
+      final dynamic coversRaw = info['bookCovers'];
+      final List<String> covers = coversRaw is List
+          ? coversRaw.whereType<String>().where((s) => s.isNotEmpty).toList()
+          : [];
+      return _ReadingReminderThumbnail(bookCovers: covers);
+    }
 
     final senderImage = item.senderProfileImageUrl?.isNotEmpty == true
         ? item.senderProfileImageUrl
@@ -108,7 +116,6 @@ class GeneralNotificationTile extends StatelessWidget {
     return _CircleThumbnail(
       imageUrl: senderImage ?? resolvedUrl,
       type: item.type,
-      reminderType: reminderType,
     );
   }
 }
@@ -137,11 +144,10 @@ class _RewardThumbnail extends StatelessWidget {
 class _CircleThumbnail extends StatelessWidget {
   final String? imageUrl;
   final String type;
-  final String? reminderType;
-  const _CircleThumbnail({this.imageUrl, required this.type, this.reminderType});
+  const _CircleThumbnail({this.imageUrl, required this.type});
   @override
   Widget build(BuildContext context) {
-    // 시스템 알림 타입은 전용 아이콘 사용
+    // 시스템 공지 알림은 전용 아이콘 사용
     if (type.contains('NOTICE')) {
       return Container(
         width: 60, height: 60,
@@ -149,22 +155,77 @@ class _CircleThumbnail extends StatelessWidget {
         child: const Icon(Icons.campaign, color: AppColors.primary, size: 26),
       );
     }
-    if (reminderType == 'READING_REMINDER') {
-      return Container(
-        width: 60, height: 60,
-        decoration: BoxDecoration(color: kNotifGreenLight, shape: BoxShape.circle, border: Border.all(color: kNotifGreen.withOpacity(0.3))),
-        child: const Icon(Icons.menu_book, color: AppColors.primary, size: 26),
-      );
-    }
 
     // 사용자 프로필 이미지 있으면 표시, 없으면 회색 게스트 아이콘
     return Container(
       width: 60, height: 60,
-      decoration: const BoxDecoration(color: AppColors.border, shape: BoxShape.circle),
+      decoration: BoxDecoration(color: Colors.grey.shade300, shape: BoxShape.circle),
       child: imageUrl != null && imageUrl!.isNotEmpty
           ? ClipOval(child: Image.network(imageUrl!, fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const Icon(Icons.person, color: Colors.white, size: 30)))
-          : const Icon(Icons.person, color: Colors.white, size: 30),
+              errorBuilder: (_, __, ___) => Icon(Icons.person, color: Colors.grey.shade500, size: 30)))
+          : Icon(Icons.person, color: Colors.grey.shade500, size: 30),
+    );
+  }
+}
+
+/// READING_REMINDER 전용 썸네일:
+/// 백엔드가 targetInfo.bookCovers 배열을 제공하면 실제 책 커버를 팬 형태로 스택 렌더링.
+/// 미제공(빈 배열)이면 회색 아이콘으로 graceful fallback.
+///
+/// 백엔드 요구사항:
+///   READING_REMINDER 알림의 targetInfo에 아래 필드 추가 필요:
+///   "bookCovers": ["https://cover1.jpg", "https://cover2.jpg", "https://cover3.jpg"]
+///   (현재 독서 중인 책 커버 URL 목록, 최대 3개)
+class _ReadingReminderThumbnail extends StatelessWidget {
+  final List<String> bookCovers;
+  const _ReadingReminderThumbnail({required this.bookCovers});
+
+  @override
+  Widget build(BuildContext context) {
+    if (bookCovers.isEmpty) {
+      // 백엔드 bookCovers 미제공 시 회색 아이콘 fallback (초록 절대 사용 안 함)
+      return Container(
+        width: 60, height: 60,
+        decoration: BoxDecoration(color: Colors.grey.shade200, shape: BoxShape.circle),
+        child: Icon(Icons.menu_book, color: Colors.grey.shade500, size: 26),
+      );
+    }
+
+    final covers = bookCovers.take(3).toList();
+    final int count = covers.length;
+
+    return SizedBox(
+      width: 60,
+      height: 60,
+      child: Stack(
+        alignment: Alignment.center,
+        children: List.generate(count, (i) {
+          // 여러 권일수록 팬 형태로 배치 (좌→우, 약간 회전)
+          final double angle = count > 1 ? (i - (count - 1) / 2.0) * 0.18 : 0.0;
+          final double xOffset = count > 1 ? (i - (count - 1) / 2.0) * 9.0 : 0.0;
+          return Transform.translate(
+            offset: Offset(xOffset, 0),
+            child: Transform.rotate(
+              angle: angle,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: Image.network(
+                  covers[i],
+                  width: 34,
+                  height: 48,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    width: 34,
+                    height: 48,
+                    color: Colors.grey.shade300,
+                    child: Icon(Icons.book, color: Colors.grey.shade500, size: 16),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
     );
   }
 }

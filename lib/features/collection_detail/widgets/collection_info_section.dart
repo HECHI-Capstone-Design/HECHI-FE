@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/collection_detail_controller.dart';
 import '../../../features/collection/models/collection_list_model.dart';
+import 'package:hechi/core/widgets/user_avatar.dart';
 
 class CollectionInfoSection extends StatelessWidget {
   final CollectionDetailController controller;
@@ -22,18 +23,7 @@ class CollectionInfoSection extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.primary, width: 2),
-                    ),
-                    child: CircleAvatar(
-                      radius: 18,
-                      backgroundColor: AppColors.primaryLight,
-                      child: const Icon(Icons.person, color: Colors.white, size: 25),
-                    ),
-                  ),
+                  buildUserAvatar(controller.creatorProfileImageUrl.value, 20),
                   const SizedBox(width: 10),
                   Text(
                     controller.creatorName.value,
