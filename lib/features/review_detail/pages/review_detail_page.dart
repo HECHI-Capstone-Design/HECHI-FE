@@ -94,6 +94,22 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
     );
   }
 
+  Widget _buildAvatar(String? url, double radius) {
+    if (url != null && url.isNotEmpty) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.grey.shade300,
+        backgroundImage: NetworkImage(url),
+        onBackgroundImageError: (_, __) {},
+      );
+    }
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: Colors.grey.shade300,
+      child: Icon(Icons.person, color: Colors.white, size: radius * 1.2),
+    );
+  }
+
   void _goBack() {
     Get.back(result: {
       "review_id": controller.reviewId,
@@ -141,13 +157,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                   children: [
                     Row(
                       children: [
-                        CircleAvatar(
-                          radius: 12,
-                          backgroundColor:
-                          AppColors.primary.withOpacity(0.5),
-                          child: const Icon(Icons.person,
-                              color: Colors.white, size: 20),
-                        ),
+                        _buildAvatar(review['profileImageUrl']?.toString(), 12),
                         const SizedBox(width: 8),
                         Text(
                           "$nickname $date",
@@ -331,13 +341,7 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundColor:
-                AppColors.primary.withOpacity(0.5),
-                child: const Icon(Icons.person,
-                    color: Colors.white, size: 20),
-              ),
+              _buildAvatar(comment['profileImageUrl']?.toString(), 18),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(

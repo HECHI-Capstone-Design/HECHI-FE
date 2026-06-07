@@ -259,6 +259,23 @@ class ReviewCard extends StatelessWidget {
   // ==========================
   // 헤더들
   // ==========================
+  Widget _buildAvatar(double radius) {
+    final url = review['profileImageUrl']?.toString() ?? '';
+    if (url.isNotEmpty) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.grey.shade300,
+        backgroundImage: NetworkImage(url),
+        onBackgroundImageError: (_, __) {},
+      );
+    }
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: Colors.grey.shade300,
+      child: Icon(Icons.person, color: Colors.white, size: radius * 1.2),
+    );
+  }
+
   Widget _buildSimpleHeader(double rating){
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -284,11 +301,7 @@ class ReviewCard extends StatelessWidget {
                 )
             ),
             const SizedBox(width: 8),
-            CircleAvatar(
-              radius: 14,
-              backgroundColor: AppColors.primary.withOpacity(0.5),
-              child: const Icon(Icons.person, color: Colors.white, size: 18),
-            ),
+            _buildAvatar(14),
           ],
         ),
       ],
@@ -301,12 +314,7 @@ class ReviewCard extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 프로필 이미지
-        CircleAvatar(
-          radius: 18,
-          backgroundColor: AppColors.primary.withOpacity(0.5),
-          child: const Icon(Icons.person, color: Colors.white, size: 24),
-        ),
+        _buildAvatar(18),
         const SizedBox(width: 10),
 
         // 정보 영역
