@@ -23,7 +23,7 @@ class TasteHeader extends GetView<TasteAnalysisController> {
               "$nickname's Book",
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 20, // 22 -> 20 (조금 더 정돈된 느낌)
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -43,7 +43,7 @@ class TasteHeader extends GetView<TasteAnalysisController> {
                   final appController = Get.find<AppController>();
                   return buildUserAvatar(
                     appController.userProfile['profileImageUrl']?.toString(),
-                    12,
+                    20,
                   );
                 }),
                 const SizedBox(width: 8),
@@ -51,7 +51,7 @@ class TasteHeader extends GetView<TasteAnalysisController> {
                   nickname,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 15,
+                    fontSize: 18,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
