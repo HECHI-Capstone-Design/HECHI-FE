@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:hechi/features/groupcommunity/controllers/group_controller.dart';
 import 'package:hechi/core/utils/time_ago.dart';
 import 'package:hechi/app/controllers/app_controller.dart';
+import 'package:hechi/core/widgets/user_avatar.dart';
 
 class GroupCommentBottomSheet extends StatefulWidget {
   final Map<String, dynamic> post;
@@ -21,30 +22,13 @@ class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
   Map<String, dynamic>? replyingTargetComment;
   bool _isInitLoading = true;
 
-  /// 프로필 이미지 있으면 표시, 없으면 회색 person 아이콘
-  Widget _buildAvatar(String? imageUrl, double radius, {String? authorName}) {
+  /// 입력창 아래 내 아바타: 현재 로그인 유저의 프로필 이미지를 실시간 반영
+  Widget _buildMyAvatar(double radius) {
     final appController = Get.find<AppController>();
-    return Obx(() {
-      final myNickname = appController.userProfile['nickname']?.toString() ?? '';
-      final isMe = authorName != null && myNickname.isNotEmpty && authorName == myNickname;
-      final effectiveUrl = isMe
-          ? (appController.userProfile['profileImageUrl']?.toString() ?? '')
-          : (imageUrl ?? '');
-      if (effectiveUrl.isNotEmpty) {
-        return CircleAvatar(
-          radius: radius,
-          backgroundColor: Colors.grey.shade300,
-          backgroundImage: NetworkImage(effectiveUrl),
-          onBackgroundImageError: (_, __) {},
-          child: null,
-        );
-      }
-      return CircleAvatar(
-        radius: radius,
-        backgroundColor: Colors.grey.shade300,
-        child: Icon(Icons.person, color: Colors.white, size: radius * 1.1),
-      );
-    });
+    return Obx(() => buildUserAvatar(
+      appController.userProfile['profileImageUrl']?.toString(),
+      radius,
+    ));
   }
 
   @override
@@ -164,7 +148,7 @@ class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildAvatar(comment["profileImageUrl"]?.toString(), 18, authorName: comment["author"]?.toString()),
+                            buildUserAvatar(comment["profileImageUrl"]?.toString(), 18),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
@@ -256,7 +240,7 @@ class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
                                   crossAxisAlignment:
                                   CrossAxisAlignment.start,
                                   children: [
-                                    _buildAvatar(reply["profileImageUrl"]?.toString(), 14, authorName: reply["author"]?.toString()),
+                                    buildUserAvatar(reply["profileImageUrl"]?.toString(), 14),
                                     const SizedBox(width: 10),
                                     Expanded(
                                       child: Column(
@@ -371,7 +355,7 @@ class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
                   ),
                 Row(
                   children: [
-                    _buildAvatar(null, 18), // 본인 아바타 (추후 내 프로필로 교체 가능)
+                    _buildMyAvatar(18),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Container(

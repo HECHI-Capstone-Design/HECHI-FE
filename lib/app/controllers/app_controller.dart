@@ -7,6 +7,9 @@ import 'dart:convert';
 import 'dart:io';
 import '../routes.dart';
 import '../../features/notification/controllers/notification_controller.dart';
+import '../../features/review_detail/controllers/review_detail_controller.dart';
+import '../../features/review_list/controllers/review_list_controller.dart';
+import '../../features/groupcommunity/controllers/group_controller.dart';
 
 class AppController extends GetxController {
   final box = GetStorage();
@@ -188,6 +191,10 @@ class AppController extends GetxController {
         userProfile['profileImageUrl'] = imageUrl;
         userProfile.refresh();
         print("✅ 프로필 이미지 업로드 성공: $imageUrl");
+
+        // 현재 열려있는 컨트롤러의 데이터를 서버에서 재조회하여 최신 profileImageUrl 반영
+        _refreshActiveControllers();
+
         return true;
       } else {
         print("❌ 프로필 이미지 업로드 실패: ${response.statusCode}");
@@ -199,6 +206,21 @@ class AppController extends GetxController {
       print("🚨 이미지 업로드 오류: $e");
       Get.snackbar("오류", "서버와 연결할 수 없습니다.");
       return false;
+    }
+  }
+
+  /// 프로필 이미지 변경 후 현재 등록된 컨트롤러들을 서버에서 재조회
+  void _refreshActiveControllers() {
+    if (Get.isRegistered<ReviewDetailController>()) {
+      final c = Get.find<ReviewDetailController>();
+      c.fetchReviewDetail();
+      c.fetchComments();
+    }
+    if (Get.isRegistered<ReviewListController>()) {
+      Get.find<ReviewListController>().fetchReviews();
+    }
+    if (Get.isRegistered<GroupController>()) {
+      Get.find<GroupController>().fetchAllDataFromAPI();
     }
   }
 

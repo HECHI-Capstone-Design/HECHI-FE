@@ -149,7 +149,8 @@ class GroupController extends GetxController {
         memberList.value = dynamicMembers.map((m) => {
           "id": m["memberId"]?.toString() ?? "0",
           "nickname": m["nickname"] ?? "그룹원",
-          "progress": double.tryParse(m["missionProgressPercent"]?.toString() ?? "0.0") ?? 0.0
+          "progress": double.tryParse(m["missionProgressPercent"]?.toString() ?? "0.0") ?? 0.0,
+          "profileImageUrl": m["profileImageUrl"]?.toString() ?? m["userProfileImage"]?.toString() ?? "",
         }).toList();
       }
 
@@ -799,6 +800,9 @@ class GroupController extends GetxController {
     return {
       "id": item["postId"]?.toString() ?? item["id"]?.toString() ?? "0",
       "author": item["authorName"] ?? item["author"] ?? "알 수 없음",
+      "authorProfileImageUrl": item["profileImageUrl"]?.toString() ??
+          item["authorProfileImageUrl"]?.toString() ??
+          item["userProfileImage"]?.toString() ?? "",
       "date": item["createdAt"] ?? item["date"] ?? "방금 전",
       "content": item["content"] ?? "",
       "isMission": isMissionPost,
