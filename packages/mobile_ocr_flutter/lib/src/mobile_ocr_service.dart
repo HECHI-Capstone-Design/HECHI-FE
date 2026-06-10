@@ -10,8 +10,7 @@ class MobileOcr {
 
   static final ImagePicker _picker = ImagePicker();
 
-  static Future<MobileOcrResult?> captureAndRecognize({
-    MobileOcrScript script = MobileOcrScript.auto,
+  static Future<String?> captureImage({
     int imageQuality = 100,
     double? maxWidth,
     double? maxHeight,
@@ -22,11 +21,26 @@ class MobileOcr {
       maxWidth: maxWidth,
       maxHeight: maxHeight,
     );
-    if (image == null) {
+
+    return image?.path;
+  }
+
+  static Future<MobileOcrResult?> captureAndRecognize({
+    MobileOcrScript script = MobileOcrScript.auto,
+    int imageQuality = 100,
+    double? maxWidth,
+    double? maxHeight,
+  }) async {
+    final imagePath = await captureImage(
+      imageQuality: imageQuality,
+      maxWidth: maxWidth,
+      maxHeight: maxHeight,
+    );
+    if (imagePath == null) {
       return null;
     }
 
-    return recognizeFilePath(image.path, script: script);
+    return recognizeFilePath(imagePath, script: script);
   }
 
   static Future<MobileOcrResult?> pickAndRecognize({
