@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:hechi/features/myGroup/controllers/my_group_controller.dart';
 
 class GroupCreateController extends GetxController {
@@ -80,9 +81,17 @@ class GroupCreateController extends GetxController {
           // Step 2: S3 multipart POST (웹 호환: fromBytes)
           final request = http.MultipartRequest('POST', Uri.parse(uploadUrl));
           fields.forEach((k, v) => request.fields[k] = v);
-          request.files.add(http.MultipartFile.fromBytes('file', bytes, filename: filename));
+          // presign이 image/jpeg로 발급되므로 파트 Content-Type도 동일하게 명시 (S3 거부 방지)
+          request.files.add(http.MultipartFile.fromBytes(
+            'file', bytes,
+            filename: filename,
+            contentType: MediaType('image', 'jpeg'),
+          ));
           final s3Res = await request.send();
           print('📸 S3 업로드 결과: ${s3Res.statusCode}');
+          if (s3Res.statusCode != 200 && s3Res.statusCode != 204) {
+            print('📸 S3 실패 응답: ${await s3Res.stream.bytesToString()}');
+          }
 
           if (s3Res.statusCode == 200 || s3Res.statusCode == 204) {
             if (presignPublicUrl != null && presignPublicUrl.isNotEmpty) {
