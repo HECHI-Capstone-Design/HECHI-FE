@@ -18,20 +18,13 @@ class ReadingRegistrationView extends GetView<ReadingRegistrationController> {
         elevation: 0,
         scrolledUnderElevation: 0,
         actions: [
-          Obx(() {
-            final canCapture = controller.currentSession.value != null;
-            return IconButton(
-              icon: Icon(
-                Icons.add,
-                color: canCapture ? Colors.black : Colors.black26,
-                size: 28,
-              ),
-              onPressed: () {
+          IconButton(
+            icon: const Icon(Icons.add, color: Colors.black, size: 28),
+            onPressed: () {
               print("➕ [독서 등록] 우측 상단 책 추가 버튼 클릭됨");
-              controller.showHighlightCaptureActionForCurrentBook();
-              },
-            );
-          }),
+              controller.openHighlightCreationForCurrentBook();
+            },
+          ),
           const SizedBox(width: 12), // 끝부분 우측 여백 튜닝
         ],
       ),

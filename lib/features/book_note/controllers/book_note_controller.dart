@@ -12,9 +12,7 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
   late int tabIndex;
   late bool openHighlightCreation;
   late bool autoStartHighlightOcr;
-  late String? autoStartHighlightCaptureMode;
   late bool closePageAfterHighlightCreate;
-  late bool openHighlightCaptureReview;
   int? initialHighlightPage;
 
   String? preselectedGroupId;
@@ -55,10 +53,7 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
     tabIndex = args['tabIndex'] ?? 0;
     openHighlightCreation = args['openHighlightCreation'] == true;
     autoStartHighlightOcr = args['autoStartHighlightOcr'] == true;
-    autoStartHighlightCaptureMode =
-        args['autoStartHighlightCaptureMode']?.toString();
     closePageAfterHighlightCreate = args['closePageAfterHighlightCreate'] == true;
-    openHighlightCaptureReview = args['openHighlightCaptureReview'] == true;
     initialHighlightPage = args['initialHighlightPage'] as int?;
 
     preselectedGroupId = args['preselectedGroupId'];
@@ -77,15 +72,8 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
     return {
       'page': initialHighlightPage,
       'autoStartOcr': autoStartHighlightOcr,
-      'autoStartCaptureMode': autoStartHighlightCaptureMode,
       'closeParentPageOnSave': closePageAfterHighlightCreate,
     };
-  }
-
-  bool consumeHighlightCaptureReviewRequest() {
-    if (!openHighlightCaptureReview) return false;
-    openHighlightCaptureReview = false;
-    return true;
   }
 
   @override
