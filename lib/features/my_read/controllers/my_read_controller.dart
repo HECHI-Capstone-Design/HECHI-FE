@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -10,7 +11,7 @@ class MyReadController extends GetxController {
   final box = GetStorage();
 
   // 🌟 [핵심 수정] 컴퓨터가 $baseUrl이 뭔지 알 수 있도록 주소를 정의해 주는 이 한 줄이 빠져있었습니다!
-  static const String baseUrl = "https://api.43-202-101-63.sslip.io";
+  static final String baseUrl = AppConfig.baseUrl;
 
   // 이제 여기서부터는 에러가 나지 않습니다.
   final loginUrl = Uri.parse('$baseUrl/auth/login');

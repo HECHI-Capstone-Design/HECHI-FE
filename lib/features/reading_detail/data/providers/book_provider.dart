@@ -1,11 +1,12 @@
 import 'package:get/get.dart';
+import 'package:hechi/app/config/app_config.dart';
 import '../models/book_detail_model.dart';
 import 'package:get_storage/get_storage.dart';
 
 
 class BookProvider extends GetConnect {
   BookProvider() {
-    httpClient.baseUrl = 'https://api.43-202-101-63.sslip.io';
+    httpClient.baseUrl = AppConfig.baseUrl;
   }
   final box = GetStorage();
 

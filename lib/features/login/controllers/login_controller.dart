@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:flutter/foundation.dart'; // kIsWeb 사용을 위해 추가
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -24,7 +25,7 @@ class LoginController extends GetxController {
   RxString loginIdError = ''.obs;
   RxString passwordError = ''.obs;
 
-  final String baseUrl="https://api.43-202-101-63.sslip.io";
+  final String baseUrl=AppConfig.baseUrl;
   final box = GetStorage();
 
   @override

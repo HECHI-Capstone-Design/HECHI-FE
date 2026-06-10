@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -350,8 +350,11 @@ class GroupMenuView extends StatelessWidget {
       final groupId = controller.currentGroupId.value;
       final filename = 'group_${groupId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
+      // 웹/모바일 공통: 파일 경로(dart:io) 대신 바이트로 읽어 업로드
+      final bytes = await picked.readAsBytes();
+
       final presignRes = await http.post(
-        Uri.parse('https://api.43-202-101-63.sslip.io/uploads/presign'
+        Uri.parse('${AppConfig.baseUrl}/uploads/presign'
             '?filename=$filename&contentType=image%2Fjpeg&acl=public-read'),
         headers: {'accept': 'application/json', 'Authorization': 'Bearer $token'},
       );
@@ -369,7 +372,8 @@ class GroupMenuView extends StatelessWidget {
         if (uploadUrl.isNotEmpty && fields.isNotEmpty) {
           final request = http.MultipartRequest('POST', Uri.parse(uploadUrl));
           fields.forEach((k, v) => request.fields[k] = v);
-          request.files.add(await http.MultipartFile.fromPath('file', picked.path, filename: filename));
+          // 웹 호환: fromPath 대신 fromBytes 사용
+          request.files.add(http.MultipartFile.fromBytes('file', bytes, filename: filename));
           final s3Res = await request.send();
           if (s3Res.statusCode == 200 || s3Res.statusCode == 204) {
             publicUrl = body['publicUrl']?.toString() ?? '$uploadUrl${fields['key'] ?? filename}';
@@ -378,11 +382,44 @@ class GroupMenuView extends StatelessWidget {
         publicUrl ??= body['publicUrl']?.toString();
       }
 
-      final finalUrl = (publicUrl != null && publicUrl.isNotEmpty) ? publicUrl : picked.path;
-      controller.groupBackgroundImage.value = finalUrl;
-      GetStorage().write('group_img_$groupId', finalUrl);
+      // 업로드 실패 시(특히 웹의 임시 blob 경로) 저장하지 않고 종료
+      if (publicUrl == null || publicUrl.isEmpty) {
+        Get.snackbar("오류", "이미지 업로드에 실패했습니다.");
+        return;
+      }
 
-      // 내 그룹 목록 갱신 (GetStorage 폴백 반영)
+      // 서버에 그룹 배경 이미지 저장.
+      // ⚠️ 현재 백엔드 API에는 그룹 수정 엔드포인트가 없음(/groups/{id}는 GET·DELETE만 존재).
+      //    백엔드가 PATCH /groups/{id} (backgroundImage 필드)를 추가하면 아래 호출이 그대로 동작함.
+      int patchStatus = -1;
+      try {
+        final patchRes = await http.patch(
+          Uri.parse('${AppConfig.baseUrl}/groups/$groupId'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({'backgroundImage': publicUrl}),
+        );
+        patchStatus = patchRes.statusCode;
+        print('group patch: $patchStatus');
+      } catch (e) {
+        print('group patch 실패: $e');
+      }
+
+      // 눈속임 금지: 서버 저장이 실제로 성공한 경우에만 화면/캐시를 갱신한다.
+      // 실패하면 UI를 바꾸지 않고 정직하게 실패를 알린다.
+      if (patchStatus != 200) {
+        Get.snackbar(
+          "저장 실패",
+          "그룹 이미지 변경이 서버에 저장되지 않았습니다. (코드: $patchStatus)",
+        );
+        return;
+      }
+
+      controller.groupBackgroundImage.value = publicUrl;
+
+      // 내 그룹 목록 갱신
       if (Get.isRegistered<MyGroupController>()) {
         Get.find<MyGroupController>().fetchMyGroups();
       }

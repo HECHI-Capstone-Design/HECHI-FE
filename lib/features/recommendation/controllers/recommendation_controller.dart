@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:get_storage/get_storage.dart';
@@ -24,7 +25,7 @@ class RecommendationController extends GetxController {
   }
 
   Future<void> fetchUserInfo() async {
-    const String apiUrl = 'https://api.43-202-101-63.sslip.io/auth/me';
+    final String apiUrl = '${AppConfig.baseUrl}/auth/me';
 
     try {
       if (_token.isEmpty) return; // 토큰 없으면 패스
@@ -52,7 +53,7 @@ class RecommendationController extends GetxController {
 
   Future<void> fetchRecommendedBooks() async {
     isLoading.value = true;
-    const String apiUrl = 'https://api.43-202-101-63.sslip.io/recommend/for-you?limit=20&offset=0';
+    final String apiUrl = '${AppConfig.baseUrl}/recommend/for-you?limit=20&offset=0';
 
     try {
       if (_token.isEmpty) {

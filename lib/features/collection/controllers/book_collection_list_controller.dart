@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
@@ -6,7 +7,7 @@ import '../models/collection_list_model.dart';
 import '../../book_detail_page/controllers/book_detail_controller.dart';
 
 class BookCollectionListController extends GetxController {
-  final String baseUrl = "https://api.43-202-101-63.sslip.io";
+  final String baseUrl = AppConfig.baseUrl;
   final box = GetStorage();
 
   final RxList<CollectionListItem> collections = <CollectionListItem>[].obs;

@@ -1,4 +1,5 @@
 import 'package:hechi/app/colors.dart';
+import 'package:hechi/app/config/app_config.dart';
 // lib/features/group_join/controllers/group_join_controller.dart
 
 import 'package:flutter/material.dart';
@@ -9,7 +10,7 @@ import '../../myGroup/controllers/my_group_controller.dart';
 
 class GroupJoinController extends GetxController {
   final GetConnect _connect = GetConnect();
-  final String serverBaseUrl = 'https://api.43-202-101-63.sslip.io';
+  final String serverBaseUrl = AppConfig.baseUrl;
 
   // true: 공개 그룹, false: 비공개 그룹
   final isPublic = true.obs; 

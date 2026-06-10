@@ -1,4 +1,5 @@
 import 'package:hechi/app/colors.dart';
+import 'package:hechi/app/config/app_config.dart';
 // lib/features/search/controllers/search_controller.dart
 
 import 'dart:convert';
@@ -17,7 +18,7 @@ enum SearchState { initial, emptyHistory, hasHistory, result }
 class BookSearchController extends GetxController {
   // HTTP 통신을 위한 GetConnect 인스턴스 및 Base URL 정의
   final GetConnect _connect = GetConnect();
-  static const String baseUrl = 'https://api.43-202-101-63.sslip.io';
+  static final String baseUrl = AppConfig.baseUrl;
 
   // 로컬 스토리지에 저장된 access_token을 읽기 위한 스토리지 선언
   final box = GetStorage();

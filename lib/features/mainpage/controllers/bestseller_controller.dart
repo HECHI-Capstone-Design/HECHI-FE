@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:get_storage/get_storage.dart';
@@ -20,7 +21,7 @@ class BestsellerController extends GetxController {
 
   Future<void> _fetchBooks() async {
     isLoading.value = true;
-    const String apiUrl = 'https://api.43-202-101-63.sslip.io/recommend/bestseller?limit=30';
+    final String apiUrl = '${AppConfig.baseUrl}/recommend/bestseller?limit=30';
 
     try {
       final response = await http.get(Uri.parse(apiUrl), headers: _headers);

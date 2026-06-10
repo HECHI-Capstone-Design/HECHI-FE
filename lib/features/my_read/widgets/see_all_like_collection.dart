@@ -1,4 +1,5 @@
 import 'package:hechi/app/colors.dart';
+import 'package:hechi/app/config/app_config.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,7 +16,7 @@ class SeeAllLikeCollectionPage extends StatefulWidget {
 }
 
 class _SeeAllLikeCollectionPageState extends State<SeeAllLikeCollectionPage> {
-  final String baseUrl = "https://api.43-202-101-63.sslip.io";
+  final String baseUrl = AppConfig.baseUrl;
   final box = GetStorage();
 
   List<CollectionListItem> collections = [];

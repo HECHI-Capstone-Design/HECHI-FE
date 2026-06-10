@@ -1,4 +1,5 @@
 import 'package:hechi/app/colors.dart';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hechi/app/routes.dart';
@@ -18,7 +19,7 @@ class ForgetPasswordController extends GetxController {
   RxInt currentStep = 0.obs;
   RxBool isLoading = false.obs;
 
-  final String baseUrl = "https://api.43-202-101-63.sslip.io";
+  final String baseUrl = AppConfig.baseUrl;
 
   @override
   void onInit() {

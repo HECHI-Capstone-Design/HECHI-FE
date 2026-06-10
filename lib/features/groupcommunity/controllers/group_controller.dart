@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -8,7 +9,7 @@ import 'package:hechi/features/search/data/book_model.dart';
 import '../../myGroup/models/group_model.dart';
 
 class GroupController extends GetxController {
-  final String baseUrl = "https://api.43-202-101-63.sslip.io";
+  final String baseUrl = AppConfig.baseUrl;
 
   final currentGroupId = "".obs;
   final isLeader = false.obs;
@@ -93,12 +94,11 @@ class GroupController extends GetxController {
       if (groupRes.statusCode == 200) {
         final Map<String, dynamic> groupData = jsonDecode(utf8.decode(groupRes.bodyBytes));
         groupName.value = groupData["name"] ?? "hechi1";
-        // 서버 이미지 우선, 없으면 로컬 저장 이미지 사용
+        // 서버에 저장된 이미지만 사용 (로컬 전용 가짜 이미지 폴백 제거)
         final serverImg = groupData["backgroundImage"] ?? groupData["background_image"] ?? groupData["imageUrl"];
-        final localImg = GetStorage().read<String>('group_img_${currentGroupId.value}');
         groupBackgroundImage.value = (serverImg != null && serverImg.toString().isNotEmpty)
             ? serverImg.toString()
-            : localImg;
+            : null;
         isLeader.value = groupData["isLeader"] ?? false;
 
         final currentBookObj = groupData["currentMissionBook"];
@@ -680,7 +680,7 @@ class GroupController extends GetxController {
 
     if (targetBookId != null && targetBookId != 0) {
       try {
-        final String targetUrl = "https://api.43-202-101-63.sslip.io/books/$targetBookId";
+        final String targetUrl = "${AppConfig.baseUrl}/books/$targetBookId";
         final response = await http.get(Uri.parse(targetUrl));
 
         if (response.statusCode == 200) {

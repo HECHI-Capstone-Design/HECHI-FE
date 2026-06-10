@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 import 'book_model.dart';
@@ -16,7 +17,7 @@ class SearchHistoryItem {
 }
 
 class SearchRepository {
-  final String baseUrl = "https://api.43-202-101-63.sslip.io";
+  final String baseUrl = AppConfig.baseUrl;
   String get _token => GetStorage().read('access_token') ?? "";
   Map<String, String> get _headers => {
     "Content-Type": "application/json",

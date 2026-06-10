@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:get_storage/get_storage.dart';
@@ -20,7 +21,7 @@ class NewBooksController extends GetxController {
 
   Future<void> _fetchBooks() async {
     isLoading.value = true;
-    const String apiUrl = 'https://api.43-202-101-63.sslip.io/recommend/new?limit=30'; // API 주소만 다름
+    final String apiUrl = '${AppConfig.baseUrl}/recommend/new?limit=30'; // API 주소만 다름
 
     try {
       final response = await http.get(Uri.parse(apiUrl), headers: _headers);

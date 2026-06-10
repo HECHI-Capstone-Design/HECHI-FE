@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:get_storage/get_storage.dart'; // ✅ 토큰 사용을 위해 추가
@@ -50,7 +51,7 @@ class MainpageController extends GetxController {
     fetchRandomHighlight();
   }
   Future<void> fetchRandomHighlight() async {
-    const String apiUrl = 'https://api.43-202-101-63.sslip.io/highlights/random-public';
+    final String apiUrl = '${AppConfig.baseUrl}/highlights/random-public';
 
     try {
       final response = await http.get(Uri.parse(apiUrl), headers: _headers);
@@ -86,7 +87,7 @@ class MainpageController extends GetxController {
   // 1. 인기 순위 API
   Future<void> fetchPopularBooks() async {
     isLoading.value = true;
-    const String apiUrl = 'https://api.43-202-101-63.sslip.io/recommend/popular?days=30&limit=20';
+    final String apiUrl = '${AppConfig.baseUrl}/recommend/popular?days=30&limit=20';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -111,7 +112,7 @@ class MainpageController extends GetxController {
 
   // 2. 검색 순위 API
   Future<void> fetchTrendingBooks() async {
-    const String apiUrl = 'https://api.43-202-101-63.sslip.io/recommend/trending-search?days=30&limit=20';
+    final String apiUrl = '${AppConfig.baseUrl}/recommend/trending-search?days=30&limit=20';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -134,7 +135,7 @@ class MainpageController extends GetxController {
 
   // 3. 큐레이션(테마) 목록 API
   Future<void> fetchCurations() async {
-    const String apiUrl = 'https://api.43-202-101-63.sslip.io/recommend/curations';
+    final String apiUrl = '${AppConfig.baseUrl}/recommend/curations';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -170,7 +171,7 @@ class MainpageController extends GetxController {
     currentThemeBooks.clear();
 
     final String encodedTheme = Uri.encodeComponent(themeTitle);
-    final String apiUrl = 'https://api.43-202-101-63.sslip.io/recommend/curations/$encodedTheme?limit=20';
+    final String apiUrl = '${AppConfig.baseUrl}/recommend/curations/$encodedTheme?limit=20';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -193,7 +194,7 @@ class MainpageController extends GetxController {
 
   // ✅ 5. [NEW] 전체 베스트셀러 API 구현
   Future<void> fetchBestsellers() async {
-    const String apiUrl = 'https://api.43-202-101-63.sslip.io/recommend/bestseller?limit=10';
+    final String apiUrl = '${AppConfig.baseUrl}/recommend/bestseller?limit=10';
     try {
       final response = await http.get(Uri.parse(apiUrl), headers: _headers);
       if (response.statusCode == 200) {
@@ -210,7 +211,7 @@ class MainpageController extends GetxController {
 
   // ✅ 6. [NEW] 신간 도서 API 구현
   Future<void> fetchNewBooks() async {
-    const String apiUrl = 'https://api.43-202-101-63.sslip.io/recommend/new?limit=10';
+    final String apiUrl = '${AppConfig.baseUrl}/recommend/new?limit=10';
     try {
       final response = await http.get(Uri.parse(apiUrl), headers: _headers);
       if (response.statusCode == 200) {
@@ -230,7 +231,7 @@ class MainpageController extends GetxController {
     try {
       // (1) 내 정보 API를 호출해서 User ID 가져오기
       final meResponse = await http.get(
-          Uri.parse('https://api.43-202-101-63.sslip.io/auth/me'),
+          Uri.parse('${AppConfig.baseUrl}/auth/me'),
           headers: _headers
       );
 
@@ -242,7 +243,7 @@ class MainpageController extends GetxController {
       int userId = jsonDecode(utf8.decode(meResponse.bodyBytes))['id'];
 
       // (2) 가져온 User ID로 장르별 베스트셀러 호출
-      final String apiUrl = 'https://api.43-202-101-63.sslip.io/recommend/genre-bestseller?user_id=$userId&limit=10';
+      final String apiUrl = '${AppConfig.baseUrl}/recommend/genre-bestseller?user_id=$userId&limit=10';
       final response = await http.get(Uri.parse(apiUrl), headers: _headers);
 
       if (response.statusCode == 200) {

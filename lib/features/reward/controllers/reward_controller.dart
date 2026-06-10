@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -39,7 +40,7 @@ class RewardController extends GetxController {
     try {
       final String? token = box.read<String>('access_token');
 
-      final url = Uri.parse('https://api.43-202-101-63.sslip.io/users/me/badges');
+      final url = Uri.parse('${AppConfig.baseUrl}/users/me/badges');
       final Map<String, String> headers = {
         'Accept': 'application/json',
       };

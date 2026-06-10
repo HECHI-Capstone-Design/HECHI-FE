@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
@@ -13,7 +14,7 @@ import '../../features/groupcommunity/controllers/group_controller.dart';
 
 class AppController extends GetxController {
   final box = GetStorage();
-  final String baseUrl = "https://api.43-202-101-63.sslip.io";
+  final String baseUrl = AppConfig.baseUrl;
 
   RxInt currentIndex = 0.obs;
 
@@ -39,10 +40,21 @@ class AppController extends GetxController {
     if (token == null) return;
 
     try {
-      final response = await http.get(
+      var response = await http.get(
           Uri.parse('$baseUrl/auth/me'),
           headers: {"Authorization": "Bearer $token"}
       );
+      // 액세스 토큰 만료 시 리프레시 토큰으로 재발급 후 1회 재시도
+      if (response.statusCode != 200) {
+        final refreshed = await refreshAccessToken();
+        if (refreshed) {
+          token = box.read('access_token');
+          response = await http.get(
+              Uri.parse('$baseUrl/auth/me'),
+              headers: {"Authorization": "Bearer $token"}
+          );
+        }
+      }
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         // 서버가 profileImageUrl을 누락했을 경우 기존 값을 보존
@@ -115,6 +127,42 @@ class AppController extends GetxController {
     }
   }
 
+  // 액세스 토큰 자동 재발급 (POST /auth/refresh)
+  Future<bool> refreshAccessToken() async {
+    final String? refreshToken = box.read('refresh_token');
+    if (refreshToken == null || refreshToken.isEmpty) return false;
+
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/refresh'),
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'refresh_token': refreshToken}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
+        final String? newAccess = data['access_token']?.toString();
+        final String? newRefresh = data['refresh_token']?.toString();
+        if (newAccess != null && newAccess.isNotEmpty) {
+          await box.write('access_token', newAccess);
+          if (newRefresh != null && newRefresh.isNotEmpty) {
+            await box.write('refresh_token', newRefresh);
+          }
+          print("🔄 액세스 토큰 자동 재발급 성공");
+          return true;
+        }
+      }
+      print("❌ 토큰 재발급 실패: ${response.statusCode}");
+      return false;
+    } catch (e) {
+      print("❌ 토큰 재발급 오류: $e");
+      return false;
+    }
+  }
+
   // 자동 로그인 체크
   Future<void> checkAutoLogin() async {
     print("🔄 앱 시작: 자동 로그인 여부 확인 중...");
@@ -130,13 +178,28 @@ class AppController extends GetxController {
 
     try {
       final meUrl = Uri.parse('$baseUrl/auth/me');
-      final response = await http.get(
+      var response = await http.get(
         meUrl,
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $accessToken"
         },
       );
+
+      // 액세스 토큰 만료 시 리프레시 토큰으로 재발급 후 1회 재시도
+      if (response.statusCode != 200) {
+        final refreshed = await refreshAccessToken();
+        if (refreshed) {
+          accessToken = box.read('access_token');
+          response = await http.get(
+            meUrl,
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer $accessToken"
+            },
+          );
+        }
+      }
 
       if (response.statusCode == 200) {
         print("✅ 자동 로그인 성공!");
@@ -155,8 +218,9 @@ class AppController extends GetxController {
           description.value = serverDesc;
         }
 
-        // 자동 로그인 시 FCM 토큰 등록
-        _registerFcmToken(accessToken);
+        // 자동 로그인 시 FCM 토큰 등록 (재발급 됐을 수 있으니 최신 토큰 사용)
+        final String? currentToken = box.read('access_token');
+        if (currentToken != null) _registerFcmToken(currentToken);
 
         // 로그인 성공 후 알림 카운트 갱신
         try {

@@ -1,4 +1,5 @@
 import 'package:hechi/app/colors.dart';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -22,7 +23,7 @@ class SignUpController extends GetxController {
   RxString loginIdStatusMessage = ''.obs;
   RxBool isLoading = false.obs;
 
-  final String baseUrl="https://api.43-202-101-63.sslip.io";
+  final String baseUrl=AppConfig.baseUrl;
 
   @override
   void onInit() {

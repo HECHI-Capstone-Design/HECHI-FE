@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 import 'dart:convert';
@@ -7,7 +8,7 @@ import '../../../data/models/user_stats_model.dart';
 import '../../../app/controllers/app_controller.dart';
 
 class TasteAnalysisController extends GetxController {
-  final String baseUrl = "https://api.43-202-101-63.sslip.io";
+  final String baseUrl = AppConfig.baseUrl;
   final box = GetStorage();
   RxBool isLoading = true.obs;
 

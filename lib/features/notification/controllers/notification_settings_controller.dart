@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 
 class NotificationSettingsController extends GetxController {
-  static const String baseUrl = "https://api.43-202-101-63.sslip.io";
+  static final String baseUrl = AppConfig.baseUrl;
   final box = GetStorage();
 
   // 토글 스위치 상태를 관리할 반응형 변수들
