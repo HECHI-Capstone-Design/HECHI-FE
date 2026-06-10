@@ -94,8 +94,9 @@ class BookDetailController extends GetxController {
 
         if (data["rating_histogram"] != null) {
           Map<String, dynamic> rawHist = data["rating_histogram"];
-          ratingHistogram.value =
-              rawHist.map((key, value) => MapEntry(key, value as int));
+          ratingHistogram.value = rawHist.map(
+                  (key, value) => MapEntry(key.toString(), (value as num).toInt())
+          );
 
           if (ratingHistogram.isNotEmpty) {
             int max = 0;
