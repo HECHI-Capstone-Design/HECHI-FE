@@ -34,6 +34,12 @@ class AppController extends GetxController {
     currentIndex.value = index;
   }
 
+  // 로그아웃 시 호출: 다음 계정으로 정보가 누출되지 않도록 초기화
+  void clearProfile() {
+    userProfile.clear();
+    description.value = "나만의 소개글을 입력해주세요!";
+  }
+
   // 내 정보 가져오기 (GET /auth/me)
   Future<void> fetchUserProfile() async {
     String? token = box.read('access_token');
@@ -57,13 +63,9 @@ class AppController extends GetxController {
       }
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
-        // 서버가 profileImageUrl을 누락했을 경우 기존 값을 보존
-        final existingImageUrl = userProfile['profileImageUrl']?.toString() ?? '';
+        // 프로필은 서버 응답을 그대로 신뢰한다.
+        // (이전 사용자 값을 보존하면 같은 기기에서 다른 계정으로 로그인 시 사진이 누출됨)
         userProfile.value = data;
-        if ((userProfile['profileImageUrl'] == null || userProfile['profileImageUrl'].toString().isEmpty)
-            && existingImageUrl.isNotEmpty) {
-          userProfile['profileImageUrl'] = existingImageUrl;
-        }
 
         String serverDesc = data['description'] ?? "";
         if (serverDesc.trim().isEmpty) {
@@ -204,12 +206,8 @@ class AppController extends GetxController {
       if (response.statusCode == 200) {
         print("✅ 자동 로그인 성공!");
         final meData = jsonDecode(utf8.decode(response.bodyBytes));
-        final existingImageUrl = userProfile['profileImageUrl']?.toString() ?? '';
+        // 프로필은 서버 응답을 그대로 신뢰 (계정 간 사진 누출 방지)
         userProfile.value = meData;
-        if ((userProfile['profileImageUrl'] == null || userProfile['profileImageUrl'].toString().isEmpty)
-            && existingImageUrl.isNotEmpty) {
-          userProfile['profileImageUrl'] = existingImageUrl;
-        }
 
         String serverDesc = meData['description'] ?? "";
         if (serverDesc.trim().isEmpty) {
