@@ -3,7 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ocr_flutter/mobile_ocr_flutter.dart';
 import '../../controllers/book_note_controller.dart';
+import '../../services/highlight_capture_draft_service.dart';
+import '../../../reading_registration/controllers/reading_registration_controller.dart';
 import '../styles/overlay_common.dart';
+import 'highlight_capture_mode_sheet.dart';
 import 'ocr_line_selection_overlay.dart';
 
 class CreationOverlay extends StatefulWidget {
@@ -22,7 +25,9 @@ class CreationOverlay extends StatefulWidget {
   final String? sentence;
   final bool? isPublic;
   final bool autoStartOcr;
+  final HighlightCaptureMode? initialCaptureMode;
   final bool closeParentPageOnCreate;
+  final Future<void> Function()? onCreateSuccess;
 
   // memo
   final String? content;
@@ -38,7 +43,9 @@ class CreationOverlay extends StatefulWidget {
     this.sentence,
     this.isPublic,
     this.autoStartOcr = false,
+    this.initialCaptureMode,
     this.closeParentPageOnCreate = false,
+    this.onCreateSuccess,
     this.content,
   });
 
@@ -74,7 +81,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted || _hasTriggeredAutoOcr) return;
         _hasTriggeredAutoOcr = true;
-        _handleHighlightOcrCapture();
+        _handleHighlightOcrCapture(preselectedMode: widget.initialCaptureMode);
       });
     }
   }
@@ -126,13 +133,14 @@ class _CreationOverlayState extends State<CreationOverlay> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               if (_isReadOnly) {
                 setState(() {
                   _isReadOnly = false;
                 });
               } else {
                 Get.back();
+                await _closeParentBookNotePageIfNeeded();
               }
             },
             child: Text(
@@ -140,10 +148,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
               style: OverlayCommon.actionStyle,
             ),
           ),
-          Text(
-            _title(),
-            style: OverlayCommon.headerStyle,
-          ),
+          Text(_title(), style: OverlayCommon.headerStyle),
           TextButton(
             onPressed: () {
               if (_isReadOnly) {
@@ -154,9 +159,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
             },
             child: Text(
               _isReadOnly ? "닫기" : "확인",
-              style: OverlayCommon.actionStyle.copyWith(
-                color: Colors.black,
-              ),
+              style: OverlayCommon.actionStyle.copyWith(color: Colors.black),
             ),
           ),
         ],
@@ -174,6 +177,19 @@ class _CreationOverlayState extends State<CreationOverlay> {
         return widget.isEdit ? "하이라이트 수정" : "하이라이트 작성";
       default:
         return widget.isEdit ? "메모 수정" : "메모 작성";
+    }
+  }
+
+  Future<void> _closeParentBookNotePageIfNeeded() async {
+    final shouldCloseParentPage =
+        widget.type == "highlight" && widget.closeParentPageOnCreate;
+
+    if (!shouldCloseParentPage) return;
+
+    await Future<void>.delayed(const Duration(milliseconds: 160));
+
+    if (Get.currentRoute == '/book_note') {
+      Get.back();
     }
   }
 
@@ -215,9 +231,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
                   controller: pageController,
                   readOnly: _isReadOnly,
                   keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: const InputDecoration(
                     border: InputBorder.none,
                     isCollapsed: true,
@@ -274,7 +288,10 @@ class _CreationOverlayState extends State<CreationOverlay> {
   // highlight 레이아웃
   // =========================================================
 
-  Widget _buildHighlightLayout(BookNoteController controller, BuildContext context) {
+  Widget _buildHighlightLayout(
+    BookNoteController controller,
+    BuildContext context,
+  ) {
     return Column(
       children: [
         // --------------------- Header ---------------------
@@ -290,17 +307,16 @@ class _CreationOverlayState extends State<CreationOverlay> {
         // --------------------- 내용 영역 ---------------------
         Expanded(
           child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 width: double.infinity,
-                constraints: const BoxConstraints(
-                  maxHeight: 160,
+                constraints: const BoxConstraints(maxHeight: 160),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 17,
+                  vertical: 15,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 15),
-                decoration: const BoxDecoration(
-                  color: Color(0x7FD1ECD9),
-                ),
+                decoration: const BoxDecoration(color: Color(0x7FD1ECD9)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -373,7 +389,6 @@ class _CreationOverlayState extends State<CreationOverlay> {
                 ),
               ),
 
-
               // --------------------- 페이지 입력 ---------------------
               Padding(
                 padding: const EdgeInsets.fromLTRB(17, 14, 17, 0),
@@ -395,7 +410,9 @@ class _CreationOverlayState extends State<CreationOverlay> {
                         readOnly: _isReadOnly,
                         maxLines: 1,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                           isCollapsed: true,
@@ -420,7 +437,10 @@ class _CreationOverlayState extends State<CreationOverlay> {
               // --------------------- 메모 입력 ---------------------
               Expanded(
                 child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 17,
+                    vertical: 16,
+                  ),
                   child: TextField(
                     controller: memoController,
                     readOnly: _isReadOnly,
@@ -448,7 +468,9 @@ class _CreationOverlayState extends State<CreationOverlay> {
         // --------------------- 공개 여부 ---------------------
         Container(
           padding: EdgeInsets.fromLTRB(
-            17, 16, 17,
+            17,
+            16,
+            17,
             MediaQuery.of(context).viewInsets.bottom > 0
                 ? MediaQuery.of(context).viewInsets.bottom
                 : 16,
@@ -456,8 +478,10 @@ class _CreationOverlayState extends State<CreationOverlay> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("공개 여부",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400)),
+              const Text(
+                "공개 여부",
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+              ),
               IgnorePointer(
                 ignoring: _isReadOnly,
                 child: Opacity(
@@ -530,7 +554,6 @@ class _CreationOverlayState extends State<CreationOverlay> {
     );
   }
 
-
   // =========================================================
   // Confirm 버튼 로직
   // =========================================================
@@ -544,7 +567,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
         }
 
         final int totalPage = controller.bookInfo['total_pages'] ?? 0;
-        if (page <= 0 || page > totalPage){
+        if (page <= 0 || page > totalPage) {
           Get.snackbar("오류", "정확한 페이지 번호를 입력해주세요.");
           return;
         }
@@ -583,7 +606,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
         }
 
         final int totalPage = controller.bookInfo['total_pages'] ?? 0;
-        if (page <= 0 || page > totalPage){
+        if (page <= 0 || page > totalPage) {
           Get.snackbar("오류", "정확한 페이지 번호를 입력해주세요.");
           return;
         }
@@ -605,8 +628,11 @@ class _CreationOverlayState extends State<CreationOverlay> {
             memo,
             isPublic,
           );
+          if (saved && widget.onCreateSuccess != null) {
+            await widget.onCreateSuccess!.call();
+          }
           if (saved && widget.closeParentPageOnCreate) {
-            Get.back();
+            await _closeParentBookNotePageIfNeeded();
           }
         }
         break;
@@ -627,7 +653,44 @@ class _CreationOverlayState extends State<CreationOverlay> {
     }
   }
 
-  Future<void> _handleHighlightOcrCapture() async {
+  bool _canUseReadingCapture() {
+    if (!Get.isRegistered<ReadingRegistrationController>()) {
+      return false;
+    }
+
+    final readingController = Get.find<ReadingRegistrationController>();
+    return readingController.currentSession.value != null;
+  }
+
+  Future<void> _handleHighlightOcrCapture({
+    HighlightCaptureMode? preselectedMode,
+  }) async {
+    if (!_canUseReadingCapture()) {
+      Get.snackbar(
+        "알림",
+        "독서를 시작한 뒤에만 하이라이트 촬영을 사용할 수 있어요.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    final mode =
+        preselectedMode ??
+        await Get.bottomSheet<HighlightCaptureMode>(
+          const HighlightCaptureModeSheet(),
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+        );
+
+    if (mode == null) {
+      return;
+    }
+
+    if (mode == HighlightCaptureMode.saveForLater) {
+      await _captureHighlightForLater();
+      return;
+    }
+
     setState(() {
       _isExtractingOcr = true;
     });
@@ -663,6 +726,52 @@ class _CreationOverlayState extends State<CreationOverlay> {
       }
     } catch (_) {
       Get.snackbar("오류", "문장 추출에 실패했습니다.");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isExtractingOcr = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _captureHighlightForLater() async {
+    if (!_canUseReadingCapture()) {
+      Get.snackbar(
+        "알림",
+        "독서를 시작한 뒤에만 하이라이트 촬영을 사용할 수 있어요.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    setState(() {
+      _isExtractingOcr = true;
+    });
+
+    try {
+      final controller = Get.find<BookNoteController>();
+      final page = int.tryParse(pageController.text) ?? widget.page ?? 1;
+      final path = await MobileOcr.captureImage();
+      if (path == null) {
+        return;
+      }
+
+      final bookTitle = controller.bookInfo['title']?.toString() ?? "도서";
+      await HighlightCaptureDraftService.instance.saveCapture(
+        bookId: controller.bookId,
+        bookTitle: bookTitle,
+        page: page > 0 ? page : 1,
+        sourcePath: path,
+      );
+
+      Get.snackbar(
+        "저장 완료",
+        "${page > 0 ? page : 1}페이지 촬영본을 저장했어요.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (_) {
+      Get.snackbar("오류", "촬영본 저장에 실패했습니다.");
     } finally {
       if (mounted) {
         setState(() {

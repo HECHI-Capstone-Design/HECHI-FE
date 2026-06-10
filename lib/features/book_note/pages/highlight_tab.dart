@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/book_note_controller.dart';
+import 'highlight_capture_review_page.dart';
 import '../widgets/highlight_item.dart';
 import '../widgets/dialogs/sort_bottom_sheet.dart';
 import '../widgets/overlays/creation_overlay.dart';
+import '../widgets/overlays/highlight_capture_mode_sheet.dart';
 
 class HighlightTab extends GetView<BookNoteController> {
   const HighlightTab({super.key});
@@ -12,6 +14,7 @@ class HighlightTab extends GetView<BookNoteController> {
   Widget build(BuildContext context) {
     final controller = Get.find<BookNoteController>();
     _maybeOpenCreationOverlay(context, controller);
+    _maybeOpenCaptureReview(context, controller);
 
     return Column(
       children: [
@@ -43,6 +46,19 @@ class HighlightTab extends GetView<BookNoteController> {
     );
   }
 
+  void _maybeOpenCaptureReview(
+    BuildContext context,
+    BookNoteController controller,
+  ) {
+    if (controller.tabController.index != 1) return;
+    if (!controller.consumeHighlightCaptureReviewRequest()) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
+      Get.to(() => const HighlightCaptureReviewPage());
+    });
+  }
+
   void _maybeOpenCreationOverlay(
     BuildContext context,
     BookNoteController controller,
@@ -62,6 +78,12 @@ class HighlightTab extends GetView<BookNoteController> {
           isEdit: false,
           page: request['page'] as int?,
           autoStartOcr: request['autoStartOcr'] == true,
+          initialCaptureMode:
+              request['autoStartCaptureMode'] == 'immediate'
+                  ? HighlightCaptureMode.immediateOcr
+                  : request['autoStartCaptureMode'] == 'save_for_later'
+                  ? HighlightCaptureMode.saveForLater
+                  : null,
           closeParentPageOnCreate: request['closeParentPageOnSave'] == true,
         ),
         isScrollControlled: true,
@@ -95,6 +117,17 @@ class HighlightTab extends GetView<BookNoteController> {
               ],
             ),
           ),
+
+          GestureDetector(
+            onTap: () => Get.to(() => const HighlightCaptureReviewPage()),
+            child: const Icon(
+              Icons.photo_library_outlined,
+              color: Colors.grey,
+              size: 24,
+            ),
+          ),
+
+          const SizedBox(width: 16),
 
           GestureDetector(
             onTap: () {
