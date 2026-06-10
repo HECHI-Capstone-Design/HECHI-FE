@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -7,7 +8,7 @@ class CalendarController extends GetxController {
   final box = GetStorage();
 
   // API 주소
-  final String baseUrl = "https://api.43-202-101-63.sslip.io";
+  final String baseUrl = AppConfig.baseUrl;
 
   // 캘린더 상태 변수
   RxInt currentYear = DateTime.now().year.obs;

@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:hechi/app/routes.dart';
+import 'package:hechi/app/controllers/app_controller.dart';
 
 class SettingsController extends GetxController {
   final box = GetStorage();
@@ -31,6 +32,11 @@ class SettingsController extends GetxController {
     box.remove('access_token');
     box.remove('refresh_token');
     box.remove('is_auto_login');
+
+    // 전역 프로필 정보 초기화 (다음 계정으로 사진/소개 누출 방지)
+    if (Get.isRegistered<AppController>()) {
+      Get.find<AppController>().clearProfile();
+    }
 
     Get.offAllNamed(Routes.login);
   }

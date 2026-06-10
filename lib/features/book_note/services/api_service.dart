@@ -1,11 +1,12 @@
 import 'dart:convert';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
   final box = GetStorage();
 
-  final String baseUrl = "https://api.43-202-101-63.sslip.io";
+  final String baseUrl = AppConfig.baseUrl;
 
   /// ====================== GET ======================
   Future<dynamic> get(String endpoint) async {

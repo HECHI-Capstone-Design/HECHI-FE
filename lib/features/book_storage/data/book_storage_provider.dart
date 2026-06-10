@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:get_storage/get_storage.dart';
 import '../models/library_book_model.dart';
 
@@ -7,7 +8,7 @@ class BookStorageProvider extends GetConnect {
 
   @override
   void onInit() {
-    httpClient.baseUrl = 'https://api.43-202-101-63.sslip.io';
+    httpClient.baseUrl = AppConfig.baseUrl;
     httpClient.timeout = const Duration(seconds: 10);
   }
 

@@ -1,4 +1,5 @@
 import 'package:hechi/app/colors.dart';
+import 'package:hechi/app/config/app_config.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,7 +10,7 @@ import '../../../groupcommunity/controllers/group_controller.dart';
 import '../../../groupcommunity/pages/group_post_create_view.dart';
 
 mixin GroupShareMixin {
-  static const String _baseUrl = "https://api.43-202-101-63.sslip.io";
+  static final String _baseUrl = AppConfig.baseUrl;
 
   String get _token => GetStorage().read('access_token') ?? "";
   Map<String, String> get _headers => {

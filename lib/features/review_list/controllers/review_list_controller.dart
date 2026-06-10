@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -7,7 +8,7 @@ import '../../book_detail_page/widgets/overlays/comment_overlay.dart';
 import 'package:http/http.dart' as http;
 
 class ReviewListController extends GetxController {
-  final String baseUrl = "https://api.43-202-101-63.sslip.io";
+  final String baseUrl = AppConfig.baseUrl;
   final box = GetStorage();
 
   final int bookId = Get.arguments ?? 1;

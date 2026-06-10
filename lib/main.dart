@@ -1,4 +1,5 @@
 import 'package:hechi/app/colors.dart';
+import 'package:hechi/app/config/app_config.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:hechi/app/main_app.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'app/routes.dart';
 import 'app/bindings/app_binding.dart';
 import 'firebase_options.dart';
@@ -84,6 +86,7 @@ void handleNotificationClick(RemoteMessage message) {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await GetStorage.init();
@@ -143,7 +146,7 @@ Future<void> setupFirebaseMessaging() async {
 }
 
 Future<void> sendFcmTokenToBackend(String fcmToken) async {
-  const String baseUrl = "https://api.43-202-101-63.sslip.io";
+  final String baseUrl = AppConfig.baseUrl;
   final String? accessToken = GetStorage().read('access_token');
   if (accessToken == null || accessToken.isEmpty) return;
   try {

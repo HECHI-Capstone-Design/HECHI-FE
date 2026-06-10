@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:get_storage/get_storage.dart';
@@ -32,7 +33,7 @@ class GenreBestsellerController extends GetxController {
       }
 
       // 2. 장르별 베스트셀러 조회
-      final String apiUrl = 'https://api.43-202-101-63.sslip.io/recommend/genre-bestseller?user_id=$userId&limit=10';
+      final String apiUrl = '${AppConfig.baseUrl}/recommend/genre-bestseller?user_id=$userId&limit=10';
 
       final response = await http.get(Uri.parse(apiUrl), headers: _headers);
 
@@ -64,7 +65,7 @@ class GenreBestsellerController extends GetxController {
   Future<int?> _fetchMyUserId() async {
     try {
       final response = await http.get(
-        Uri.parse('https://api.43-202-101-63.sslip.io/auth/me'),
+        Uri.parse('${AppConfig.baseUrl}/auth/me'),
         headers: _headers,
       );
       if (response.statusCode == 200) {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:hechi/app/config/app_config.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -7,7 +8,7 @@ import 'package:http/http.dart' as http;
 import '../models/collection_book_model.dart';
 
 class CollectionBookEditController extends GetxController {
-  final String baseUrl = "https://api.43-202-101-63.sslip.io";
+  final String baseUrl = AppConfig.baseUrl;
   final box = GetStorage();
 
   final TextEditingController searchController = TextEditingController();

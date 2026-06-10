@@ -1,9 +1,7 @@
 // lib/features/myGroup/widgets/my_group_item_widget.dart
 
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import '../models/group_model.dart';
 import '../../groupcommunity/controllers/group_controller.dart';
 import '../../groupcommunity/bindings/group_binding.dart';
@@ -14,26 +12,13 @@ class MyGroupItemWidget extends StatelessWidget {
 
   const MyGroupItemWidget({Key? key, required this.group}) : super(key: key);
 
-  /// 서버 URL이면 NetworkImage, 로컬 경로면 FileImage로 분기
-  ImageProvider _resolveImage(String url) {
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return NetworkImage(url);
-    }
-    return FileImage(File(url));
-  }
-
   @override
   Widget build(BuildContext context) {
-    // GetStorage에서 직접 읽어 폴백 (API 응답에 없을 때 대비)
-    final storage = GetStorage();
-    final localImg = storage.read<String>('group_img_${group.id}');
-    final displayImage = (group.backgroundImage != null && group.backgroundImage!.isNotEmpty)
-        ? group.backgroundImage!
-        : localImg;
-
+    // 서버에 저장된 이미지(네트워크 URL)만 사용
+    final displayImage = group.backgroundImage;
     final ImageProvider? imageProvider =
         (displayImage != null && displayImage.isNotEmpty)
-            ? _resolveImage(displayImage)
+            ? NetworkImage(displayImage)
             : null;
 
     return Padding(

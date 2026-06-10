@@ -1,24 +1,25 @@
 import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/material.dart';
+import 'dart:typed_data';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:hechi/features/myGroup/controllers/my_group_controller.dart';
 
 class GroupCreateController extends GetxController {
   final GetConnect _connect = GetConnect();
   final GetStorage _storage = GetStorage();
 
-  static const String baseUrl = 'https://api.43-202-101-63.sslip.io';
+  static final String baseUrl = AppConfig.baseUrl;
 
   var groupName = ''.obs;
   var groupId = ''.obs;
   var idCheckStatus = 0.obs;
 
-  // 그룹 프로필 이미지
-  var selectedImageFile = Rxn<File>();
+  // 그룹 프로필 이미지 (웹/모바일 공통: 바이트로 보관)
+  var selectedImageBytes = Rxn<Uint8List>();
   var backgroundImageUrl = ''.obs;
   var isUploadingImage = false.obs;
 
@@ -39,13 +40,19 @@ class GroupCreateController extends GetxController {
       final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
       if (picked == null) return;
 
-      selectedImageFile.value = File(picked.path);
+      // 웹/모바일 공통: 바이트로 읽어 미리보기·업로드에 사용 (dart:io File 미사용)
+      final bytes = await picked.readAsBytes();
+      selectedImageBytes.value = bytes;
       isUploadingImage.value = true;
 
       final String? token = _storage.read('access_token');
-      if (token == null) return;
+      if (token == null) {
+        isUploadingImage.value = false;
+        return;
+      }
 
       final filename = 'group_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      String? uploadedUrl;
 
       // Step 1: presign URL 획득
       final presignRes = await _connect.post(
@@ -58,60 +65,73 @@ class GroupCreateController extends GetxController {
       );
 
       print('📸 presign 응답 코드: ${presignRes.statusCode}');
-      print('📸 presign 응답 바디: ${presignRes.body}');
 
-      if (presignRes.statusCode == 200) {
-        final body = presignRes.body;
-        String uploadUrl = '';
-        Map<String, String> fields = {};
-        String? presignPublicUrl;
+      if (presignRes.statusCode == 200 && presignRes.body is Map) {
+        final body = presignRes.body as Map;
+        String uploadUrl = body['url']?.toString() ?? '';
+        if (uploadUrl.isEmpty) uploadUrl = body['presignedUrl']?.toString() ?? '';
+        final String? presignPublicUrl = body['publicUrl']?.toString();
 
-        if (body is Map) {
-          uploadUrl = body['url']?.toString() ?? '';
-          if (uploadUrl.isEmpty) uploadUrl = body['presignedUrl']?.toString() ?? '';
-          presignPublicUrl = body['publicUrl']?.toString();
-
-          final rawFields = body['fields'];
-          if (rawFields is Map) {
-            rawFields.forEach((k, v) => fields[k.toString()] = v.toString());
-          }
+        final Map<String, String> fields = {};
+        final rawFields = body['fields'];
+        if (rawFields is Map) {
+          rawFields.forEach((k, v) => fields[k.toString()] = v.toString());
         }
-
-        print('📸 uploadUrl=$uploadUrl, fields keys=${fields.keys.toList()}, publicUrl=$presignPublicUrl');
 
         if (uploadUrl.isNotEmpty) {
-          // Step 2: S3 multipart POST
+          // Step 2: S3 multipart POST (웹 호환: fromBytes)
           final request = http.MultipartRequest('POST', Uri.parse(uploadUrl));
           fields.forEach((k, v) => request.fields[k] = v);
-          request.files.add(await http.MultipartFile.fromPath(
-              'file', picked.path, filename: filename));
-          final s3Res = await request.send();
+          // presign이 image/jpeg로 발급되므로 파트 Content-Type도 동일하게 명시 (S3 거부 방지)
+          request.files.add(http.MultipartFile.fromBytes(
+            'file', bytes,
+            filename: filename,
+            contentType: MediaType('image', 'jpeg'),
+          ));
+          final streamed = await request.send();
+          final s3Res = await http.Response.fromStream(streamed);
           print('📸 S3 업로드 결과: ${s3Res.statusCode}');
 
-          if (s3Res.statusCode == 200 || s3Res.statusCode == 204) {
-            if (presignPublicUrl != null && presignPublicUrl.isNotEmpty) {
-              backgroundImageUrl.value = presignPublicUrl;
+          if (s3Res.statusCode == 200 || s3Res.statusCode == 201 || s3Res.statusCode == 204) {
+            // 업로드 응답 본문에 publicUrl이 오면 그것을 우선 사용
+            String? bodyUrl;
+            try {
+              final decoded = jsonDecode(s3Res.body);
+              if (decoded is Map) {
+                bodyUrl = (decoded['publicUrl'] ?? decoded['fileUrl'])?.toString();
+              }
+            } catch (_) {}
+
+            if (bodyUrl != null && bodyUrl.isNotEmpty) {
+              uploadedUrl = bodyUrl;
+            } else if (presignPublicUrl != null && presignPublicUrl.isNotEmpty) {
+              uploadedUrl = presignPublicUrl;
             } else {
-              // uploadUrl + key 조합 (슬래시 처리)
               final key = fields['key'] ?? filename;
               final base = uploadUrl.endsWith('/') ? uploadUrl : '$uploadUrl/';
-              backgroundImageUrl.value = '$base$key';
+              uploadedUrl = '$base$key';
             }
-            print('📸 최종 backgroundImageUrl: ${backgroundImageUrl.value}');
           } else {
-            print('📸 S3 업로드 실패: ${s3Res.statusCode} - 로컬 경로 사용');
-            backgroundImageUrl.value = picked.path; // 로컬 폴백
+            print('📸 S3 실패 응답: ${s3Res.body}');
           }
-        } else {
-          print('📸 uploadUrl 없음 - presign 응답 구조 이상');
-          backgroundImageUrl.value = picked.path;
         }
-      } else {
-        print('📸 presign 실패: ${presignRes.statusCode}');
-        backgroundImageUrl.value = picked.path; // 로컬 폴백
       }
+
+      // 눈속임 금지: 업로드가 실제로 성공했을 때만 URL을 저장한다.
+      // 실패 시 가짜(로컬/blob) 경로를 쓰지 않고 미리보기도 되돌린 뒤 정직하게 알린다.
+      if (uploadedUrl == null || uploadedUrl.isEmpty) {
+        selectedImageBytes.value = null;
+        backgroundImageUrl.value = '';
+        Get.snackbar('업로드 실패', '이미지 업로드에 실패했습니다. 다시 시도해주세요.');
+        return;
+      }
+
+      backgroundImageUrl.value = uploadedUrl;
+      print('📸 최종 backgroundImageUrl: ${backgroundImageUrl.value}');
     } catch (e) {
       print('📸 이미지 업로드 오류: $e');
+      selectedImageBytes.value = null;
+      backgroundImageUrl.value = '';
       Get.snackbar('오류', '이미지 업로드에 실패했습니다.');
     } finally {
       isUploadingImage.value = false;
@@ -203,17 +223,7 @@ class GroupCreateController extends GetxController {
 
       if (response.statusCode == 201) {
         print('✅ 그룹 생성 성공: ${response.body}');
-
-        // 새 그룹 ID로 이미지 URL을 GetStorage에 저장 (API 응답에 없을 경우 백업)
-        if (backgroundImageUrl.value.isNotEmpty) {
-          final newGroupId = response.body is Map
-              ? (response.body['groupId']?.toString() ?? response.body['id']?.toString())
-              : null;
-          if (newGroupId != null) {
-            _storage.write('group_img_$newGroupId', backgroundImageUrl.value);
-            print('📸 GetStorage 저장: group_img_$newGroupId = ${backgroundImageUrl.value}');
-          }
-        }
+        // 이미지는 backgroundImage 필드로 서버에 저장되므로 별도 로컬 캐시를 두지 않는다.
 
         // 갱신 호출 안전하게 분리
         if (Get.isRegistered<MyGroupController>()) {

@@ -35,7 +35,7 @@ class GroupCreatePage extends GetView<GroupCreateController> {
                 children: [
                   // 상단 이미지 등록 영역 (탭하면 갤러리 열림)
                   Obx(() {
-                    final file = controller.selectedImageFile.value;
+                    final bytes = controller.selectedImageBytes.value;
                     return GestureDetector(
                       onTap: controller.pickAndUploadImage,
                       child: Stack(
@@ -46,9 +46,9 @@ class GroupCreatePage extends GetView<GroupCreateController> {
                             height: 200,
                             decoration: BoxDecoration(
                               color: const Color(0xFFB0BEC5),
-                              image: file != null
+                              image: bytes != null
                                   ? DecorationImage(
-                                      image: FileImage(file),
+                                      image: MemoryImage(bytes),
                                       fit: BoxFit.cover,
                                     )
                                   : null,
@@ -56,7 +56,7 @@ class GroupCreatePage extends GetView<GroupCreateController> {
                           ),
                           if (controller.isUploadingImage.value)
                             const CircularProgressIndicator(color: Colors.white)
-                          else if (file == null)
+                          else if (bytes == null)
                             const Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:hechi/app/config/app_config.dart';
 import 'package:get_storage/get_storage.dart';
 import '../models/group_model.dart';
 
@@ -12,7 +13,7 @@ class MyGroupController extends GetxController {
 
   var isLoading = false.obs;
 
-  static const String baseUrl = 'https://api.43-202-101-63.sslip.io';
+  static final String baseUrl = AppConfig.baseUrl;
 
   @override
   void onInit() {
@@ -173,12 +174,11 @@ class MyGroupController extends GetxController {
   /// 🧩 4. [데이터 매핑] JSON 구조 -> GroupModel 변환 공통 함수
   GroupModel _mapJsonToGroupModel(Map<String, dynamic> json) {
     final groupId = json['groupId']?.toString() ?? json['id']?.toString() ?? '';
+    // 서버에 저장된 이미지만 사용 (로컬 전용 가짜 이미지 폴백 제거)
     final serverImg = json['backgroundImage'] ?? json['background_image'] ?? json['imageUrl'];
-    // API 응답에 이미지가 없으면 GetStorage에 로컬 저장된 URL로 폴백
-    final localImg = _storage.read<String>('group_img_$groupId');
-    final finalImg = (serverImg != null && serverImg.toString().isNotEmpty)
+    final String? finalImg = (serverImg != null && serverImg.toString().isNotEmpty)
         ? serverImg.toString()
-        : localImg;
+        : null;
 
     return GroupModel(
       id: groupId,
