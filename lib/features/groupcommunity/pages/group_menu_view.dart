@@ -380,12 +380,23 @@ class GroupMenuView extends StatelessWidget {
             filename: filename,
             contentType: MediaType('image', 'jpeg'),
           ));
-          final s3Res = await request.send();
+          final streamed = await request.send();
+          final s3Res = await http.Response.fromStream(streamed);
           print('s3: ${s3Res.statusCode}');
-          if (s3Res.statusCode == 200 || s3Res.statusCode == 204) {
-            publicUrl = body['publicUrl']?.toString() ?? '$uploadUrl${fields['key'] ?? filename}';
+          if (s3Res.statusCode == 200 || s3Res.statusCode == 201 || s3Res.statusCode == 204) {
+            // 업로드 응답 본문에 publicUrl이 오면 그것을 우선 사용
+            String? bodyUrl;
+            try {
+              final decoded = jsonDecode(s3Res.body);
+              if (decoded is Map) {
+                bodyUrl = (decoded['publicUrl'] ?? decoded['fileUrl'])?.toString();
+              }
+            } catch (_) {}
+            publicUrl = (bodyUrl != null && bodyUrl.isNotEmpty)
+                ? bodyUrl
+                : (body['publicUrl']?.toString() ?? '$uploadUrl${fields['key'] ?? filename}');
           } else {
-            print('s3 실패 응답: ${await s3Res.stream.bytesToString()}');
+            print('s3 실패 응답: ${s3Res.body}');
           }
         }
         publicUrl ??= body['publicUrl']?.toString();

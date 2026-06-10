@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:hechi/app/config/app_config.dart';
 import 'package:get/get.dart';
@@ -87,20 +88,31 @@ class GroupCreateController extends GetxController {
             filename: filename,
             contentType: MediaType('image', 'jpeg'),
           ));
-          final s3Res = await request.send();
+          final streamed = await request.send();
+          final s3Res = await http.Response.fromStream(streamed);
           print('📸 S3 업로드 결과: ${s3Res.statusCode}');
-          if (s3Res.statusCode != 200 && s3Res.statusCode != 204) {
-            print('📸 S3 실패 응답: ${await s3Res.stream.bytesToString()}');
-          }
 
-          if (s3Res.statusCode == 200 || s3Res.statusCode == 204) {
-            if (presignPublicUrl != null && presignPublicUrl.isNotEmpty) {
+          if (s3Res.statusCode == 200 || s3Res.statusCode == 201 || s3Res.statusCode == 204) {
+            // 업로드 응답 본문에 publicUrl이 오면 그것을 우선 사용
+            String? bodyUrl;
+            try {
+              final decoded = jsonDecode(s3Res.body);
+              if (decoded is Map) {
+                bodyUrl = (decoded['publicUrl'] ?? decoded['fileUrl'])?.toString();
+              }
+            } catch (_) {}
+
+            if (bodyUrl != null && bodyUrl.isNotEmpty) {
+              uploadedUrl = bodyUrl;
+            } else if (presignPublicUrl != null && presignPublicUrl.isNotEmpty) {
               uploadedUrl = presignPublicUrl;
             } else {
               final key = fields['key'] ?? filename;
               final base = uploadUrl.endsWith('/') ? uploadUrl : '$uploadUrl/';
               uploadedUrl = '$base$key';
             }
+          } else {
+            print('📸 S3 실패 응답: ${s3Res.body}');
           }
         }
       }
