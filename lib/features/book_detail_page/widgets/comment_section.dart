@@ -21,7 +21,7 @@ class CommentSection extends GetView<BookDetailController> {
       final bestReviews = controller.bestReviews;
 
       // 그래프 데이터
-      final histogram = Map<String, dynamic>.from(controller.book["rating_histogram"] ?? {});
+      final histogram = controller.ratingHistogram;
       final maxCount = controller.maxRatingCount.value;
 
       return Column(
@@ -130,7 +130,7 @@ Widget _buildRatingGraph(Map<String, dynamic> histogram, int maxCount) {
   final List<double> scores = List.generate(10, (index) => 0.5 + (index * 0.5));
 
   final List<Map<String, dynamic>> sortedData = scores.map((score) {
-    final int count = histogram[score.toString()] ?? 0;
+    final int count = histogram[score.toStringAsFixed(1)] ?? 0;
     final double ratio = maxCount > 0 ? count / maxCount : 0.0;
     return {'score': score, 'ratio': ratio};
   }).toList();
