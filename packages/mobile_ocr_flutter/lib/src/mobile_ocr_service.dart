@@ -29,6 +29,20 @@ class MobileOcr {
     return recognizeFilePath(image.path, script: script);
   }
 
+  static Future<String?> captureImage({
+    int imageQuality = 100,
+    double? maxWidth,
+    double? maxHeight,
+  }) async {
+    final image = await _picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: imageQuality,
+      maxWidth: maxWidth,
+      maxHeight: maxHeight,
+    );
+    return image?.path;
+  }
+
   static Future<MobileOcrResult?> pickAndRecognize({
     MobileOcrScript script = MobileOcrScript.auto,
   }) async {

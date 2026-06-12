@@ -45,10 +45,5 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.mlkit:text-recognition-korean:16.0.1")
-<<<<<<< HEAD
-    // 🚀 필수 라이브러리 추가
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
-=======
-}
->>>>>>> 17d898f (feat: add camera OCR flow for highlight capture)

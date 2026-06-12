@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:hechi/app/controllers/app_controller.dart';
+import 'package:mobile_ocr_flutter/mobile_ocr_flutter.dart';
+import '../../book_note/services/highlight_capture_draft_service.dart';
+import '../../book_note/widgets/overlays/highlight_capture_mode_sheet.dart';
+import 'hardware_camera_controller.dart';
 import '../data/models/reading_library_model.dart';
 import '../data/models/reading_registration_session_model.dart';
 import '../data/repository/reading_registration_repository.dart';
@@ -22,9 +26,15 @@ class ReadingRegistrationController extends GetxController {
 
   var currentSession = Rxn<ReadingRegistrationSession>();
   var elapsedSeconds = 0.obs;
+  var isSessionStarting = false.obs;
+  var isSessionEnding = false.obs;
 
   DateTime? _sessionStartTime;
   Timer? _timer;
+  DateTime? _ignoreHardwareStartUntil;
+  DateTime? _ignoreHardwareEndUntil;
+  bool _isPendingHighlightPromptVisible = false;
+  String? _lastPendingHighlightPromptKey;
 
   bool _isProcessingClick = false;
 
@@ -416,6 +426,13 @@ class ReadingRegistrationController extends GetxController {
   }
 
   Future<void> startReadingSession(int bookId, int? startPage) async {
+    if (isSessionStarting.value || isSessionEnding.value) {
+      print("ℹ️ [독서] 세션 전환 중이라 시작 요청을 무시합니다.");
+      return;
+    }
+
+    isSessionStarting.value = true;
+
     try {
       Get.dialog(const Center(child: CircularProgressIndicator()), barrierDismissible: false);
       _sessionStartTime = DateTime.now();
@@ -423,12 +440,32 @@ class ReadingRegistrationController extends GetxController {
       currentSession.value = session;
       elapsedSeconds.value = 0;
       _startTimer();
+      _ignoreHardwareEndUntil = DateTime.now().add(
+        const Duration(milliseconds: 1200),
+      );
+
+      if (Get.isRegistered<HardwareCameraController>()) {
+        try {
+          final cameraController = Get.find<HardwareCameraController>();
+          await cameraController.startCaptureSession();
+          final activeBook = currentActiveBook.value;
+          if (activeBook != null) {
+            await cameraController.syncCaptureContext(
+              bookId: activeBook.book.id,
+              page: activeBook.currentPage > 0 ? activeBook.currentPage : 1,
+            );
+          }
+        } catch (e) {
+          print("⚠️ [하이라이트 카메라] 업로드 서버 시작 실패: $e");
+        }
+      }
     } catch (e) {
       if (Get.isDialogOpen == true) Get.back();
       await Future.delayed(const Duration(milliseconds: 100));
       Get.snackbar("오류", "독서를 시작할 수 없습니다.");
     } finally {
       if (Get.isDialogOpen == true) Get.back();
+      isSessionStarting.value = false;
     }
   }
 
@@ -552,19 +589,29 @@ class ReadingRegistrationController extends GetxController {
 
   Future<void> endReading(int endPage) async {
     if (currentSession.value == null) return;
+    if (isSessionEnding.value || isSessionStarting.value) {
+      print("ℹ️ [독서] 세션 전환 중이라 종료 요청을 무시합니다.");
+      return;
+    }
 
     final int targetBookId = currentSession.value!.bookId;
     final int sessionId = currentSession.value!.id;
     final int finalSeconds = elapsedSeconds.value;
+    final int reviewPage = endPage > 0
+        ? endPage
+        : (currentActiveBook.value?.currentPage ?? 1);
+    bool didSave = false;
 
     final currentItem = currentActiveBook.value;
 
     _timer?.cancel();
     Get.dialog(const Center(child: CircularProgressIndicator()), barrierDismissible: false);
+    isSessionEnding.value = true;
 
     try {
       final sessionResult = await repository.endSession(sessionId, endPage, finalSeconds);
       print("=== 세션 종료 성공: ${sessionResult.totalSeconds}초, ${sessionResult.endPage}p ===");
+      didSave = true;
 
       if (currentItem != null) {
         final totalPages = currentItem.book.totalPages;
@@ -613,14 +660,27 @@ class ReadingRegistrationController extends GetxController {
       if (Get.isDialogOpen ?? false) Get.back();
       Get.snackbar("오류", "저장에 실패했습니다: ${e.toString()}");
       return;
+    } finally {
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+      isSessionEnding.value = false;
     }
 
-    if (Get.isDialogOpen == true) {
-      Get.back();
+    if (!didSave) return;
+
+    if (Get.isRegistered<HardwareCameraController>()) {
+      final cameraController = Get.find<HardwareCameraController>();
+      await cameraController.syncPendingCaptureForReview(
+        bookId: targetBookId,
+        page: reviewPage,
+      );
+      await cameraController.stopCaptureSession();
     }
 
     currentSession.value = null;
     elapsedSeconds.value = 0;
+    _ignoreHardwareStartUntil = DateTime.now().add(const Duration(seconds: 2));
 
     Get.showSnackbar(
       GetSnackBar(
@@ -631,6 +691,11 @@ class ReadingRegistrationController extends GetxController {
         margin: const EdgeInsets.all(20),
         borderRadius: 8,
       ),
+    );
+
+    await _maybePromptPendingHighlightCaptures(
+      targetBookId,
+      promptKey: '$sessionId:$targetBookId',
     );
   }
 
@@ -657,10 +722,139 @@ class ReadingRegistrationController extends GetxController {
         myRating: currentItem.myRating,
         totalSessionSeconds: currentItem.totalSessionSeconds,
       );
+
+      if (Get.isRegistered<HardwareCameraController>() &&
+          currentSession.value != null) {
+        unawaited(
+          Get.find<HardwareCameraController>().syncCaptureContext(
+            bookId: currentItem.book.id,
+            page: validatedPage > 0 ? validatedPage : 1,
+          ),
+        );
+      }
     }
   }
 
-  void openHighlightCreationForCurrentBook() {
+  Future<void> syncHardwareSelectedBook(int bookId, {int? page}) async {
+    final item = getBookItem(bookId);
+    if (item == null) {
+      print("⚠️ [북스토퍼] 앱에 없는 책 ID 입니다: $bookId");
+      return;
+    }
+
+    final resolvedPage = (page != null && page > 0) ? page : item.currentPage;
+    final totalPages = item.book.totalPages;
+    final progressPercent = totalPages > 0
+        ? ((resolvedPage / totalPages) * 100).clamp(0, 100).toInt()
+        : item.progressPercent;
+
+    currentActiveBook.value = ReadingLibraryItem(
+      book: item.book,
+      status: item.status,
+      currentPage: resolvedPage,
+      progressPercent: progressPercent,
+      myRating: item.myRating,
+      totalSessionSeconds: item.totalSessionSeconds,
+    );
+
+    if (Get.isRegistered<HardwareCameraController>() &&
+        currentSession.value != null) {
+      unawaited(
+        Get.find<HardwareCameraController>().syncCaptureContext(
+          bookId: item.book.id,
+          page: resolvedPage > 0 ? resolvedPage : 1,
+        ),
+      );
+    }
+  }
+
+  Future<void> handleHardwareStart(int bookId, int page) async {
+    final now = DateTime.now();
+    if (_ignoreHardwareStartUntil != null &&
+        now.isBefore(_ignoreHardwareStartUntil!)) {
+      print("ℹ️ [북스토퍼] 종료 직후 START 바운스를 무시합니다.");
+      return;
+    }
+
+    await syncHardwareSelectedBook(bookId, page: page);
+
+    if (currentSession.value != null) {
+      if (currentSession.value!.bookId == bookId) {
+        updateRealTimePage(page);
+        return;
+      }
+
+      Get.snackbar(
+        "알림",
+        "이미 다른 독서 세션이 진행 중입니다.",
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    await startReadingSession(bookId, page > 0 ? page : null);
+  }
+
+  Future<void> handleHardwarePageUpdate(int bookId, int page) async {
+    if (isSessionStarting.value || isSessionEnding.value) {
+      print("ℹ️ [북스토퍼] 세션 전환 중 페이지 이벤트를 무시합니다.");
+      return;
+    }
+
+    await syncHardwareSelectedBook(bookId, page: page);
+    if (page > 0) {
+      updateRealTimePage(page);
+    }
+  }
+
+  Future<void> handleHardwareEnd(int bookId, int page) async {
+    if (currentSession.value == null) return;
+    if (isSessionStarting.value || isSessionEnding.value) {
+      print("ℹ️ [북스토퍼] 세션 전환 중 END 이벤트를 무시합니다.");
+      return;
+    }
+
+    final now = DateTime.now();
+    if (_ignoreHardwareEndUntil != null &&
+        now.isBefore(_ignoreHardwareEndUntil!)) {
+      print("ℹ️ [북스토퍼] START 직후 END 바운스를 무시합니다.");
+      return;
+    }
+
+    if (currentSession.value!.bookId != bookId) {
+      print(
+        "⚠️ [북스토퍼] 종료 이벤트 책 ID가 현재 세션과 다릅니다. current=${currentSession.value!.bookId}, incoming=$bookId",
+      );
+    }
+
+    if (page > 0) {
+      await endReading(page);
+    }
+  }
+
+  void handleHardwareShortcut(int bookId, int page) {
+    syncHardwareSelectedBook(bookId, page: page);
+    openHighlightCreationForBook(
+      bookId: bookId,
+      initialPage: page > 0 ? page : null,
+      autoStartOcr: true,
+      initialCaptureMode: HighlightCaptureMode.immediateOcr,
+      closePageAfterHighlightCreate: true,
+    );
+  }
+
+  Future<void> showHighlightCaptureActionForCurrentBook() async {
+    if (currentSession.value == null) {
+      Get.snackbar(
+        "알림",
+        "독서를 시작한 뒤에만 하이라이트 촬영을 사용할 수 있어요.",
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
     final activeBook = currentActiveBook.value;
 
     if (activeBook == null) {
@@ -673,22 +867,281 @@ class ReadingRegistrationController extends GetxController {
       return;
     }
 
-    final initialPage = activeBook.currentPage > 0 ? activeBook.currentPage : 1;
+    final mode = await Get.bottomSheet<HighlightCaptureMode>(
+      const HighlightCaptureModeSheet(),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+    );
+
+    if (mode == null) return;
+
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+
+    switch (mode) {
+      case HighlightCaptureMode.immediateOcr:
+        openHighlightCreationForCurrentBook(
+          initialCaptureMode: HighlightCaptureMode.immediateOcr,
+        );
+        break;
+      case HighlightCaptureMode.saveForLater:
+        await captureHighlightForLaterForBook(
+          bookId: activeBook.book.id,
+          page: activeBook.currentPage,
+        );
+        break;
+    }
+  }
+
+  Future<void> captureHighlightForLaterForBook({
+    required int bookId,
+    int? page,
+  }) async {
+    if (currentSession.value == null) {
+      Get.snackbar(
+        "알림",
+        "독서를 시작한 뒤에만 하이라이트 촬영을 사용할 수 있어요.",
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    final targetBook = getBookItem(bookId) ?? currentActiveBook.value;
+    if (targetBook == null) {
+      Get.snackbar("알림", "도서를 찾을 수 없습니다.");
+      return;
+    }
+
+    try {
+      final imagePath = await MobileOcr.captureImage();
+      if (imagePath == null) {
+        return;
+      }
+
+      final resolvedPage = (page != null && page > 0)
+          ? page
+          : (targetBook.currentPage > 0 ? targetBook.currentPage : 1);
+
+      await HighlightCaptureDraftService.instance.saveCapture(
+        bookId: targetBook.book.id,
+        bookTitle: targetBook.book.title,
+        page: resolvedPage,
+        sourcePath: imagePath,
+      );
+
+      Get.snackbar(
+        "저장 완료",
+        "${resolvedPage}페이지 촬영본을 저장했어요.",
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+    } catch (_) {
+      Get.snackbar("오류", "촬영본 저장에 실패했습니다.");
+    }
+  }
+
+  Future<void> _maybePromptPendingHighlightCaptures(
+    int bookId, {
+    String? promptKey,
+  }) async {
+    if (_isPendingHighlightPromptVisible) return;
+    if (promptKey != null && _lastPendingHighlightPromptKey == promptKey) {
+      return;
+    }
+
+    final count = await HighlightCaptureDraftService.instance
+        .countDraftsForBook(bookId);
+    if (count == 0) return;
+
+    _isPendingHighlightPromptVisible = true;
+    if (promptKey != null) {
+      _lastPendingHighlightPromptKey = promptKey;
+    }
+
+    final action = await Get.dialog<bool>(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: Colors.white,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 28),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                '저장된 촬영본 검토',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF3F3F3F),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                '이번 독서 중 저장한 촬영본이 $count개 있어요.\n지금 검토해서 하이라이트로 남길까요?',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF888888),
+                  height: 1.5,
+                ),
+              ),
+            ),
+            const SizedBox(height: 28),
+            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+            SizedBox(
+              height: 50,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => Get.back(result: false),
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(16),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          '나중에',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Color(0xFF888888),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const VerticalDivider(width: 1, color: Color(0xFFEEEEEE)),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => Get.back(result: true),
+                      borderRadius: const BorderRadius.only(
+                        bottomRight: Radius.circular(16),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          '검토하기',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Color(0xFF4CAF50),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    _isPendingHighlightPromptVisible = false;
+
+    if (action == true) {
+      await Future<void>.delayed(const Duration(milliseconds: 180));
+      openHighlightCaptureReviewForBook(bookId: bookId);
+    }
+  }
+
+  void openHighlightCaptureReviewForBook({required int bookId}) {
+    final targetBook = getBookItem(bookId) ?? currentActiveBook.value;
+    if (targetBook == null) {
+      Get.snackbar("알림", "도서를 찾을 수 없습니다.");
+      return;
+    }
+
+    if (currentActiveBook.value?.book.id != targetBook.book.id) {
+      currentActiveBook.value = targetBook;
+    }
+
+    Get.toNamed(
+      '/book_note',
+      arguments: {
+        'bookId': targetBook.book.id,
+        'tabIndex': 1,
+        'openHighlightCaptureReview': true,
+      },
+    );
+  }
+
+  void openHighlightCreationForBook({
+    required int bookId,
+    int? initialPage,
+    bool autoStartOcr = true,
+    HighlightCaptureMode? initialCaptureMode,
+    bool closePageAfterHighlightCreate = true,
+  }) {
+    final targetBook = getBookItem(bookId) ?? currentActiveBook.value;
+
+    if (targetBook == null) {
+      Get.snackbar(
+        "알림",
+        "먼저 독서 중인 책을 선택해주세요.",
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    if (currentActiveBook.value?.book.id != targetBook.book.id) {
+      currentActiveBook.value = targetBook;
+    }
+
+    final resolvedPage = (initialPage != null && initialPage > 0)
+        ? initialPage
+        : (targetBook.currentPage > 0 ? targetBook.currentPage : 1);
 
     print(
-      "✍️ [독서 등록] 하이라이트 OCR 진입 (bookId: ${activeBook.book.id}, page: $initialPage)",
+      "✍️ [독서 등록] 하이라이트 OCR 진입 (bookId: ${targetBook.book.id}, page: $resolvedPage)",
     );
 
     Get.toNamed(
       '/book_note',
       arguments: {
-        'bookId': activeBook.book.id,
+        'bookId': targetBook.book.id,
         'tabIndex': 1,
         'openHighlightCreation': true,
-        'initialHighlightPage': initialPage,
-        'autoStartHighlightOcr': true,
-        'closePageAfterHighlightCreate': true,
+        'initialHighlightPage': resolvedPage,
+        'autoStartHighlightOcr': autoStartOcr,
+        'autoStartHighlightCaptureMode':
+            initialCaptureMode == HighlightCaptureMode.immediateOcr
+            ? 'immediate'
+            : initialCaptureMode == HighlightCaptureMode.saveForLater
+                ? 'save_for_later'
+                : null,
+        'closePageAfterHighlightCreate': closePageAfterHighlightCreate,
       },
+    );
+  }
+
+  void openHighlightCreationForCurrentBook({
+    HighlightCaptureMode? initialCaptureMode,
+  }) {
+    final activeBook = currentActiveBook.value;
+
+    if (activeBook == null) {
+      Get.snackbar(
+        "알림",
+        "먼저 독서 중인 책을 선택해주세요.",
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    openHighlightCreationForBook(
+      bookId: activeBook.book.id,
+      initialPage: activeBook.currentPage,
+      autoStartOcr: true,
+      initialCaptureMode: initialCaptureMode,
+      closePageAfterHighlightCreate: true,
     );
   }
 }

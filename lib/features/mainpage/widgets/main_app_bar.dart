@@ -2,8 +2,12 @@ import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/mainpage_controller.dart';
+import '../../reading_registration/controllers/book_stopper_controller.dart';
+import '../../reading_registration/controllers/hardware_camera_controller.dart';
 import '../../notification/controllers/notification_controller.dart';
 import '../../notification/pages/notification_page.dart';
+import 'book_stopper_connection_sheet.dart';
+import 'hardware_camera_connection_sheet.dart';
 
 class MainAppBar extends GetView<MainpageController> implements PreferredSizeWidget {
   const MainAppBar({super.key});
@@ -11,6 +15,8 @@ class MainAppBar extends GetView<MainpageController> implements PreferredSizeWid
   @override
   Widget build(BuildContext context) {
     final notifController = Get.find<NotificationController>();
+    final stopperController = Get.find<BookStopperController>();
+    final cameraController = Get.find<HardwareCameraController>();
 
     return AppBar(
       backgroundColor: Colors.white,
@@ -61,7 +67,49 @@ class MainAppBar extends GetView<MainpageController> implements PreferredSizeWid
               );
             }),
             const SizedBox(width: 5),
-            const Icon(Icons.bluetooth, color: AppColors.primary),
+            Obx(
+              () => IconButton(
+                icon: Icon(
+                  cameraController.isConnected
+                      ? Icons.photo_camera
+                      : Icons.photo_camera_outlined,
+                  color: cameraController.isConnected
+                      ? AppColors.primary
+                      : AppColors.textHint,
+                ),
+                tooltip: cameraController.isConnected
+                    ? "하이라이트 카메라 연결됨"
+                    : "하이라이트 카메라 연결",
+                onPressed: () {
+                  Get.bottomSheet(
+                    const HardwareCameraConnectionSheet(),
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                  );
+                },
+              ),
+            ),
+            const SizedBox(width: 2),
+            Obx(
+              () => IconButton(
+                icon: Icon(
+                  stopperController.isConnected
+                      ? Icons.bluetooth_connected
+                      : Icons.bluetooth,
+                  color: stopperController.isConnected
+                      ? AppColors.primary
+                      : AppColors.textHint,
+                ),
+                tooltip: stopperController.isConnected ? "북스토퍼 연결됨" : "북스토퍼 연결",
+                onPressed: () {
+                  Get.bottomSheet(
+                    const BookStopperConnectionSheet(),
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                  );
+                },
+              ),
+            ),
             const SizedBox(width: 20),
           ],
         )
