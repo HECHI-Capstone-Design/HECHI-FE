@@ -12,7 +12,9 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
   late int tabIndex;
   late bool openHighlightCreation;
   late bool autoStartHighlightOcr;
+  late String? autoStartHighlightCaptureMode;
   late bool closePageAfterHighlightCreate;
+  late bool openHighlightCaptureReview;
   int? initialHighlightPage;
 
   String? preselectedGroupId;
@@ -57,7 +59,10 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
     tabIndex = args['tabIndex'] ?? 0;
     openHighlightCreation = args['openHighlightCreation'] == true;
     autoStartHighlightOcr = args['autoStartHighlightOcr'] == true;
+    autoStartHighlightCaptureMode =
+        args['autoStartHighlightCaptureMode']?.toString();
     closePageAfterHighlightCreate = args['closePageAfterHighlightCreate'] == true;
+    openHighlightCaptureReview = args['openHighlightCaptureReview'] == true;
     initialHighlightPage = args['initialHighlightPage'] as int?;
 
     preselectedGroupId = args['preselectedGroupId'];
@@ -76,8 +81,15 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
     return {
       'page': initialHighlightPage,
       'autoStartOcr': autoStartHighlightOcr,
+      'autoStartCaptureMode': autoStartHighlightCaptureMode,
       'closeParentPageOnSave': closePageAfterHighlightCreate,
     };
+  }
+
+  bool consumeHighlightCaptureReviewRequest() {
+    if (!openHighlightCaptureReview) return false;
+    openHighlightCaptureReview = false;
+    return true;
   }
 
   @override
@@ -327,22 +339,17 @@ class BookNoteController extends GetxController with GetSingleTickerProviderStat
   }
 
   /// ===================== MEMO SORT =====================
-  DateTime _parseDate(String? raw) {
-    if (raw == null) return DateTime(0);
-    try {
-      return DateTime.parse(raw);
-    } catch (_) {
-      return DateTime(0);
-    }
-  }
-
   void sortMemos() {
     if (sortTypeMemo.value == "date") {
       notes.sort((a, b) =>
-          _parseDate(b["created_date"]).compareTo(_parseDate(a["created_date"])));
+          DateTime.parse(b["created_date"])
+              .compareTo(DateTime.parse(a["created_date"])));
+      sortTextMemo.value = "최신 순";
     } else {
       notes.sort((a, b) =>
-          _parseDate(a["created_date"]).compareTo(_parseDate(b["created_date"])));
+          DateTime.parse(a["created_date"])
+              .compareTo(DateTime.parse(b["created_date"])));
+      sortTextMemo.value = "오래된 순";
     }
     notes.refresh();
   }

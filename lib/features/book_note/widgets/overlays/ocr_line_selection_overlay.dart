@@ -1,4 +1,3 @@
-import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -65,7 +64,7 @@ class _OcrLineSelectionOverlayState extends State<OcrLineSelectionOverlay> {
                         style: TextStyle(
                           fontSize: 13,
                           color: _selectedIndexes.isEmpty
-                              ? AppColors.textHint
+                              ? const Color(0xFFABABAB)
                               : Colors.black,
                         ),
                       ),
@@ -76,7 +75,7 @@ class _OcrLineSelectionOverlayState extends State<OcrLineSelectionOverlay> {
               Container(
                 width: double.infinity,
                 height: 1,
-                color: AppColors.divider,
+                color: const Color(0xFFF3F3F3),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
@@ -85,14 +84,14 @@ class _OcrLineSelectionOverlayState extends State<OcrLineSelectionOverlay> {
                     Icon(
                       Icons.text_snippet_outlined,
                       size: 18,
-                      color: AppColors.textMedium,
+                      color: Color(0xFF717171),
                     ),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         '촬영한 문장에서 저장할 텍스트를 선택해주세요.',
                         style: TextStyle(
-                          color: AppColors.textMedium,
+                          color: Color(0xFF717171),
                           fontSize: 13,
                           height: 1.5,
                         ),
@@ -127,13 +126,13 @@ class _OcrLineSelectionOverlayState extends State<OcrLineSelectionOverlay> {
                         ),
                         decoration: BoxDecoration(
                           color: selected
-                              ? AppColors.primarySurface
-                              : AppColors.backgroundGrey,
+                              ? const Color(0xFFF5FBF7)
+                              : const Color(0xFFF9F9F9),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: selected
-                                ? AppColors.primary
-                                : AppColors.border,
+                                ? const Color(0xFF4DB56C)
+                                : const Color(0xFFEAEAEA),
                           ),
                         ),
                         child: Row(
@@ -146,12 +145,12 @@ class _OcrLineSelectionOverlayState extends State<OcrLineSelectionOverlay> {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: selected
-                                    ? AppColors.primary
+                                    ? const Color(0xFF4DB56C)
                                     : Colors.white,
                                 border: Border.all(
                                   color: selected
-                                      ? AppColors.primary
-                                      : AppColors.borderMedium,
+                                      ? const Color(0xFF4DB56C)
+                                      : const Color(0xFFD3D3D3),
                                 ),
                               ),
                               child: selected
@@ -167,7 +166,7 @@ class _OcrLineSelectionOverlayState extends State<OcrLineSelectionOverlay> {
                               child: Text(
                                 line,
                                 style: const TextStyle(
-                                  color: AppColors.textDark,
+                                  color: Color(0xFF3F3F3F),
                                   fontSize: 15,
                                   height: 1.55,
                                 ),
