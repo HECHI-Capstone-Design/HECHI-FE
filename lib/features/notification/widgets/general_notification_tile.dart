@@ -37,9 +37,17 @@ class GeneralNotificationTile extends StatelessWidget {
 
         Get.find<NotificationController>().markAsRead(item.notificationId);
 
-        // SLUMP/READING_REMINDER는 bookId보다 먼저 처리: 책 정보가 targetInfo에 있어도 보관함으로 이동
-        if (item.type.contains('SLUMP') || reminderType == 'READING_REMINDER') {
+        if (item.type.contains('SLUMP')) {
+          // 일반 독서 격려 알림 → 항상 보관함 (bookId 유무 무관)
           Get.toNamed(Routes.bookStorage);
+        } else if (reminderType == 'READING_REMINDER') {
+          // 특정 책 언급 리마인더 → bookId 있으면 해당 책 상세, 없으면 보관함
+          final bookId = info['bookId'];
+          if (bookId != null) {
+            Get.toNamed(Routes.bookDetailPage, arguments: int.tryParse(bookId.toString()));
+          } else {
+            Get.toNamed(Routes.bookStorage);
+          }
         } else if (info['groupId'] != null) {
           Get.toNamed(Routes.groupMain, arguments: info['groupId'].toString());
         } else if (info['bookId'] != null) {

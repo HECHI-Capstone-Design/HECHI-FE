@@ -1,5 +1,4 @@
 import 'package:hechi/app/colors.dart';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -65,7 +64,7 @@ class _ProfileEditViewState extends State<ProfileEditView> {
                   maxWidth: 800,
                 );
                 if (picked != null) {
-                  await appController.uploadProfileImage(File(picked.path));
+                  await appController.uploadProfileImage(picked);
                   setState(() {});
                 }
               },
@@ -81,7 +80,7 @@ class _ProfileEditViewState extends State<ProfileEditView> {
                   maxWidth: 800,
                 );
                 if (picked != null) {
-                  await appController.uploadProfileImage(File(picked.path));
+                  await appController.uploadProfileImage(picked);
                   setState(() {});
                 }
               },

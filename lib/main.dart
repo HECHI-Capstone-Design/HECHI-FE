@@ -64,9 +64,21 @@ void handleNotificationClick(RemoteMessage message) {
       } else {
         Get.toNamed(Routes.notification);
       }
-    // SLUMP/READING_REMINDER는 bookId보다 먼저 처리
-    } else if (type.contains('SLUMP') || reminderType == 'READING_REMINDER') {
+    } else if (type.contains('SLUMP')) {
+      // 일반 독서 격려 알림 → 항상 보관함
       Get.toNamed(Routes.bookStorage);
+    } else if (reminderType == 'READING_REMINDER') {
+      // 특정 책 언급 리마인더 → bookId 있으면 해당 책 상세, 없으면 보관함
+      if (bookId != null) {
+        final bId = int.tryParse(bookId);
+        if (bId != null) {
+          Get.toNamed(Routes.bookDetailPage, arguments: bId);
+        } else {
+          Get.toNamed(Routes.bookStorage);
+        }
+      } else {
+        Get.toNamed(Routes.bookStorage);
+      }
     } else if (groupId != null) {
       Get.toNamed(Routes.groupMain, arguments: groupId);
     } else if (bookId != null) {
