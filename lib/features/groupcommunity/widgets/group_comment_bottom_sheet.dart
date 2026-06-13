@@ -8,7 +8,9 @@ import 'package:hechi/core/widgets/user_avatar.dart';
 
 class GroupCommentBottomSheet extends StatefulWidget {
   final Map<String, dynamic> post;
-  const GroupCommentBottomSheet({Key? key, required this.post}) : super(key: key);
+  // 알림 딥링크 시 특정 댓글로 스크롤하기 위한 ID (없으면 null)
+  final String? initialCommentId;
+  const GroupCommentBottomSheet({Key? key, required this.post, this.initialCommentId}) : super(key: key);
 
   @override
   State<GroupCommentBottomSheet> createState() =>
@@ -18,6 +20,7 @@ class GroupCommentBottomSheet extends StatefulWidget {
 class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
   final GroupController controller = Get.find<GroupController>();
   final TextEditingController textController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   Map<String, dynamic>? replyingTargetComment;
   bool _isInitLoading = true;
@@ -50,8 +53,45 @@ class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
       await controller.loadCommentsForPost(livePost);
     } catch (_) {
     } finally {
-      if (mounted) setState(() => _isInitLoading = false);
+      if (mounted) {
+        setState(() => _isInitLoading = false);
+        // 특정 댓글 ID가 있으면 로드 완료 후 해당 댓글로 스크롤
+        if (widget.initialCommentId != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToComment(widget.initialCommentId!));
+        }
+      }
     }
+  }
+
+  void _scrollToComment(String commentId) {
+    if (!_scrollController.hasClients) return;
+    final String postId = (widget.post["id"] ?? "0").toString();
+    final livePost = controller.missionPosts.firstWhere(
+      (p) => p["id"].toString() == postId,
+      orElse: () => controller.freePosts.firstWhere(
+        (p) => p["id"].toString() == postId,
+        orElse: () => widget.post,
+      ),
+    );
+    final List<dynamic> comments = livePost["comments"] is RxList
+        ? livePost["comments"]
+        : (livePost["comments"] ?? []);
+    final int idx = comments.indexWhere((c) => c["id"]?.toString() == commentId);
+    if (idx < 0) return;
+    // 댓글 하나당 평균 높이로 추정하여 스크롤 (정확한 위치는 GlobalKey로도 구현 가능)
+    const double estimatedItemHeight = 72.0;
+    _scrollController.animateTo(
+      idx * estimatedItemHeight,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    textController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -130,6 +170,7 @@ class _GroupCommentBottomSheetState extends State<GroupCommentBottomSheet> {
               }
 
               return ListView.builder(
+                controller: _scrollController,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: commentsList.length,
                 itemBuilder: (context, idx) {

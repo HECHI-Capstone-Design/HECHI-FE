@@ -46,8 +46,20 @@ class GroupNotificationTile extends StatelessWidget {
 
         // 2. 🚀 팀장님의 최신 라우팅 로직 적용 (String 하나만 깔끔하게 넘김)
         if (info.containsKey('groupId')) {
-          final String finalGroupIdStr = info['groupId'].toString();
-          Get.toNamed(Routes.groupMain, arguments: finalGroupIdStr);
+          final String groupId = info['groupId'].toString();
+          final String? postId = info['postId']?.toString();
+          final String? commentId = info['commentId']?.toString();
+
+          // 좋아요·댓글 알림은 postId가 있으면 해당 게시글로 바로 이동
+          if ((item.type.contains('LIKE') || item.type.contains('COMMENT')) && postId != null) {
+            Get.toNamed(Routes.groupMain, arguments: {
+              'groupId': groupId,
+              'postId': postId,
+              'commentId': commentId, // 댓글 알림일 때만 non-null
+            });
+          } else {
+            Get.toNamed(Routes.groupMain, arguments: groupId);
+          }
         } else {
           debugPrint("🚨 그룹 ID를 찾을 수 없습니다. info: $info");
         }

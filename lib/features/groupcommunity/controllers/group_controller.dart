@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:hechi/features/search/data/search_repository.dart';
 import 'package:hechi/features/search/data/book_model.dart';
 import '../../myGroup/models/group_model.dart';
+import '../pages/group_post_list_view.dart';
+import '../pages/group_post_detail_page.dart';
 
 class GroupController extends GetxController {
   final String baseUrl = AppConfig.baseUrl;
@@ -65,6 +67,10 @@ class GroupController extends GetxController {
   final attachedNotes = <Map<String, dynamic>>[].obs;
   bool get isNoteAttached => attachedNotes.isNotEmpty;
 
+  // 알림 딥링크로 진입 시 자동으로 열어야 할 게시글/댓글 ID
+  String? _pendingPostId;
+  String? _pendingCommentId;
+
   @override
   void onInit() {
     super.onInit();
@@ -73,6 +79,11 @@ class GroupController extends GetxController {
         currentGroupId.value = Get.arguments as String;
       } else if (Get.arguments is GroupModel) {
         currentGroupId.value = (Get.arguments as GroupModel).id;
+      } else if (Get.arguments is Map) {
+        final map = Map<String, dynamic>.from(Get.arguments as Map);
+        currentGroupId.value = map['groupId']?.toString() ?? '';
+        _pendingPostId = map['postId']?.toString();
+        _pendingCommentId = map['commentId']?.toString();
       }
       print("🚀 [컨트롤러 기동] 아규먼트로 수신한 진짜 방 ID: ${currentGroupId.value}");
     }
@@ -82,6 +93,54 @@ class GroupController extends GetxController {
       return;
     }
     fetchAllDataFromAPI();
+  }
+
+  // 데이터 로드 완료 후 알림 딥링크 게시글 자동 오픈
+  // 스택: [GroupMain] → [PostListView] → [GroupPostDetailPage]
+  void _openPendingPostIfNeeded() {
+    if (_pendingPostId == null) return;
+    final postId = _pendingPostId!;
+    final commentId = _pendingCommentId;
+    _pendingPostId = null;
+    _pendingCommentId = null;
+
+    // 미션 게시판인지 자유 게시판인지 판별
+    bool isMission = true;
+    Map<String, dynamic> post = missionPosts.firstWhere(
+      (p) => p["id"].toString() == postId,
+      orElse: () => <String, dynamic>{},
+    );
+    if (post.isEmpty) {
+      isMission = false;
+      post = freePosts.firstWhere(
+        (p) => p["id"].toString() == postId,
+        orElse: () => <String, dynamic>{},
+      );
+    }
+
+    if (post.isEmpty) {
+      print("⚠️ 딥링크 게시글 ID($postId)를 찾을 수 없음");
+      return;
+    }
+
+    final finalPost = Map<String, dynamic>.from(post);
+    final finalCommentId = commentId;
+    final finalIsMission = isMission;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final navigator = Get.key.currentState;
+      // 게시판 목록 → 게시글 상세 순서로 동시에 스택에 쌓음
+      // Back: PostDetail → PostList → GroupMain
+      navigator?.push(MaterialPageRoute(
+        builder: (_) => GroupPostListView(isMissionBoard: finalIsMission),
+      ));
+      navigator?.push(MaterialPageRoute(
+        builder: (_) => GroupPostDetailPage(
+          post: finalPost,
+          initialCommentId: finalCommentId,
+        ),
+      ));
+    });
   }
 
   Future<void> fetchAllDataFromAPI() async {
@@ -224,6 +283,7 @@ class GroupController extends GetxController {
     } catch (_) {
     } finally {
       isLoading.value = false;
+      _openPendingPostIfNeeded();
     }
   }
 

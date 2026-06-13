@@ -45,10 +45,26 @@ void handleNotificationClick(RemoteMessage message) {
     final String? bookId = info['bookId']?.toString();
 
     // 2. type 기반 우선 분기 + targetInfo 보조
-    if (type == 'GROUP_JOIN' || type == 'GROUP_COMMENT' || type == 'GROUP_NOTICE') {
-      // 그룹 관련 알림 → groupId 있으면 그룹 메인, 없으면 알림함
+    if (type == 'GROUP_JOIN' || type == 'GROUP_NOTICE') {
       if (groupId != null) {
         Get.toNamed(Routes.groupMain, arguments: groupId);
+      } else {
+        Get.toNamed(Routes.notification);
+      }
+    } else if (type.contains('LIKE') || type.contains('COMMENT')) {
+      // 좋아요·댓글 알림 → postId 있으면 해당 게시글로, 없으면 그룹 메인
+      if (groupId != null) {
+        final String? postId = info['postId']?.toString();
+        final String? commentId = info['commentId']?.toString();
+        if (postId != null) {
+          Get.toNamed(Routes.groupMain, arguments: {
+            'groupId': groupId,
+            'postId': postId,
+            'commentId': commentId,
+          });
+        } else {
+          Get.toNamed(Routes.groupMain, arguments: groupId);
+        }
       } else {
         Get.toNamed(Routes.notification);
       }
