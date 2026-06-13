@@ -64,6 +64,9 @@ void handleNotificationClick(RemoteMessage message) {
       } else {
         Get.toNamed(Routes.notification);
       }
+    // SLUMP/READING_REMINDER는 bookId보다 먼저 처리
+    } else if (type.contains('SLUMP') || reminderType == 'READING_REMINDER') {
+      Get.toNamed(Routes.bookStorage);
     } else if (groupId != null) {
       Get.toNamed(Routes.groupMain, arguments: groupId);
     } else if (bookId != null) {
@@ -71,8 +74,6 @@ void handleNotificationClick(RemoteMessage message) {
       if (bId != null) Get.toNamed(Routes.bookDetailPage, arguments: bId);
     } else if (info['badgeCode'] != null || info['rewardId'] != null || type.contains('REWARD')) {
       Get.toNamed(Routes.reward);
-    } else if (reminderType == 'READING_REMINDER' || type.contains('SLUMP')) {
-      Get.toNamed(Routes.bookStorage);
     } else if (info['noticeId'] != null || type.contains('NOTICE')) {
       Get.toNamed(Routes.customer);
     } else {
