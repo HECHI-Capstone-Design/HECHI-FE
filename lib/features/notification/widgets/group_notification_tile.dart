@@ -46,8 +46,20 @@ class GroupNotificationTile extends StatelessWidget {
 
         // 2. 🚀 팀장님의 최신 라우팅 로직 적용 (String 하나만 깔끔하게 넘김)
         if (info.containsKey('groupId')) {
-          final String finalGroupIdStr = info['groupId'].toString();
-          Get.toNamed(Routes.groupMain, arguments: finalGroupIdStr);
+          final String groupId = info['groupId'].toString();
+          final String? postId = info['postId']?.toString();
+          final String? commentId = info['commentId']?.toString();
+
+          // 좋아요·댓글 알림은 postId가 있으면 해당 게시글로 바로 이동
+          if ((item.type.contains('LIKE') || item.type.contains('COMMENT')) && postId != null) {
+            Get.toNamed(Routes.groupMain, arguments: {
+              'groupId': groupId,
+              'postId': postId,
+              'commentId': commentId, // 댓글 알림일 때만 non-null
+            });
+          } else {
+            Get.toNamed(Routes.groupMain, arguments: groupId);
+          }
         } else {
           debugPrint("🚨 그룹 ID를 찾을 수 없습니다. info: $info");
         }
@@ -122,12 +134,17 @@ class GroupNotificationTile extends StatelessWidget {
     bool isDelete = item.type.contains('DELETE') ||
         item.description.endsWith('삭제되었어요.');
 
+    // 좋아요·댓글·반응 등 사용자 행위 알림은 발신자 프로필 표시
+    bool isSocialInteraction = item.type.contains('LIKE') ||
+        item.type.contains('COMMENT') ||
+        item.type.contains('REACTION');
+
     if (isMission) {
       return _BookThumbnail(imageUrl: groupImageUrl);
-    } else if (isJoinOrLeave) {
+    } else if (isJoinOrLeave || isSocialInteraction) {
       final String? userProfileUrl = item.senderProfileImageUrl?.isNotEmpty == true
           ? item.senderProfileImageUrl
-          : (info['profileUrl'] ?? info['actorProfileUrl'] ?? info['userImageUrl'])?.toString();
+          : (info['actorProfileUrl'] ?? info['profileUrl'] ?? info['userImageUrl'])?.toString();
       return _ProfileThumbnail(imageUrl: userProfileUrl);
     } else if (isDelete) {
       // 삭제된 그룹은 회색 그룹 오프 아이콘 띄우기

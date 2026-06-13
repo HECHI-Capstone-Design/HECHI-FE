@@ -37,15 +37,23 @@ class GeneralNotificationTile extends StatelessWidget {
 
         Get.find<NotificationController>().markAsRead(item.notificationId);
 
-
-        if (info['groupId'] != null) {
+        if (item.type.contains('SLUMP')) {
+          // 일반 독서 격려 알림 → 항상 보관함 (bookId 유무 무관)
+          Get.toNamed(Routes.bookStorage);
+        } else if (reminderType == 'READING_REMINDER') {
+          // 특정 책 언급 리마인더 → bookId 있으면 해당 책 상세, 없으면 보관함
+          final bookId = info['bookId'];
+          if (bookId != null) {
+            Get.toNamed(Routes.bookDetailPage, arguments: int.tryParse(bookId.toString()));
+          } else {
+            Get.toNamed(Routes.bookStorage);
+          }
+        } else if (info['groupId'] != null) {
           Get.toNamed(Routes.groupMain, arguments: info['groupId'].toString());
         } else if (info['bookId'] != null) {
           Get.toNamed(Routes.bookDetailPage, arguments: int.tryParse(info['bookId'].toString()));
         } else if (info['badgeCode'] != null || info['rewardId'] != null || item.type.contains('REWARD') || item.type.contains('BADGE')) {
           Get.toNamed(Routes.reward);
-        } else if (reminderType == 'READING_REMINDER' || item.type.contains('SLUMP')) {
-          Get.toNamed(Routes.bookStorage);
         } else if (info['noticeId'] != null || item.type.contains('NOTICE')) {
           Get.toNamed(Routes.customer);
         } else {
@@ -72,7 +80,7 @@ class GeneralNotificationTile extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: Text(item.title, style: TextStyle(color: kNotifTextDark, fontSize: 14, fontWeight: item.isRead ? FontWeight.w500 : FontWeight.bold)),
+                        child: Text(_resolvedTitle(), style: TextStyle(color: kNotifTextDark, fontSize: 14, fontWeight: item.isRead ? FontWeight.w500 : FontWeight.bold)),
                       ),
                       Text(item.timeAgo, style: TextStyle(color: kNotifTextGrey, fontSize: 11)),
                     ],
@@ -89,6 +97,15 @@ class GeneralNotificationTile extends StatelessWidget {
   }
 
 
+  // senderName이 있고 컬렉션 좋아요 타입이면 SNS 스타일 제목으로 표시
+  String _resolvedTitle() {
+    final name = item.senderName;
+    if (name != null && name.isNotEmpty && item.type.contains('COLLECTION') && item.type.contains('LIKE')) {
+      return '$name님이 좋아요를 눌렀어요';
+    }
+    return item.title;
+  }
+
   Widget _buildThumbnail(Map<String, dynamic> info) {
     final String? resolvedUrl = item.imageUrl?.isNotEmpty == true ? item.imageUrl : (info['thumbnailUrl'] ?? info['imageUrl'])?.toString();
     final String? reminderType = info['reminderType']?.toString();
@@ -99,6 +116,11 @@ class GeneralNotificationTile extends StatelessWidget {
     if (info['rewardId'] != null || info['badgeCode'] != null || item.type.contains('REWARD') || item.type.contains('BADGE')) return _RewardThumbnail(imageUrl: resolvedUrl);
 
     if (info['bookId'] != null) return _BookThumbnail(imageUrl: resolvedUrl);
+
+    // AI 독서 요약 → 책 표지 + AI 배지 오버레이
+    if (item.type.contains('AI') || item.type.contains('SUMMARY')) {
+      return _AiSummaryThumbnail(imageUrl: resolvedUrl ?? info['bookCoverUrl']?.toString());
+    }
 
     // READING_REMINDER: 독서 중인 책 커버 스택 (백엔드가 bookCovers 배열 제공 시 스택, 미제공 시 회색 아이콘)
     if (reminderType == 'READING_REMINDER') {
@@ -164,6 +186,46 @@ class _CircleThumbnail extends StatelessWidget {
           ? ClipOval(child: Image.network(imageUrl!, fit: BoxFit.cover,
               errorBuilder: (_, __, ___) => Icon(Icons.person, color: Colors.grey.shade500, size: 30)))
           : Icon(Icons.person, color: Colors.grey.shade500, size: 30),
+    );
+  }
+}
+
+/// AI 독서 요약 전용 썸네일: 책 표지 위에 작은 AI 배지 오버레이.
+/// 책 표지 URL은 백엔드 targetInfo.bookCoverUrl 또는 thumbnailUrl로 제공받아야 함.
+class _AiSummaryThumbnail extends StatelessWidget {
+  final String? imageUrl;
+  const _AiSummaryThumbnail({this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 60,
+      height: 80,
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: SizedBox(
+              width: 60,
+              height: 80,
+              child: imageUrl != null && imageUrl!.isNotEmpty
+                  ? Image.network(imageUrl!, fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(color: AppColors.divider, child: Icon(Icons.book, color: kNotifBorder, size: 28)))
+                  : Container(color: AppColors.divider, child: Icon(Icons.book, color: kNotifBorder, size: 28)),
+            ),
+          ),
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: Container(
+              width: 20,
+              height: 20,
+              decoration: const BoxDecoration(color: Color(0xFF4DB56C), shape: BoxShape.circle),
+              child: const Center(child: Text('AI', style: TextStyle(color: Colors.white, fontSize: 7, fontWeight: FontWeight.bold))),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

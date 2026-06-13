@@ -99,8 +99,9 @@ class _CreationOverlayState extends State<CreationOverlay> {
   Widget build(BuildContext context) {
     final controller = Get.find<BookNoteController>();
 
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     return Container(
-      height: MediaQuery.of(context).size.height * 0.9,
+      height: MediaQuery.of(context).size.height * 0.9 - keyboardHeight,
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
@@ -467,14 +468,7 @@ class _CreationOverlayState extends State<CreationOverlay> {
 
         // --------------------- 공개 여부 ---------------------
         Container(
-          padding: EdgeInsets.fromLTRB(
-            17,
-            16,
-            17,
-            MediaQuery.of(context).viewInsets.bottom > 0
-                ? MediaQuery.of(context).viewInsets.bottom
-                : 16,
-          ),
+          padding: const EdgeInsets.fromLTRB(17, 16, 17, 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

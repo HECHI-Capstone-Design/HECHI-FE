@@ -45,10 +45,26 @@ void handleNotificationClick(RemoteMessage message) {
     final String? bookId = info['bookId']?.toString();
 
     // 2. type 기반 우선 분기 + targetInfo 보조
-    if (type == 'GROUP_JOIN' || type == 'GROUP_COMMENT' || type == 'GROUP_NOTICE') {
-      // 그룹 관련 알림 → groupId 있으면 그룹 메인, 없으면 알림함
+    if (type == 'GROUP_JOIN' || type == 'GROUP_NOTICE') {
       if (groupId != null) {
         Get.toNamed(Routes.groupMain, arguments: groupId);
+      } else {
+        Get.toNamed(Routes.notification);
+      }
+    } else if (type.contains('LIKE') || type.contains('COMMENT')) {
+      // 좋아요·댓글 알림 → postId 있으면 해당 게시글로, 없으면 그룹 메인
+      if (groupId != null) {
+        final String? postId = info['postId']?.toString();
+        final String? commentId = info['commentId']?.toString();
+        if (postId != null) {
+          Get.toNamed(Routes.groupMain, arguments: {
+            'groupId': groupId,
+            'postId': postId,
+            'commentId': commentId,
+          });
+        } else {
+          Get.toNamed(Routes.groupMain, arguments: groupId);
+        }
       } else {
         Get.toNamed(Routes.notification);
       }
@@ -64,6 +80,21 @@ void handleNotificationClick(RemoteMessage message) {
       } else {
         Get.toNamed(Routes.notification);
       }
+    } else if (type.contains('SLUMP')) {
+      // 일반 독서 격려 알림 → 항상 보관함
+      Get.toNamed(Routes.bookStorage);
+    } else if (reminderType == 'READING_REMINDER') {
+      // 특정 책 언급 리마인더 → bookId 있으면 해당 책 상세, 없으면 보관함
+      if (bookId != null) {
+        final bId = int.tryParse(bookId);
+        if (bId != null) {
+          Get.toNamed(Routes.bookDetailPage, arguments: bId);
+        } else {
+          Get.toNamed(Routes.bookStorage);
+        }
+      } else {
+        Get.toNamed(Routes.bookStorage);
+      }
     } else if (groupId != null) {
       Get.toNamed(Routes.groupMain, arguments: groupId);
     } else if (bookId != null) {
@@ -71,8 +102,6 @@ void handleNotificationClick(RemoteMessage message) {
       if (bId != null) Get.toNamed(Routes.bookDetailPage, arguments: bId);
     } else if (info['badgeCode'] != null || info['rewardId'] != null || type.contains('REWARD')) {
       Get.toNamed(Routes.reward);
-    } else if (reminderType == 'READING_REMINDER' || type.contains('SLUMP')) {
-      Get.toNamed(Routes.bookStorage);
     } else if (info['noticeId'] != null || type.contains('NOTICE')) {
       Get.toNamed(Routes.customer);
     } else {
