@@ -356,50 +356,33 @@ class GroupMenuView extends StatelessWidget {
 
       final presignRes = await http.post(
         Uri.parse('${AppConfig.baseUrl}/uploads/presign'
-            '?filename=$filename&contentType=image%2Fjpeg&acl=public-read'),
+            '?filename=$filename&contentType=image%2Fjpeg'),
         headers: {'accept': 'application/json', 'Authorization': 'Bearer $token'},
       );
 
-      print('presign: ${presignRes.statusCode}');
       String? publicUrl;
 
       if (presignRes.statusCode == 200) {
         final body = jsonDecode(presignRes.body) as Map<String, dynamic>;
         final String uploadUrl = body['url']?.toString() ?? '';
+        final String? presignPublicUrl = body['publicUrl']?.toString();
         final rawFields = body['fields'] as Map? ?? {};
         final Map<String, String> fields = {};
         rawFields.forEach((k, v) => fields[k.toString()] = v.toString());
 
-        if (uploadUrl.isNotEmpty && fields.isNotEmpty) {
+        if (uploadUrl.isNotEmpty && presignPublicUrl != null && presignPublicUrl.isNotEmpty) {
           final request = http.MultipartRequest('POST', Uri.parse(uploadUrl));
           fields.forEach((k, v) => request.fields[k] = v);
-          // 웹 호환: fromPath 대신 fromBytes 사용.
-          // presign이 image/jpeg로 발급되므로 파트 Content-Type도 동일하게 명시 (S3 거부 방지)
           request.files.add(http.MultipartFile.fromBytes(
             'file', bytes,
             filename: filename,
             contentType: MediaType('image', 'jpeg'),
           ));
-          final streamed = await request.send();
-          final s3Res = await http.Response.fromStream(streamed);
-          print('s3: ${s3Res.statusCode}');
-          if (s3Res.statusCode == 200 || s3Res.statusCode == 201 || s3Res.statusCode == 204) {
-            // 업로드 응답 본문에 publicUrl이 오면 그것을 우선 사용
-            String? bodyUrl;
-            try {
-              final decoded = jsonDecode(s3Res.body);
-              if (decoded is Map) {
-                bodyUrl = (decoded['publicUrl'] ?? decoded['fileUrl'])?.toString();
-              }
-            } catch (_) {}
-            publicUrl = (bodyUrl != null && bodyUrl.isNotEmpty)
-                ? bodyUrl
-                : (body['publicUrl']?.toString() ?? '$uploadUrl${fields['key'] ?? filename}');
-          } else {
-            print('s3 실패 응답: ${s3Res.body}');
+          final uploadRes = await http.Response.fromStream(await request.send());
+          if (uploadRes.statusCode >= 200 && uploadRes.statusCode < 300) {
+            publicUrl = presignPublicUrl;
           }
         }
-        publicUrl ??= body['publicUrl']?.toString();
       }
 
       // 업로드 실패 시(특히 웹의 임시 blob 경로) 저장하지 않고 종료

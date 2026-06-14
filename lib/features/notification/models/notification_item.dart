@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:hechi/app/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -70,9 +71,18 @@ class NotificationItem {
       senderName: json['senderName'] ?? json['sender_name'] ?? json['actorName'] ?? json['actor_name'],
       isRead: json['isRead'] ?? false,
       createdAt: parsedDate,
-      targetInfo: json['targetInfo'] ?? {},
+      targetInfo: _parseTargetInfo(json['targetInfo']),
     );
   }
+  static Map<String, dynamic> _parseTargetInfo(dynamic raw) {
+    if (raw == null) return {};
+    if (raw is Map) return Map<String, dynamic>.from(raw);
+    if (raw is String && raw.startsWith('{')) {
+      try { return Map<String, dynamic>.from(jsonDecode(raw)); } catch (_) {}
+    }
+    return {};
+  }
+
   IconData get defaultIcon {
     if (type.contains('BADGE') || type.contains('REWARD')) return Icons.military_tech;
     if (type.contains('REMINDER')) return Icons.menu_book;

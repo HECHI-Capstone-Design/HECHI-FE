@@ -25,9 +25,6 @@ class _NotificationPageState extends State<NotificationPage> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: 0);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.refreshNotificationPage();
-    });
   }
 
   @override
@@ -154,7 +151,7 @@ class _GeneralListView extends StatelessWidget {
       child: Obx(() {
         final items = controller.generalNotifications;
         // 초기 로딩 중 (아이템 없을 때만 스피너)
-        if (controller.isLoading.value && items.isEmpty) {
+        if (controller.isLoadingGeneral.value && items.isEmpty) {
           return const Center(child: CircularProgressIndicator(color: AppColors.primary));
         }
         if (items.isEmpty) {
@@ -191,7 +188,7 @@ class _GroupListView extends StatelessWidget {
       },
       child: Obx(() {
         final items = controller.groupNotifications;
-        if (controller.isLoading.value && items.isEmpty) {
+        if (controller.isLoadingGroup.value && items.isEmpty) {
           return const Center(child: CircularProgressIndicator(color: AppColors.primary));
         }
         if (items.isEmpty) {

@@ -9,7 +9,8 @@ class IsbnScanView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final IsbnScanController controller = Get.put(IsbnScanController());
-    final double scanBoxWidth = 300;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double scanBoxWidth = (screenWidth * 0.8).clamp(200.0, 300.0);
     final double scanBoxHeight = 180;
 
     return Scaffold(

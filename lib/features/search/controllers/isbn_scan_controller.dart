@@ -49,14 +49,7 @@ class IsbnScanController extends GetxController {
     }
   }
 
-  // 3. [윈도우용] 테스트 버튼 눌렀을 때 실행되는 함수
-  Future<void> testScan(String virtualCode) async {
-    if (isScanning.value) return;
-    print("⚡ [윈도우 테스트] 가짜 바코드 입력됨: $virtualCode");
-    await _processIsbn(virtualCode);
-  }
-
-  // 4. [공통 로직] ISBN으로 API 호출 및 이동
+  // 3. [공통 로직] ISBN으로 API 호출 및 이동
   Future<void> _processIsbn(String isbn) async {
     isScanning.value = true;
 

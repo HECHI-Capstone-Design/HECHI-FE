@@ -12,7 +12,11 @@ class NotificationController extends GetxController {
   var generalNotifications = <NotificationItem>[].obs;
   var groupNotifications = <NotificationItem>[].obs;
   var unreadCount = 0.obs;
-  var isLoading = false.obs;
+  var isLoadingGeneral = false.obs;
+  var isLoadingGroup = false.obs;
+
+  // 하위 호환 getter
+  bool get isLoadingValue => isLoadingGeneral.value || isLoadingGroup.value;
 
   @override
   void onInit() {
@@ -37,6 +41,7 @@ class NotificationController extends GetxController {
   }
 
   Future<void> fetchNotifications({required String category}) async {
+    final isLoading = category == 'GENERAL' ? isLoadingGeneral : isLoadingGroup;
     try {
       isLoading.value = true;
       final url = Uri.parse('$baseUrl/users/me/notifications?tabCategory=$category&limit=40&offset=0');
@@ -49,18 +54,21 @@ class NotificationController extends GetxController {
             ?? decodedData['content']
             ?? decodedData['data']
             ?? [];
-        List<NotificationItem> parsedList = list.map((json) => NotificationItem.fromJson(json)).toList();
+        final parsedList = list
+            .map((json) {
+              try { return NotificationItem.fromJson(json as Map<String, dynamic>); }
+              catch (_) { return null; }
+            })
+            .whereType<NotificationItem>()
+            .toList();
 
         if (category == 'GENERAL') {
           generalNotifications.value = parsedList;
         } else {
           groupNotifications.value = parsedList;
         }
-      } else {
-        print("알림 API 실패: ${response.statusCode}");
       }
-    } catch (e) {
-      print("알림 목록 로드 실패: $e");
+    } catch (_) {
     } finally {
       isLoading.value = false;
     }
@@ -104,6 +112,7 @@ class NotificationController extends GetxController {
     final token = box.read('access_token');
     if (token == null) return;
 
+    final isLoading = category == 'GENERAL' ? isLoadingGeneral : isLoadingGroup;
     try {
       isLoading.value = true;
       final headers = {
@@ -126,7 +135,6 @@ class NotificationController extends GetxController {
         allIds = list.map<int>((n) => n['notificationId'] is int
             ? n['notificationId']
             : int.parse(n['notificationId'].toString())).toList();
-        print("삭제 대상 $category: ${allIds.length}건");
       }
 
       if (allIds.isEmpty) {
@@ -135,11 +143,10 @@ class NotificationController extends GetxController {
       }
 
       await Future.wait(allIds.map((id) async {
-        final res = await http.delete(
+        await http.delete(
           Uri.parse('$baseUrl/notifications/$id'),
           headers: {'Authorization': 'Bearer $token'},
         );
-        print("삭제 [$id]: ${res.statusCode}");
       }));
 
       if (category == 'GENERAL') {
@@ -150,8 +157,7 @@ class NotificationController extends GetxController {
       await fetchUnreadCount();
       final label = category == 'GENERAL' ? '일반' : '그룹';
       Get.snackbar("완료", "$label 알림을 모두 삭제했습니다.");
-    } catch (e) {
-      print("전체삭제 에러: $e");
+    } catch (_) {
       Get.snackbar("오류", "삭제 중 오류가 발생했습니다.");
     } finally {
       isLoading.value = false;
@@ -194,6 +200,7 @@ class NotificationController extends GetxController {
     return NotificationItem(
       notificationId: item.notificationId, tabCategory: item.tabCategory, type: item.type,
       title: item.title, message: item.message, thumbnailUrl: item.thumbnailUrl,
+      senderName: item.senderName, senderProfileImageUrl: item.senderProfileImageUrl,
       isRead: true, createdAt: item.createdAt, targetInfo: item.targetInfo,
     );
   }

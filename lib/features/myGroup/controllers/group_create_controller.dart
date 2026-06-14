@@ -33,14 +33,13 @@ class GroupCreateController extends GetxController {
 
   var isLoading = false.obs;
 
-  /// 갤러리에서 이미지 선택 후 S3 presign 업로드
+  /// 갤러리에서 이미지 선택 후 presign 업로드
   Future<void> pickAndUploadImage() async {
     try {
       final picker = ImagePicker();
       final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
       if (picked == null) return;
 
-      // 웹/모바일 공통: 바이트로 읽어 미리보기·업로드에 사용 (dart:io File 미사용)
       final bytes = await picked.readAsBytes();
       selectedImageBytes.value = bytes;
       isUploadingImage.value = true;
@@ -54,9 +53,9 @@ class GroupCreateController extends GetxController {
       final filename = 'group_${DateTime.now().millisecondsSinceEpoch}.jpg';
       String? uploadedUrl;
 
-      // Step 1: presign URL 획득
+      // Step 1: presign URL 요청
       final presignRes = await _connect.post(
-        '$baseUrl/uploads/presign?filename=$filename&contentType=image%2Fjpeg&acl=public-read',
+        '$baseUrl/uploads/presign?filename=$filename&contentType=image%2Fjpeg',
         null,
         headers: {
           'accept': 'application/json',
@@ -64,13 +63,10 @@ class GroupCreateController extends GetxController {
         },
       );
 
-      print('📸 presign 응답 코드: ${presignRes.statusCode}');
-
       if (presignRes.statusCode == 200 && presignRes.body is Map) {
         final body = presignRes.body as Map;
-        String uploadUrl = body['url']?.toString() ?? '';
-        if (uploadUrl.isEmpty) uploadUrl = body['presignedUrl']?.toString() ?? '';
-        final String? presignPublicUrl = body['publicUrl']?.toString();
+        final String uploadUrl = body['url']?.toString() ?? '';
+        final String? publicUrl = body['publicUrl']?.toString();
 
         final Map<String, String> fields = {};
         final rawFields = body['fields'];
@@ -78,41 +74,19 @@ class GroupCreateController extends GetxController {
           rawFields.forEach((k, v) => fields[k.toString()] = v.toString());
         }
 
-        if (uploadUrl.isNotEmpty) {
-          // Step 2: S3 multipart POST (웹 호환: fromBytes)
+        if (uploadUrl.isNotEmpty && publicUrl != null && publicUrl.isNotEmpty) {
+          // Step 2: presign url로 파일 업로드
           final request = http.MultipartRequest('POST', Uri.parse(uploadUrl));
           fields.forEach((k, v) => request.fields[k] = v);
-          // presign이 image/jpeg로 발급되므로 파트 Content-Type도 동일하게 명시 (S3 거부 방지)
           request.files.add(http.MultipartFile.fromBytes(
             'file', bytes,
             filename: filename,
             contentType: MediaType('image', 'jpeg'),
           ));
-          final streamed = await request.send();
-          final s3Res = await http.Response.fromStream(streamed);
-          print('📸 S3 업로드 결과: ${s3Res.statusCode}');
+          final uploadRes = await http.Response.fromStream(await request.send());
 
-          if (s3Res.statusCode == 200 || s3Res.statusCode == 201 || s3Res.statusCode == 204) {
-            // 업로드 응답 본문에 publicUrl이 오면 그것을 우선 사용
-            String? bodyUrl;
-            try {
-              final decoded = jsonDecode(s3Res.body);
-              if (decoded is Map) {
-                bodyUrl = (decoded['publicUrl'] ?? decoded['fileUrl'])?.toString();
-              }
-            } catch (_) {}
-
-            if (bodyUrl != null && bodyUrl.isNotEmpty) {
-              uploadedUrl = bodyUrl;
-            } else if (presignPublicUrl != null && presignPublicUrl.isNotEmpty) {
-              uploadedUrl = presignPublicUrl;
-            } else {
-              final key = fields['key'] ?? filename;
-              final base = uploadUrl.endsWith('/') ? uploadUrl : '$uploadUrl/';
-              uploadedUrl = '$base$key';
-            }
-          } else {
-            print('📸 S3 실패 응답: ${s3Res.body}');
+          if (uploadRes.statusCode >= 200 && uploadRes.statusCode < 300) {
+            uploadedUrl = publicUrl;
           }
         }
       }
