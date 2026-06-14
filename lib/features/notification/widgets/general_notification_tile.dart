@@ -115,12 +115,12 @@ class GeneralNotificationTile extends StatelessWidget {
 
     if (info['rewardId'] != null || info['badgeCode'] != null || item.type.contains('REWARD') || item.type.contains('BADGE')) return _RewardThumbnail(imageUrl: resolvedUrl);
 
-    if (info['bookId'] != null) return _BookThumbnail(imageUrl: resolvedUrl);
-
-    // AI 독서 요약 → 책 표지 + AI 배지 오버레이
+    // AI 독서 요약: bookId 체크보다 먼저 — AI 요약 알림에도 bookId가 포함되어 있어서 순서가 중요
     if (item.type.contains('AI') || item.type.contains('SUMMARY')) {
       return _AiSummaryThumbnail(imageUrl: resolvedUrl ?? info['bookCoverUrl']?.toString());
     }
+
+    if (info['bookId'] != null) return _BookThumbnail(imageUrl: resolvedUrl);
 
     // READING_REMINDER: 독서 중인 책 커버 스택 (백엔드가 bookCovers 배열 제공 시 스택, 미제공 시 회색 아이콘)
     if (reminderType == 'READING_REMINDER') {
@@ -190,44 +190,266 @@ class _CircleThumbnail extends StatelessWidget {
   }
 }
 
-/// AI 독서 요약 전용 썸네일: 책 표지 위에 작은 AI 배지 오버레이.
-/// 책 표지 URL은 백엔드 targetInfo.bookCoverUrl 또는 thumbnailUrl로 제공받아야 함.
+/// AI 독서 요약 전용 썸네일: 책 표지 있으면 표지, 없으면 귀여운 독서 캐릭터.
 class _AiSummaryThumbnail extends StatelessWidget {
   final String? imageUrl;
   const _AiSummaryThumbnail({this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
+    // 고정 60x80 박스 안에서 클립. (OverflowBox는 높이 무한 제약을 받는
+    // ListView 아이템 안에서 레이아웃 예외를 일으키므로 사용하지 않음)
     return SizedBox(
       width: 60,
       height: 80,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        // 캐릭터 이미지를 우선 사용. 파일이 없으면 직접 그린 캐릭터로 대체.
+        child: Image.asset(
+          'assets/icons/ai_summary_character.png',
+          fit: BoxFit.cover,
+          alignment: Alignment.topCenter,
+          errorBuilder: (_, __, ___) => const _AiSummaryCharacter(),
+        ),
+      ),
+    );
+  }
+}
+
+/// AI 로봇 독서 캐릭터 — 둥근 헬멧 로봇이 파란 책을 들고 읽는 모습
+class _AiSummaryCharacter extends StatelessWidget {
+  const _AiSummaryCharacter();
+
+  @override
+  Widget build(BuildContext context) {
+    const bodyLight = Color(0xFFF2F6FC);
+    const bodyMid = Color(0xFFDDE6F2);
+    const bodyShade = Color(0xFFC4D2E4);
+
+    return Container(
+      width: 60,
+      height: 80,
+      color: const Color(0xFFFAFCFF),
       child: Stack(
+        clipBehavior: Clip.hardEdge,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: SizedBox(
-              width: 60,
-              height: 80,
-              child: imageUrl != null && imageUrl!.isNotEmpty
-                  ? Image.network(imageUrl!, fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(color: AppColors.divider, child: Icon(Icons.book, color: kNotifBorder, size: 28)))
-                  : Container(color: AppColors.divider, child: Icon(Icons.book, color: kNotifBorder, size: 28)),
-            ),
+          // 다리
+          Positioned(
+            bottom: 0,
+            left: 22,
+            child: _softBlob(7, 16, bodyLight, bodyShade, radius: 4),
           ),
           Positioned(
-            right: 0,
             bottom: 0,
+            right: 22,
+            child: _softBlob(7, 16, bodyLight, bodyShade, radius: 4),
+          ),
+          // 몸통
+          Positioned(
+            bottom: 10,
+            left: 18,
+            right: 18,
             child: Container(
-              width: 20,
-              height: 20,
-              decoration: const BoxDecoration(color: Color(0xFF4DB56C), shape: BoxShape.circle),
-              child: const Center(child: Text('AI', style: TextStyle(color: Colors.white, fontSize: 7, fontWeight: FontWeight.bold))),
+              height: 34,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [bodyLight, bodyMid, bodyShade],
+                ),
+                borderRadius: BorderRadius.circular(13),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 3, offset: const Offset(0, 2)),
+                ],
+              ),
             ),
+          ),
+          // 오른팔 (뒤쪽 — 책 너머로 살짝)
+          Positioned(
+            bottom: 20,
+            right: 8,
+            child: _softBlob(11, 11, bodyLight, bodyShade, radius: 6),
+          ),
+          // 머리 (둥근 사각형 + 구체 음영)
+          Positioned(
+            top: 2,
+            left: 9,
+            child: Container(
+              width: 42,
+              height: 40,
+              decoration: BoxDecoration(
+                gradient: const RadialGradient(
+                  center: Alignment(-0.4, -0.5),
+                  radius: 1.0,
+                  colors: [Color(0xFFFFFFFF), Color(0xFFE6EDF6), Color(0xFFC9D7E8)],
+                  stops: [0.0, 0.55, 1.0],
+                ),
+                borderRadius: BorderRadius.circular(17),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 5, offset: const Offset(0, 3)),
+                ],
+              ),
+            ),
+          ),
+          // 얼굴 면 (살짝 파란 둥근 사각형, 안쪽 음영)
+          Positioned(
+            top: 9,
+            left: 15,
+            child: Container(
+              width: 30,
+              height: 27,
+              decoration: BoxDecoration(
+                gradient: const RadialGradient(
+                  center: Alignment(0, -0.2),
+                  radius: 0.95,
+                  colors: [Color(0xFFF2F8FF), Color(0xFFDDEAF8)],
+                ),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(color: const Color(0xFF9DB4CE).withOpacity(0.3), blurRadius: 2, offset: const Offset(0, 1)),
+                ],
+              ),
+            ),
+          ),
+          // 왼쪽 눈
+          Positioned(top: 17, left: 22, child: _eye()),
+          // 오른쪽 눈
+          Positioned(top: 17, right: 22, child: _eye()),
+          // 왼쪽 볼
+          Positioned(top: 24, left: 16, child: _cheek()),
+          // 오른쪽 볼
+          Positioned(top: 24, right: 16, child: _cheek()),
+          // 미소
+          Positioned(
+            top: 24,
+            left: 24,
+            child: CustomPaint(size: const Size(12, 6), painter: _SmilePainter()),
+          ),
+          // 머리 상단 광택
+          Positioned(
+            top: 8,
+            left: 18,
+            child: Container(
+              width: 8,
+              height: 5,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.7),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+          // 파란 책 (비스듬히 펼친 입체 형태)
+          Positioned(
+            bottom: 14,
+            left: 2,
+            child: Transform.rotate(
+              angle: -0.12,
+              child: SizedBox(
+                width: 42,
+                height: 30,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 왼쪽 표지 (앞면 — 가장 밝은 파랑)
+                    Container(
+                      width: 19,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF4C82F7), Color(0xFF2E63E0)],
+                        ),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(4),
+                          bottomLeft: Radius.circular(4),
+                        ),
+                        boxShadow: [
+                          BoxShadow(color: const Color(0xFF1E4AB8).withOpacity(0.4), blurRadius: 5, offset: const Offset(0, 3)),
+                        ],
+                      ),
+                    ),
+                    // 척추 접힘 (어두운 안쪽)
+                    Container(width: 3, height: 28, color: const Color(0xFF1E3F94)),
+                    // 오른쪽 면 (원근으로 좁아지는 어두운 파랑)
+                    Container(
+                      width: 15,
+                      height: 28,
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [Color(0xFF2A5AD4), Color(0xFF3D6FE8)],
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(3),
+                          bottomRight: Radius.circular(3),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // 왼손 (책을 잡은 앞쪽 손)
+          Positioned(
+            bottom: 12,
+            left: 0,
+            child: _softBlob(11, 11, bodyLight, bodyShade, radius: 6),
           ),
         ],
       ),
     );
   }
+
+  static Widget _softBlob(double w, double h, Color light, Color shade, {double radius = 6}) {
+    return Container(
+      width: w,
+      height: h,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [light, shade],
+        ),
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
+
+  static Widget _eye() => Container(
+        width: 5,
+        height: 7,
+        decoration: const BoxDecoration(color: Color(0xFF3A4A5E), shape: BoxShape.circle),
+      );
+
+  static Widget _cheek() => Container(
+        width: 7,
+        height: 4,
+        decoration: BoxDecoration(
+          color: const Color(0xFFFF9CA3).withOpacity(0.7),
+          borderRadius: BorderRadius.circular(3),
+        ),
+      );
+}
+
+class _SmilePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF3A4A5E)
+      ..strokeWidth = 1.8
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    final path = Path()
+      ..moveTo(0, 0)
+      ..quadraticBezierTo(size.width / 2, size.height, size.width, 0);
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(_SmilePainter oldDelegate) => false;
 }
 
 /// READING_REMINDER 전용 썸네일:

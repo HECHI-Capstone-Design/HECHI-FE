@@ -241,8 +241,6 @@ class AppController extends GetxController {
     }
   }
 
-  // 프로필 이미지 업로드 — 그룹 이미지와 동일한 presigned S3 흐름 사용 (웹 호환)
-  // XFile을 받아 bytes로 읽으므로 dart:io File을 사용하지 않아 Flutter Web에서도 동작함
   Future<bool> uploadProfileImage(XFile pickedFile) async {
     String? token = box.read('access_token');
     if (token == null) return false;
@@ -251,9 +249,9 @@ class AppController extends GetxController {
       final bytes = await pickedFile.readAsBytes();
       final filename = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-      // Step 1: presigned S3 URL 획득 (그룹 이미지와 동일한 엔드포인트)
+      // Step 1: presign URL 요청
       final presignRes = await http.post(
-        Uri.parse('$baseUrl/uploads/presign?filename=$filename&contentType=image%2Fjpeg&acl=public-read'),
+        Uri.parse('$baseUrl/uploads/presign?filename=$filename&contentType=image%2Fjpeg'),
         headers: {
           'accept': 'application/json',
           'Authorization': 'Bearer $token',
@@ -261,27 +259,25 @@ class AppController extends GetxController {
       );
 
       if (presignRes.statusCode != 200) {
-        print("❌ presign 실패: ${presignRes.statusCode}");
         Get.snackbar("오류", "이미지 업로드에 실패했습니다.");
         return false;
       }
 
       final body = jsonDecode(utf8.decode(presignRes.bodyBytes)) as Map;
-      String uploadUrl = body['url']?.toString() ?? body['presignedUrl']?.toString() ?? '';
-      final String? presignPublicUrl = body['publicUrl']?.toString();
+      final String uploadUrl = body['url']?.toString() ?? '';
+      final String? publicUrl = body['publicUrl']?.toString();
       final Map<String, String> fields = {};
       final rawFields = body['fields'];
       if (rawFields is Map) {
         rawFields.forEach((k, v) => fields[k.toString()] = v.toString());
       }
 
-      if (uploadUrl.isEmpty) {
-        print("❌ presign URL 비어있음");
+      if (uploadUrl.isEmpty || publicUrl == null || publicUrl.isEmpty) {
         Get.snackbar("오류", "이미지 업로드에 실패했습니다.");
         return false;
       }
 
-      // Step 2: S3에 직접 업로드 (fromBytes — 웹 호환)
+      // Step 2: presign url로 파일 업로드
       final request = http.MultipartRequest('POST', Uri.parse(uploadUrl));
       fields.forEach((k, v) => request.fields[k] = v);
       request.files.add(http.MultipartFile.fromBytes(
@@ -289,48 +285,28 @@ class AppController extends GetxController {
         filename: filename,
         contentType: MediaType('image', 'jpeg'),
       ));
-      final streamed = await request.send();
-      final s3Res = await http.Response.fromStream(streamed);
+      final uploadRes = await http.Response.fromStream(await request.send());
 
-      if (s3Res.statusCode != 200 && s3Res.statusCode != 201 && s3Res.statusCode != 204) {
-        print("❌ S3 업로드 실패: ${s3Res.statusCode} / ${s3Res.body}");
+      if (uploadRes.statusCode < 200 || uploadRes.statusCode >= 300) {
         Get.snackbar("오류", "이미지 업로드에 실패했습니다.");
         return false;
       }
 
-      // Step 3: 공개 URL 결정
-      String? imageUrl;
-      try {
-        final decoded = jsonDecode(s3Res.body);
-        if (decoded is Map) {
-          imageUrl = (decoded['publicUrl'] ?? decoded['fileUrl'])?.toString();
-        }
-      } catch (_) {}
-      imageUrl ??= presignPublicUrl;
-      imageUrl ??= '${uploadUrl.endsWith('/') ? uploadUrl : '$uploadUrl/'}${fields['key'] ?? filename}';
-
-      // Step 4: 백엔드에 최종 URL 저장 (PATCH /auth/me profileImageUrl 갱신)
-      final patchRes = await http.patch(
+      // Step 3: publicUrl을 백엔드에 저장
+      await http.patch(
         Uri.parse('$baseUrl/users/me/profile-image-url'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({'profileImageUrl': imageUrl}),
+        body: jsonEncode({'profileImageUrl': publicUrl}),
       );
 
-      if (patchRes.statusCode != 200) {
-        // PATCH 전용 엔드포인트가 없을 경우 로컬 갱신만으로 처리
-        print("⚠️ 서버 URL 갱신 실패 (${patchRes.statusCode}) — 로컬만 갱신");
-      }
-
-      userProfile['profileImageUrl'] = imageUrl;
+      userProfile['profileImageUrl'] = publicUrl;
       userProfile.refresh();
-      print("✅ 프로필 이미지 업로드 성공 (S3): $imageUrl");
       _refreshActiveControllers();
       return true;
-    } catch (e) {
-      print("🚨 이미지 업로드 오류: $e");
+    } catch (_) {
       Get.snackbar("오류", "서버와 연결할 수 없습니다.");
       return false;
     }
