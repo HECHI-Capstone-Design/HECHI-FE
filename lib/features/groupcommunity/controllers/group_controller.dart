@@ -107,13 +107,13 @@ class GroupController extends GetxController {
     // 미션 게시판인지 자유 게시판인지 판별
     bool isMission = true;
     Map<String, dynamic> post = missionPosts.firstWhere(
-      (p) => p["id"].toString() == postId,
+          (p) => p["id"].toString() == postId,
       orElse: () => <String, dynamic>{},
     );
     if (post.isEmpty) {
       isMission = false;
       post = freePosts.firstWhere(
-        (p) => p["id"].toString() == postId,
+            (p) => p["id"].toString() == postId,
         orElse: () => <String, dynamic>{},
       );
     }
@@ -164,7 +164,7 @@ class GroupController extends GetxController {
         if (currentBookObj != null) {
           final rawBookId = currentBookObj["id"] ?? currentBookObj["bookId"];
           currentMissionBookId.value = int.tryParse(rawBookId?.toString() ?? "0") ?? 0;
-          
+
           currentMissionBookTitle.value = currentBookObj["title"]?.toString() ?? "미설정";
           currentMissionBookCover.value = currentBookObj["thumbnail"] ?? "";
 
@@ -339,89 +339,92 @@ class GroupController extends GetxController {
     } catch (_) {}
   }
 
-  Future<void> refreshPostsOnly() async {
-    final gId = currentGroupId.value;
-    if (gId.isEmpty) return;
+  // ------------------------------------------------------------------
+  // 🌐 게시글 상세(records/discussion) 정보 파싱 — 게시판 리스트 공용 사용
+  // ------------------------------------------------------------------
+  Future<Map<String, dynamic>> _fetchPostDiscussionDetails(Map<String, dynamic> parsedPost) async {
+    final String pId = parsedPost["id"].toString();
+    try {
+      final detailRes = await http.get(
+        Uri.parse('$baseUrl/groups/posts/$pId'),
+        headers: _headers,
+      );
+      if (detailRes.statusCode == 200) {
+        final Map<String, dynamic> detailData = jsonDecode(utf8.decode(detailRes.bodyBytes));
 
-    Future<Map<String, dynamic>> _fetchPostDiscussionDetails(Map<String, dynamic> parsedPost) async {
-      final String pId = parsedPost["id"].toString();
-      try {
-        final detailRes = await http.get(
-          Uri.parse('$baseUrl/groups/posts/$pId'),
-          headers: _headers,
-        );
-        if (detailRes.statusCode == 200) {
-          final Map<String, dynamic> detailData = jsonDecode(utf8.decode(detailRes.bodyBytes));
+        final List records = detailData["records"] is List ? detailData["records"] : [];
+        if (records.isNotEmpty) {
+          for (final record in records) {
+            final String recordType = record["recordType"]?.toString() ?? "";
+            final int recordId = int.tryParse(record["recordId"]?.toString() ?? "0") ?? 0;
+            final int bookId = int.tryParse(detailData["bookId"]?.toString() ?? "0") ?? 0;
 
-          final List records = detailData["records"] is List ? detailData["records"] : [];
-          if (records.isNotEmpty) {
-            for (final record in records) {
-              final String recordType = record["recordType"]?.toString() ?? "";
-              final int recordId = int.tryParse(record["recordId"]?.toString() ?? "0") ?? 0;
-              final int bookId = int.tryParse(detailData["bookId"]?.toString() ?? "0") ?? 0;
+            if (recordType.isNotEmpty && recordId != 0 && bookId != 0) {
+              final String listEndpoint = switch (recordType) {
+                "BOOKMARK"  => "/bookmarks/books/$bookId",
+                "HIGHLIGHT" => "/highlights/books/$bookId",
+                "NOTE"      => "/notes/books/$bookId",
+                _           => "",
+              };
 
-              if (recordType.isNotEmpty && recordId != 0 && bookId != 0) {
-                final String listEndpoint = switch (recordType) {
-                  "BOOKMARK"  => "/bookmarks/books/$bookId",
-                  "HIGHLIGHT" => "/highlights/books/$bookId",
-                  "NOTE"      => "/notes/books/$bookId",
-                  _           => "",
-                };
-
-                if (listEndpoint.isNotEmpty) {
-                  try {
-                    final listRes = await http.get(
-                      Uri.parse('$baseUrl$listEndpoint'),
-                      headers: _headers,
+              if (listEndpoint.isNotEmpty) {
+                try {
+                  final listRes = await http.get(
+                    Uri.parse('$baseUrl$listEndpoint'),
+                    headers: _headers,
+                  );
+                  if (listRes.statusCode == 200) {
+                    final List rawList = jsonDecode(utf8.decode(listRes.bodyBytes));
+                    final matched = rawList.firstWhere(
+                          (item) => item["id"]?.toString() == recordId.toString(),
+                      orElse: () => null,
                     );
-                    if (listRes.statusCode == 200) {
-                      final List rawList = jsonDecode(utf8.decode(listRes.bodyBytes));
-                      final matched = rawList.firstWhere(
-                            (item) => item["id"]?.toString() == recordId.toString(),
-                        orElse: () => null,
-                      );
-                      if (matched != null) {
-                        final List<Map<String, dynamic>> existing =
-                        List<Map<String, dynamic>>.from(parsedPost["recordDataList"] ?? []);
-                        existing.add({
-                          "recordType": recordType,
-                          "recordData": Map<String, dynamic>.from(matched),
-                        });
-                        parsedPost["recordDataList"] = existing;
-                      }
+                    if (matched != null) {
+                      final List<Map<String, dynamic>> existing =
+                      List<Map<String, dynamic>>.from(parsedPost["recordDataList"] ?? []);
+                      existing.add({
+                        "recordType": recordType,
+                        "recordData": Map<String, dynamic>.from(matched),
+                      });
+                      parsedPost["recordDataList"] = existing;
                     }
-                  } catch (_) {}
-                }
+                  }
+                } catch (_) {}
               }
             }
           }
+        }
 
-          if (detailData["recordType"] != null) {
-            parsedPost["recordType"] = detailData["recordType"]?.toString();
-            if (detailData["recordData"] is Map) {
-              parsedPost["recordData"] = Map<String, dynamic>.from(detailData["recordData"]);
-            }
-          }
-
-          final dynamic discussionObj = detailData["discussion"];
-          if (discussionObj is Map && discussionObj.isNotEmpty) {
-            parsedPost["discussion"] = discussionObj;
-            parsedPost["hasPoll"] = true;
-            parsedPost["isDiscussion"] = true;
-            parsedPost["pollQuestion"] = discussionObj["question"]?.toString() ?? "";
-
-            final List optionsRaw = discussionObj["options"] is List ? discussionObj["options"] : [];
-            parsedPost["pollOptions"] = optionsRaw.map((e) => e["label"]?.toString() ?? "").toList();
-            parsedPost["pollVotes"] = optionsRaw.map((e) => int.tryParse(e["voteCount"]?.toString() ?? "0") ?? 0).toList().obs;
-
-            if (discussionObj["myVoteOptionId"] != null) {
-              parsedPost["selectedOption"].value = (int.tryParse(discussionObj["myVoteOptionId"].toString()) ?? 0) - 1;
-            }
+        if (detailData["recordType"] != null) {
+          parsedPost["recordType"] = detailData["recordType"]?.toString();
+          if (detailData["recordData"] is Map) {
+            parsedPost["recordData"] = Map<String, dynamic>.from(detailData["recordData"]);
           }
         }
-      } catch (_) {}
-      return parsedPost;
-    }
+
+        final dynamic discussionObj = detailData["discussion"];
+        if (discussionObj is Map && discussionObj.isNotEmpty) {
+          parsedPost["discussion"] = discussionObj;
+          parsedPost["hasPoll"] = true;
+          parsedPost["isDiscussion"] = true;
+          parsedPost["pollQuestion"] = discussionObj["question"]?.toString() ?? "";
+
+          final List optionsRaw = discussionObj["options"] is List ? discussionObj["options"] : [];
+          parsedPost["pollOptions"] = optionsRaw.map((e) => e["label"]?.toString() ?? "").toList();
+          parsedPost["pollVotes"] = optionsRaw.map((e) => int.tryParse(e["voteCount"]?.toString() ?? "0") ?? 0).toList().obs;
+
+          if (discussionObj["myVoteOptionId"] != null) {
+            parsedPost["selectedOption"].value = (int.tryParse(discussionObj["myVoteOptionId"].toString()) ?? 0) - 1;
+          }
+        }
+      }
+    } catch (_) {}
+    return parsedPost;
+  }
+
+  Future<void> refreshPostsOnly() async {
+    final gId = currentGroupId.value;
+    if (gId.isEmpty) return;
 
     final missionPostRes = await http.get(
       Uri.parse('$baseUrl/groups/$gId/posts?type=MISSION'),
@@ -438,10 +441,10 @@ class GroupController extends GetxController {
         postItem = await _fetchPostDiscussionDetails(postItem);
         parsedMission.add(postItem);
       }
-      
+
       // 🚀 [핵심 수정]: 화면을 그리기 전에 모든 포스트의 댓글 조회를 비동기로 일제히 선로딩 완료 대기
       await Future.wait(parsedMission.map((post) => loadCommentsForPost(post)));
-      
+
       missionPosts.assignAll(parsedMission);
       missionPosts.refresh();
     }
@@ -461,10 +464,10 @@ class GroupController extends GetxController {
         postItem = await _fetchPostDiscussionDetails(postItem);
         parsedFree.add(postItem);
       }
-      
+
       // 🚀 [핵심 수정]: 화면을 그리기 전에 모든 포스트의 댓글 조회를 비동기로 일제히 선로딩 완료 대기
       await Future.wait(parsedFree.map((post) => loadCommentsForPost(post)));
-      
+
       freePosts.assignAll(parsedFree);
       freePosts.refresh();
     }
@@ -481,7 +484,12 @@ class GroupController extends GetxController {
         final dynamic rawData = jsonDecode(utf8.decode(response.bodyBytes));
         List postData = (rawData is Map) ? (rawData['posts'] ?? []) : (rawData is List ? rawData : []);
 
-        List<Map<String, dynamic>> parsedPosts = postData.map((item) => _parsePostItem(item)).toList();
+        List<Map<String, dynamic>> parsedPosts = [];
+        for (var item in postData) {
+          var postItem = _parsePostItem(item);
+          postItem = await _fetchPostDiscussionDetails(postItem); // ✅ 독서기록/토론 데이터 채우기
+          parsedPosts.add(postItem);
+        }
         await Future.wait(parsedPosts.map((post) => loadCommentsForPost(post)));
 
         if (isMission) {
@@ -509,10 +517,15 @@ class GroupController extends GetxController {
       if (response.statusCode == 200) {
         final dynamic rawPosts = jsonDecode(utf8.decode(response.bodyBytes));
         List postData = (rawPosts is Map) ? (rawPosts['posts'] ?? []) : (rawPosts is List ? rawPosts : []);
-        
-        List<Map<String, dynamic>> parsedHistoryPosts = postData.map((item) => _parsePostItem(item)).toList();
+
+        List<Map<String, dynamic>> parsedHistoryPosts = [];
+        for (var item in postData) {
+          var postItem = _parsePostItem(item);
+          postItem = await _fetchPostDiscussionDetails(postItem); // ✅ 독서기록/토론 데이터 채우기
+          parsedHistoryPosts.add(postItem);
+        }
         await Future.wait(parsedHistoryPosts.map((post) => loadCommentsForPost(post)));
-        
+
         historyMissionPosts.assignAll(parsedHistoryPosts);
         historyMissionPosts.refresh();
       }
